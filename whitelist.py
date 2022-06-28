@@ -15,7 +15,8 @@ class Whitelist(sp.Contract) :
         condition = sp.view(
             "getWhitelistedToken",
             self.data.detailStorage,
-            address
+            address,
+            t = sp.TBool
         ).open_some()
         sp.result(condition)
 
@@ -23,7 +24,8 @@ class Whitelist(sp.Contract) :
         condition = sp.view(
             'getPlatformFees',
             self.data.detailStorage,
-            address
+            address,
+            sp.TBool
         ).open_some()
         sp.result(condition)
 

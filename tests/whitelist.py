@@ -47,17 +47,17 @@ def test():
             token_metadata      = token_metadata,
             contract_metadata   = contract_metadata
         )
-    NFT1 = fa2.FA2(
+    nft1 = fa2.FA2(
             config = fa2.FA2_config(single_asset = True),
             metadata = sp.utils.metadata_of_url("https://example.com"),
             admin = admin.address
         )
-    NFT2 = fa2.FA2(
+    nft2 = fa2.FA2(
             config = fa2.FA2_config(single_asset = True),
             metadata = sp.utils.metadata_of_url("https://example.com"),
             admin = admin.address
         )
-    NFT3 = fa2.FA2(
+    nft3 = fa2.FA2(
             config = fa2.FA2_config(single_asset = True),
             metadata = sp.utils.metadata_of_url("https://example.com"),
             admin = admin.address
@@ -69,9 +69,30 @@ def test():
             contract_metadata   = ''
         )
 
-
+    scenario += X_Token
+    scenario += nft1
+    scenario += nft2
+    scenario += nft3
     
+    #it should not whitelist NFT collection when invalid contract called
+    whitelist.whitelistNFTCollection(
+        [nft1.address]
+    ).run(sender = admin,valid = False)
 
-    
+    # it should whitelist NFT collection when called by the admin
+    market.whitelistNFTCollection(
+        [nft1.address]
+    ).run(sender = admin)
+
+    # it should not whitelist the FT contract when invlid contract called
+    whitelist.whitelistFTContract(
+        [X_Token.address]
+    ).run(sender = admin, valid = False)
+
+    # it should whitelist the FT contract when valid contract is called by the admin
+    market.whitelistFTContract(
+        [X_Token.address]
+    ).run(sender = admin)
+
 
     
