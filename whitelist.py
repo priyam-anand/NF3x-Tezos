@@ -1,6 +1,7 @@
 import smartpy as sp
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
+
 class Whitelist(sp.Contract) :
     def __init__(self):
         self.init(

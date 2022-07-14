@@ -1,9 +1,11 @@
 import smartpy as sp
+structures = sp.io.import_stored_contract("structures").structures 
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class Listing(sp.Contract):
     def __init__(self):
+        self.structures = structures()
         self.init(
             itemStorage = NULL_ADDRESS,
             detailStorage = NULL_ADDRESS,
@@ -36,6 +38,9 @@ class Listing(sp.Contract):
     # Utility functions
     def _onlyMarket(self):
         sp.verify(self.data.market == sp.sender,"Listing : Only Approved Contract")
+
+    def _itemOwnerOnly(self, add1, add2):
+        sp.verify(add1 == add2, "Listing : Item owner only")
 
     def _checkFees(self, value):
         fees = sp.view(
@@ -116,7 +121,7 @@ class Listing(sp.Contract):
         sp.verify(sp.view(
             'checkListingRequirements',
             self.data.detailStorage,
-            sp.record(tokens = sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress) , tokenIds = sp.map({0:params.tokenId}, tkey = sp.TNat, tvalue = sp.TNat), timePeriod = params.timePeriod),
+            sp.record(tokens = sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress) , tokenIds = sp.map({0:params.tokenId}, tkey = sp.TNat, tvalue = sp.TNat), timePeriod = params.timePeriod, edit = False),
             t = sp.TBool
         ).open_some())
         self._receiveNFTs(sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress) ,sp.map({0:params.tokenId}, tkey = sp.TNat, tvalue = sp.TNat))
@@ -128,3 +133,43 @@ class Listing(sp.Contract):
             params.timePeriod
         )
     
+
+    @sp.entry_point
+    def editListing(self, params):
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            directSwapToken = sp.TMap(sp.TNat, sp.TAddress), directSwapPrice = sp.TMap(sp.TNat, sp.TNat),
+            timePeriod = sp.TInt
+        ))
+        self._onlyMarket()
+
+        item = sp.view(
+                'getItemByAddress',
+                self.data.itemStorage,
+                sp.record(token = params.token, tokenId = params.tokenId),
+                t = self.structures.getItemType()
+            ).open_some()
+        sp.verify(item.status == 1,"Listing : Invalid Status")
+        self._itemOwnerOnly(item.owner, sp.source)
+
+        c1 = sp.contract(
+            sp.TRecord(tokens=sp.TMap(sp.TNat,sp.TAddress), tokenIds=sp.TMap(sp.TNat,sp.TNat)),
+            self.data.itemStorage,
+            entry_point = "resetItems"
+        ).open_some()
+        sp.transfer(sp.record(tokens=sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress), tokenIds=sp.map({0:params.tokenId},tkey = sp.TNat, tvalue = sp.TNat)),sp.mutez(0),c1)
+
+        sp.verify(sp.view(
+            'checkListingRequirements',
+            self.data.detailStorage,
+            sp.record(tokens = sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress) , tokenIds = sp.map({0:params.tokenId}, tkey = sp.TNat, tvalue = sp.TNat), timePeriod = params.timePeriod, edit = True),
+            t = sp.TBool
+        ).open_some())
+
+        self._performListing(
+            params.token, 
+            params.tokenId, 
+            params.directSwapToken, 
+            params.directSwapPrice, 
+            params.timePeriod
+        )

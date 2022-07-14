@@ -4,11 +4,11 @@ DetailStorage = sp.io.import_stored_contract("detailStorage")
 ItemStorage = sp.io.import_stored_contract("itemStorage")
 Whitelist = sp.io.import_stored_contract("whitelist")
 Market = sp.io.import_stored_contract("market")
-Listing = sp.io.import_stored_contract("listing")
 Vault = sp.io.import_stored_contract("vault")
-
 fa12 = sp.io.import_stored_contract("fa12")
 fa2 = sp.io.import_stored_contract("fa2")
+Listing = sp.io.import_stored_contract("listing")
+
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 PLATFORM_FEES = 500000
@@ -116,7 +116,7 @@ def test():
     scenario += nft2
     scenario += nft3
     
-    ''' -------------------------------TESTS----------------------------------------- '''
+    ''' ------------------------------- TESTS ----------------------------------------- '''
 
     market.whitelistNFTCollection(
         [nft1.address]
@@ -129,6 +129,8 @@ def test():
     # Mint NFTs
     mintNFT(nft1, 0, admin.address, admin)
     mintNFT(nft1, 1, user1.address, admin)
+
+    # --------- CREATE DIRECT SWAP LISTING --------- #
 
     # it should not list if directly called the listing contract
     listing.createListing(sp.record(
@@ -204,3 +206,27 @@ def test():
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
     
+    # -------------- EDIT LISTING -------------
+
+    # it should not edit listing if it is not listed
+    market.editListing(sp.record(
+        token = nft1.address, tokenId = 1,
+        directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
+        timePeriod = sp.int(8000)
+    )).run(sender = admin, valid = False)
+
+    # should not edit listin if not called by the item owner
+    market.editListing(sp.record(
+        token = nft1.address, tokenId = 0,
+        directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
+        timePeriod = sp.int(8000)
+    )).run(sender = user1, valid = False)
+
+    # should edit listing to the new details
+    market.editListing(sp.record(
+        token = nft1.address, tokenId = 0,
+        directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:50000}),
+        timePeriod = sp.int(80000)
+    )).run(sender = admin)
+
+

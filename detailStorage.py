@@ -70,18 +70,20 @@ class DetailStorage(sp.Contract):
         sp.set_type(params, sp.TRecord(
             tokens = sp.TMap(sp.TNat, sp.TAddress),
             tokenIds = sp.TMap(sp.TNat, sp.TNat),
-            timePeriod = sp.TInt
+            timePeriod = sp.TInt,
+            edit = sp.TBool
         ))
         sp.verify(params.timePeriod > 0,"DetailStorage : Invalid timePeriod")
         sp.for i in sp.range(0,sp.len(params.tokens)):
             sp.verify(self.data.whitelistedNFTs.contains(params.tokens[i]), "DetailStorage : Not Supported")
-            item = sp.view(
-                'getItemByAddress',
-                self.data.itemStorage,
-                sp.record(token = params.tokens[i], tokenId = params.tokenIds[i]),
-                t = self.structures.getItemType()
-            ).open_some()
-            sp.verify(item.status == 0,"DetailStorage : Invalid Status")
+            sp.if ~params.edit:
+                item = sp.view(
+                    'getItemByAddress',
+                    self.data.itemStorage,
+                    sp.record(token = params.tokens[i], tokenId = params.tokenIds[i]),
+                    t = self.structures.getItemType()
+                ).open_some()
+                sp.verify(item.status == 0,"DetailStorage : Invalid Status")
         sp.result(True)
 
 

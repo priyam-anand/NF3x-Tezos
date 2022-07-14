@@ -35,7 +35,7 @@ class ItemStorage(sp.Contract):
 
     def _resetItem(self, token, tokenId):
         sp.if self.data._items.contains(token) & self.data._items[token].contains(tokenId):
-            self.data._items[token][tokenId].status = 0
+            self.data._items[token][tokenId].status = sp.nat(0)
             self.data._items[token][tokenId].listing = self.structures.getDefaultListing()
         sp.else:
             sp.if ~self.data._items.contains(token):
@@ -87,7 +87,7 @@ class ItemStorage(sp.Contract):
         sp.set_type(params, sp.TRecord(
             token = sp.TAddress, tokenId = sp.TNat, timePeriod = sp.TInt
         ))
-        self.data._items[params.token][params.tokenId].status = 1
+        self.data._items[params.token][params.tokenId].status = sp.nat(1)
         self.data._items[params.token][params.tokenId].listing.timePeriod = sp.now.add_seconds(params.timePeriod)
 
     @sp.onchain_view()

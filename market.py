@@ -85,3 +85,24 @@ class Market(sp.Contract):
             sp.mutez(0),
             c1
         )
+
+    @sp.entry_point
+    def editListing(self, params):
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress,
+            tokenId = sp.TNat,
+            directSwapToken = sp.TMap(sp.TNat,sp.TAddress),
+            directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
+            timePeriod = sp.TInt,
+        ))
+        c1 = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress,tokenId = sp.TNat,directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),timePeriod = sp.TInt
+            ), self.data.listing,
+            entry_point = 'editListing'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId, directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, timePeriod = params.timePeriod),
+            sp.mutez(0),
+            c1
+        )
