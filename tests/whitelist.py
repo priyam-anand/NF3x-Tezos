@@ -1,9 +1,12 @@
 import smartpy as sp
 
 DetailStorage = sp.io.import_stored_contract("detailStorage")
+ItemStorage = sp.io.import_stored_contract("itemStorage")
 Whitelist = sp.io.import_stored_contract("whitelist")
 Market = sp.io.import_stored_contract("market")
-# Getter = sp.io.import_stored_contract("getters.py")
+Listing = sp.io.import_stored_contract("listing")
+Vault = sp.io.import_stored_contract("vault")
+
 fa12 = sp.io.import_stored_contract("fa12")
 fa2 = sp.io.import_stored_contract("fa2")
 
@@ -17,18 +20,42 @@ def test():
     user2 = sp.test_account("user2")
     user3 = sp.test_account("user3")
 
+    ''' ------------------------- DEPLOYMENT + INIT ----------------------------------- '''
+
     detailStorage = DetailStorage.DetailStorage(_platformFee = 500000)
     scenario += detailStorage
-    whitelist = Whitelist.Whitelist(_detailStorage = detailStorage.address)
-    scenario += whitelist
+    itemStorage = ItemStorage.ItemStorage()
+    scenario += itemStorage
+    listing = Listing.Listing()
+    scenario += listing
     market = Market.Market()
     scenario += market
+    vault = Vault.Vault()
+    scenario += vault
+    whitelist = Whitelist.Whitelist()
+    scenario += whitelist
 
     detailStorage.setWhitelist(whitelist.address)
+    detailStorage.setListing(listing.address)
+    detailStorage.setItemStorage(itemStorage.address)
 
-    whitelist.setMarket(market.address)
+    itemStorage.setListing(listing.address)
+    itemStorage.setDetailStorage(detailStorage.address)
+
+    listing.setItemStorage(itemStorage.address)
+    listing.setDetailStorage(detailStorage.address)
+    listing.setMarket(market.address)
+    listing.setVault(vault.address)
 
     market.setWhitelist(whitelist.address)
+    market.setListing(listing.address)
+    market.setVault(vault.address)
+
+    vault.setListing(listing.address)
+    vault.setMarket(market.address)
+
+    whitelist.setDetailStorage(detailStorage.address)
+    whitelist.setMarket(market.address)
     
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -62,18 +89,14 @@ def test():
             metadata = sp.utils.metadata_of_url("https://example.com"),
             admin = admin.address
         )
-    Y_Token = fa12.FA12(
-            admin.address,
-            config              = fa12.FA12_config(support_upgradable_metadata = True),
-            token_metadata      = '',
-            contract_metadata   = ''
-        )
 
     scenario += X_Token
     scenario += nft1
     scenario += nft2
     scenario += nft3
     
+    ''' -------------------------------TESTS----------------------------------------- '''
+
     #it should not whitelist NFT collection when invalid contract called
     whitelist.whitelistNFTCollection(
         [nft1.address]

@@ -1,35 +1,14 @@
 import smartpy as sp
 
+NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 class Whitelist(sp.Contract) :
-    def __init__(self, _detailStorage):
+    def __init__(self):
         self.init(
-            detailStorage = _detailStorage,
-            market = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
+            detailStorage = NULL_ADDRESS,
+            market = NULL_ADDRESS
         )
-    
-    ################# Utility functions/ internal functions ######################
-    def _onlyApprovedContracts(self):
-        sp.verify(self.data.market == sp.sender, "Whitelist : Only Approved Contract")
 
-    def nftWhitelisteCondition(self, address):
-        condition = sp.view(
-            "getWhitelistedToken",
-            self.data.detailStorage,
-            address,
-            t = sp.TBool
-        ).open_some()
-        sp.result(condition)
-
-    def ftWhitelistCondition(self, address):
-        condition = sp.view(
-            'getPlatformFees',
-            self.data.detailStorage,
-            address,
-            sp.TBool
-        ).open_some()
-        sp.result(condition)
-
-    ####################### Access setter functions ############################
+    # Access setter functions 
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
         sp.set_type(_detailStorage, sp.TAddress)
@@ -43,7 +22,12 @@ class Whitelist(sp.Contract) :
         # verify that the function caller is the admin
         self.data.market = _market
 
-    ############################## Core functions #############################
+    # Utility functions
+    def _onlyApprovedContracts(self):
+        sp.verify(self.data.market == sp.sender, "Whitelist : Only Approved Contract")
+
+
+    # Core functions 
     @sp.entry_point
     def whitelistNFTCollection(self, params):
         sp.set_type(params, sp.TList(
@@ -51,16 +35,10 @@ class Whitelist(sp.Contract) :
         ))
         self._onlyApprovedContracts()
 
-        ok = sp.local("ok", sp.bool(True))
-        sp.for address in params:
-            sp.if self.nftWhitelisteCondition(address) == True:
-                ok.value = False
-        sp.verify(ok.value,'Already Whitelisted')
-
         detailStorageContract = sp.contract(
             sp.TAddress,
             self.data.detailStorage,
-            entry_point = "setWhitelistedToken"
+            entry_point = "setWhitelistedNFT"
         ).open_some()
         sp.for address in params:
             sp.transfer(
@@ -75,17 +53,11 @@ class Whitelist(sp.Contract) :
             sp.TAddress
         ))
         self._onlyApprovedContracts()
-
-        ok = sp.local("ok", sp.bool(True))
-        sp.for address in params:
-            sp.if self.ftWhitelistCondition(address) == True:
-                ok.value = False
-        sp.verify(ok.value,'Already Whitelisted')
         
         detailStorageContract = sp.contract(
             sp.TAddress,
             self.data.detailStorage,
-            entry_point = "setPlatformFees"
+            entry_point = "setWhitelistedFT"
         ).open_some()
         sp.for address in params:
             sp.transfer(
