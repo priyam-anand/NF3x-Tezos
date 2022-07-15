@@ -124,7 +124,7 @@ class Vault(sp.Contract):
         self._onlyApproved()
         sp.set_type(
             params,
-            sp.TRecord(token = sp.TAddress, to_ = sp.TAddress, tokenId = sp.TNat, amount = sp.TNat)
+            sp.TRecord(token = sp.TAddress, to_ = sp.TAddress, tokenId = sp.TNat)
         )
         c = sp.contract(
                 sp.TList(
@@ -142,4 +142,4 @@ class Vault(sp.Contract):
                 params.token, 
                 entry_point='transfer'
             ).open_some()
-        sp.transfer(sp.list([sp.record(from_=sp.self_address, txs=sp.list([sp.record(amount=params.amount, to_=params.to_, token_id=params.tokenId)]))]), sp.mutez(0), c)
+        sp.transfer(sp.list([sp.record(from_=sp.self_address, txs=sp.list([sp.record(amount=1, to_=params.to_, token_id=params.tokenId)]))]), sp.mutez(0), c)

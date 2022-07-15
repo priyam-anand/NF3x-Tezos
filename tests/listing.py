@@ -230,3 +230,28 @@ def test():
     )).run(sender = admin)
 
 
+    # ------------- CANCEL LISTING ------------
+
+    # it should not cancel listing if not listed
+    market.cancelListing(sp.record(
+        token = nft1.address, tokenId = 1
+    )).run(sender = admin, valid = False)
+
+    # it should not cancel listing if not called by the listing owner
+    market.cancelListing(sp.record(
+        token = nft1.address, tokenId = 0
+    )).run(sender = user1, valid = False)
+
+    # it should cancel listing, transfer item back to the owner, remove this listing
+    market.cancelListing(sp.record(
+        token = nft1.address, tokenId = 0
+    )).run(sender = admin)
+
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 0)].balance == 0)
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 0)].balance == 1)
+
+    # ----------------- CLAIM EXPIRED LISTING --------
+
+    
+
+

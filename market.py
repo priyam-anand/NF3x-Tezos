@@ -106,3 +106,18 @@ class Market(sp.Contract):
             sp.mutez(0),
             c1
         )
+
+    @sp.entry_point
+    def cancelListing(self, params):
+        sp.set_type(params, sp.TRecord(token = sp.TAddress, tokenId = sp.TNat))
+        
+        c1 = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat),
+            self.data.listing,
+            entry_point = 'cancelListing'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId),
+            sp.mutez(0),
+            c1
+        )

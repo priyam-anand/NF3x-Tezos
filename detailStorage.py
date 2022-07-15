@@ -53,6 +53,13 @@ class DetailStorage(sp.Contract):
         self._onlyApprovedContracts()
         self.data.whitelistedFTs[token] = True
 
+    @sp.entry_point
+    def setRejectedOffers(self, params):
+        sp.set_type(params, sp.TRecord(tokens = sp.TMap(sp.TNat, sp.TAddress), tokenIds = sp.TMap(sp.TNat, sp.TNat)))
+        self._onlyApprovedContracts()
+        # process rejected offers
+
+
     @sp.onchain_view()
     def isNFTSupported(self, token):
         sp.set_type(token, sp.TAddress)
@@ -85,7 +92,6 @@ class DetailStorage(sp.Contract):
                 ).open_some()
                 sp.verify(item.status == 0,"DetailStorage : Invalid Status")
         sp.result(True)
-
 
     # Getter functions
     @sp.onchain_view()
