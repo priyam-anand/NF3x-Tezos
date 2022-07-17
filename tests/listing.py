@@ -250,8 +250,6 @@ def test():
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 0)].balance == 0)
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 0)].balance == 1)
 
-    # ----------------- CLAIM EXPIRED LISTING --------
-
     
 
 

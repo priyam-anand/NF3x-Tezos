@@ -7,10 +7,17 @@ class Market(sp.Contract):
         self.init(
             whitelist = NULL_ADDRESS,
             listing = NULL_ADDRESS,
-            vault = NULL_ADDRESS
+            vault = NULL_ADDRESS,
+            swap = NULL_ADDRESS
         )
 
     # Access setters
+    @sp.entry_point
+    def setSwap(self, _swap):
+        # verify that the function caller is the admin
+        sp.set_type(_swap, sp.TAddress)
+        self.data.swap = _swap
+
     @sp.entry_point
     def setWhitelist(self, _whitelist):
         # verify that the function caller is the admin
@@ -28,6 +35,15 @@ class Market(sp.Contract):
         # verify that the function caller is the admin
         sp.set_type(_vault, sp.TAddress)
         self.data.vault = _vault
+
+    # Utility Functions
+    def _recieveTez(self):
+        c = sp.contract(
+            sp.TUnit,
+            self.data.vault,
+            entry_point = 'recieveTez'
+        ).open_some()
+        sp.transfer(sp.unit, sp.amount, c)
 
     # public facing functions
     @sp.entry_point
@@ -60,13 +76,7 @@ class Market(sp.Contract):
 
     @sp.entry_point
     def createListing(self, params):
-        c = sp.contract(
-            sp.TUnit,
-            self.data.vault,
-            entry_point = 'recieveTez'
-        ).open_some()
-        sp.transfer(sp.unit, sp.amount, c)
-
+        self._recieveTez()
         sp.set_type(params, sp.TRecord(
             token = sp.TAddress,
             tokenId = sp.TNat,
@@ -121,3 +131,22 @@ class Market(sp.Contract):
             sp.mutez(0),
             c1
         )
+
+    @sp.entry_point
+    def directSwap(self, params):
+        self._recieveTez()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat, value = sp.TMutez
+            ),self.data.swap,
+            entry_point = 'directSwap' 
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId, value = sp.amount),
+            sp.mutez(0),
+            c
+        )
+

@@ -10,6 +10,7 @@ class DetailStorage(sp.Contract):
             whitelist = NULL_ADDRESS,
             listing = NULL_ADDRESS,
             itemStorage = NULL_ADDRESS,
+            swap = NULL_ADDRESS,
             whitelistedNFTs = sp.map(tkey = sp.TAddress, tvalue = sp.TBool),
             whitelistedFTs = sp.map(tkey = sp.TAddress, tvalue = sp.TBool),
             rejectedSwapOffers = sp.map(tkey = sp.TAddress, tvalue = sp.TList(self.structures.getSwapOfferType())),
@@ -18,6 +19,12 @@ class DetailStorage(sp.Contract):
         )
 
      # Access setter functions
+    @sp.entry_point
+    def setSwap(self, _swap):
+        sp.set_type(_swap, sp.TAddress)
+        # verify that the function caller is the admin
+        self.data.swap = _swap
+
     @sp.entry_point
     def setWhitelist(self, _whitelist):
         sp.set_type(_whitelist, sp.TAddress)
@@ -36,7 +43,7 @@ class DetailStorage(sp.Contract):
 
     # Utility functions/ internal functions
     def _onlyApprovedContracts(self):
-        ok = (sp.sender == self.data.whitelist) | (sp.sender == self.data.listing) | (sp.sender == self.data.itemStorage)
+        ok = (sp.sender == self.data.whitelist) | (sp.sender == self.data.listing) | (sp.sender == self.data.itemStorage) | (sp.sender == self.data.swap)
         sp.verify(ok
         , "DetailStorage : Only Approved Contract")
 

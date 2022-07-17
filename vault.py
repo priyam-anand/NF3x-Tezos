@@ -25,6 +25,13 @@ class Vault(sp.Contract):
         # verify that the function caller is the admin
         self.data.market = _market
 
+    @sp.entry_point
+    def setSwap(self, _swap):
+        sp.set_type(_swap, sp.TAddress)
+        # verify that the function caller is the admin
+        self.data.swap = _swap
+
+    # Utility Functions
     def _onlyApproved(self):
         ok = (sp.sender == self.data.market) | (sp.sender == self.data.reserve) | (sp.sender == self.data.listing) | (sp.sender == self.data.swap) | (sp.sender == self.data.collectionOffer)
         sp.verify(ok, "Vault : only approved contracts")
