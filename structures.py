@@ -5,19 +5,19 @@ NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 class structures:
     def getAssetsType(self):
         assets = sp.TRecord(
-            tokens = sp.TList(sp.TAddress),
-            tokenIds = sp.TList(sp.TNat),
-            paymentTokens = sp.TList(sp.TAddress),
-            amounts = sp.TList(sp.TNat)
+            tokens = sp.TMap(sp.TNat, sp.TAddress),
+            tokenIds = sp.TMap(sp.TNat, sp.TNat),
+            paymentTokens = sp.TMap(sp.TNat, sp.TAddress),
+            amounts = sp.TMap(sp.TNat, sp.TNat)
         )
         return assets
 
     def getDefaultAsset(self):
         asset = sp.record(
-            tokens = sp.list(t=sp.TAddress),
-            tokenIds = sp.list(t = sp.TNat),
-            paymentTokens = sp.list(t=sp.TAddress),
-            amounts = sp.list(t = sp.TNat)
+            tokens = sp.map({},tkey = sp.TNat, tvalue = sp.TAddress),
+            tokenIds = sp.map({},tkey = sp.TNat, tvalue=sp.TNat),
+            paymentTokens = sp.map({},tkey = sp.TNat, tvalue = sp.TAddress),
+            amounts = sp.map({},tkey = sp.TNat, tvalue=sp.TNat)
         )
         return asset
 
@@ -117,6 +117,7 @@ class structures:
 
     def getSwapOfferType(self):
         offer = sp.TRecord(
+            id = sp.TNat,
             token = sp.TAddress,
             tokenId = sp.TNat,
             owner = sp.TAddress,
@@ -134,5 +135,19 @@ class structures:
             remaining = self.getAssetsType(),
             duration = sp.TTimestamp,
             timePeriod = sp.TTimestamp
+        )
+        return offer
+
+    def getOfferType(self):
+        offer = sp.TRecord(
+            swapOffers = sp.TMap(sp.TNat, self.getSwapOfferType()),
+            reserveOffers = sp.TMap(sp.TNat, self.getReserveOfferType())
+        )
+        return offer
+
+    def getDefaultOffer(self):
+        offer = sp.record(
+            swapOffers = sp.map({}, tkey = sp.TNat, tvalue = self.getSwapOfferType()),
+            reserveOffers = sp.map({}, tkey = sp.TNat, tvalue = self.getReserveOfferType())
         )
         return offer

@@ -10,7 +10,8 @@ class Swap(sp.Contract):
             market = NULL_ADDRESS,
             itemStorage = NULL_ADDRESS,
             vault = NULL_ADDRESS,
-            detailStorage = NULL_ADDRESS
+            detailStorage = NULL_ADDRESS,
+            offerStorage = NULL_ADDRESS
         )
 
     # Access Setter functions
@@ -23,6 +24,11 @@ class Swap(sp.Contract):
     def setItemStorage(self, _itemStorage):
         sp.set_type(_itemStorage, sp.TAddress)
         self.data.itemStorage = _itemStorage
+
+    @sp.entry_point
+    def setOfferStorage(self, _offerStorage):
+        sp.set_type(_offerStorage, sp.TAddress)
+        self.data.offerStorage = _offerStorage
     
     @sp.entry_point
     def setMarket(self, _market):
@@ -52,53 +58,7 @@ class Swap(sp.Contract):
                 total.value += amount[i]
         sp.verify(total.value <= sp.utils.mutez_to_nat(_value),"Swap : Insufficient Funds")
 
-    def _transferAssets(self, payment_token, amount, to):
-        sp.if payment_token == NULL_ADDRESS:
-            c = sp.contract(
-                sp.TRecord(to = sp.TAddress, amount = sp.TMutez),
-                self.data.vault,
-                entry_point = 'sendTez'
-            ).open_some()
-            sp.transfer(
-                sp.record(to = to, amount = sp.utils.nat_to_mutez(amount)),
-                sp.mutez(0),
-                c
-            )
-        sp.else :
-            c1 = sp.contract(
-                sp.TRecord(token = sp.TAddress, _from= sp.TAddress, amount = sp.TNat),
-                self.data.vault,
-                entry_point = 'recieveFA12'
-            ).open_some()
-            sp.transfer(
-                sp.record(token = payment_token, _from = sp.source, amount = amount),
-                sp.mutez(0),
-                c1
-            )
-            c2 = sp.contract(
-                sp.TRecord(token = sp.TAddress, to=sp.TAddress, amount = sp.TNat),
-                self.data.vault,
-                entry_point = 'sendFA12'
-            ).open_some()
-            sp.transfer(
-                sp.record(token = payment_token, to = to, amount = amount),
-                sp.mutez(0),
-                c2
-            )
-
-    def _sendFA2(self, token, tokenId):
-        c = sp.contract(
-            sp.TRecord(token = sp.TAddress, to_ = sp.TAddress, tokenId = sp.TNat),
-            self.data.vault,
-            entry_point = 'sendFA2'
-        ).open_some()
-        sp.transfer(
-            sp.record(token = token, to_ = sp.source, tokenId = tokenId),
-            sp.mutez(0),
-            c
-        )
-
-    def _postSaleReset(self, tokens, tokenIds):
+    def _itemReset(self, tokens, tokenIds, owner):
         c1 = sp.contract(
             sp.TRecord(tokens=sp.TMap(sp.TNat,sp.TAddress), tokenIds=sp.TMap(sp.TNat,sp.TNat)),
             self.data.itemStorage,
@@ -114,7 +74,102 @@ class Swap(sp.Contract):
             self.data.itemStorage,
             entry_point = 'setItemOwners'
         ).open_some()
-        sp.transfer(sp.record(tokens=tokens, tokenIds=tokenIds, owner = NULL_ADDRESS),sp.mutez(0),c2)
+        sp.transfer(sp.record(tokens=tokens, tokenIds=tokenIds, owner = owner),sp.mutez(0),c2)
+
+    def _receiveNFTs(self, tokens, tokenIds):
+        c = sp.contract(
+                sp.TRecord(token = sp.TAddress, from_ = sp.TAddress, tokenId = sp.TNat),
+                self.data.vault,
+                entry_point = 'recieveFA2'
+            ).open_some()
+        sp.for i in sp.range(0, sp.len(tokens)):
+            sp.transfer(
+                sp.record(token = tokens[i], from_ = sp.source, tokenId = tokenIds[i]),
+                sp.mutez(0),
+                c
+            )
+        self._itemReset(tokens, tokenIds, sp.source)
+        c = sp.contract(
+                sp.TRecord(
+                    tokens = sp.TMap(sp.TNat, sp.TAddress),
+                    tokenIds = sp.TMap(sp.TNat, sp.TNat),
+                    status = sp.TNat
+                ),
+                self.data.itemStorage,
+                entry_point = 'setItemStatus'
+        ).open_some()
+        sp.transfer(sp.record(
+            tokens = tokens, 
+            tokenIds = tokenIds, 
+            status = 2
+        ), sp.mutez(0), c)
+
+    def _sendNFTs(self, tokens, tokenIds):
+        c = sp.contract(
+                sp.TRecord(token = sp.TAddress, to_ = sp.TAddress, tokenId = sp.TNat),
+                self.data.vault,
+                entry_point = 'sendFA2'
+            ).open_some()
+        sp.for i in sp.range(0, sp.len(tokens)):
+            sp.transfer(
+                sp.record(token = tokens[i], to_ = sp.source, tokenId = tokenIds[i]),
+                sp.mutez(0),
+                c
+            )
+        self._itemReset(tokens, tokenIds, NULL_ADDRESS)
+
+    def _receiveFTs(self, tokens, amounts):
+        c1 = sp.contract(
+                sp.TRecord(token = sp.TAddress, _from= sp.TAddress, amount = sp.TNat),
+                self.data.vault,
+                entry_point = 'recieveFA12'
+        ).open_some()
+        sp.for i in tokens.keys():
+            sp.if ~(tokens[i] == NULL_ADDRESS) : 
+                sp.transfer(
+                    sp.record(token = tokens[i], _from = sp.source, amount = amounts[i]),
+                    sp.mutez(0),
+                    c1
+                )
+
+    def _sendFTs(self, tokens, amounts, to_):
+        c2 = sp.contract(
+                sp.TRecord(token = sp.TAddress, to=sp.TAddress, amount = sp.TNat),
+                self.data.vault,
+                entry_point = 'sendFA12'
+        ).open_some()
+        sp.for i in tokens.keys():
+            sp.transfer(
+                sp.record(token = tokens[i], to = to_, amount = amounts[i]),
+                sp.mutez(0),
+                c2
+            )
+
+    def _sendTez(self, amount, to):
+        c = sp.contract(
+            sp.TRecord(to = sp.TAddress, amount = sp.TMutez),
+            self.data.vault,
+            entry_point = 'sendTez'
+        ).open_some()
+        sp.transfer(
+            sp.record(to = to, amount = sp.utils.nat_to_mutez(amount)),
+            sp.mutez(0),
+            c
+        )
+
+    def _transferAssets(self, paymentToken, amount, to):
+        sp.if paymentToken == NULL_ADDRESS:
+            self._sendTez(amount, to)
+        sp.else :
+            self._receiveFTs(
+                sp.map({0:paymentToken}), 
+                sp.map({0:amount})
+            )
+            self._sendFTs(
+                sp.map({0:paymentToken}), 
+                sp.map({0:amount}),
+                to
+            )
 
     def _setRejectedOffers(self, tokens, tokenIds):
         c = sp.contract(
@@ -127,6 +182,45 @@ class Swap(sp.Contract):
             sp.mutez(0),
             c
         )
+
+    def _assetSupported(self, offerAssets):
+        sp.for i in offerAssets.tokens.keys():
+            sp.verify(sp.view(
+                'isNFTSupported',
+                self.data.detailStorage,
+                offerAssets.tokens[i],
+                t = sp.TBool
+            ).open_some(),"Swap : Not Supported")
+        sp.for i in offerAssets.paymentTokens.keys():
+            sp.verify(sp.view(
+                'isFTSupported',
+                self.data.detailStorage,
+                offerAssets.paymentTokens[i],
+                t = sp.TBool
+            ).open_some(),"Swap : Not Supported")
+
+    def _checkEmptyAssets(self, offerAssets):
+        sp.verify((sp.len(offerAssets.tokens.keys()) > 0) | (sp.len(offerAssets.paymentTokens.keys()) > 0), "Swap : Empty Asset")
+        sp.if sp.len(offerAssets.tokens.keys()) == 0:
+            ttl = sp.local('value', sp.nat(0))
+            sp.for i in offerAssets.paymentTokens.keys():
+                ttl.value += offerAssets.amounts[i]
+            sp.verify(ttl.value > 0, "Swap : Empty Asset")
+
+    def _checkSwapOfferRequirements(self, item, timePeriod, offerAssets, _value):
+        self._notItemOwner(sp.source, item.owner)
+        sp.verify(timePeriod > 0,"Swap : Invalid Time Period")
+        self._assetSupported(offerAssets)
+        self._checkEmptyAssets(offerAssets)
+        self._checkPayment(
+            offerAssets.paymentTokens, 
+            offerAssets.amounts, 
+            _value
+        )
+
+    def _receiveAssets(self, offerAssets):
+        self._receiveNFTs(offerAssets.tokens, offerAssets.tokenIds)
+        self._receiveFTs(offerAssets.paymentTokens, offerAssets.amounts)
 
     # Core functions
     @sp.entry_point
@@ -162,6 +256,40 @@ class Swap(sp.Contract):
             sp.map({0:params.tokenId})
         )
 
-        self._sendFA2(params.token, params.tokenId)
-        self._postSaleReset(sp.map({0:params.token}) ,sp.map({0:params.tokenId}))
+        self._sendNFTs(
+            sp.map({0:params.token}),
+            sp.map({0:params.tokenId})
+        )
+        self._itemReset(
+            sp.map({0:params.token}),
+            sp.map({0:params.tokenId}), 
+            NULL_ADDRESS
+        )
 
+    @sp.entry_point
+    def newSwapOffer(self, params):
+        self._onlyMarket()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            offerAssets = self.structures.getAssetsType(),
+            timePeriod = sp.TInt, value = sp.TMutez 
+        ))
+
+        item = sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some()
+
+        self._checkSwapOfferRequirements(item, params.timePeriod, params.offerAssets, params.value)
+
+        self._receiveAssets(params.offerAssets)
+
+        c = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat,offerAssets = self.structures.getAssetsType(), timePeriod = sp.TInt),
+            self.data.offerStorage, 
+            entry_point = 'addNewSwapOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId, offerAssets = params.offerAssets, timePeriod = params.timePeriod),
+            sp.mutez(0),
+            c
+        )

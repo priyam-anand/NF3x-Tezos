@@ -1,9 +1,11 @@
 import smartpy as sp
+structures = sp.io.import_stored_contract("structures").structures 
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class Market(sp.Contract):
     def __init__(self):
+        self.structures = structures()
         self.init(
             whitelist = NULL_ADDRESS,
             listing = NULL_ADDRESS,
@@ -150,3 +152,28 @@ class Market(sp.Contract):
             c
         )
 
+    @sp.entry_point
+    def newSwapOffer(self, params):
+        self._recieveTez()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            offerAssets = self.structures.getAssetsType(),
+            timePeriod = sp.TInt
+        ))
+
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat,
+                offerAssets = self.structures.getAssetsType(),
+                timePeriod = sp.TInt, value = sp.TMutez 
+            ),self.data.swap
+            ,entry_point = 'newSwapOffer' 
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token = params.token, tokenId = params.tokenId, offerAssets = params.offerAssets, 
+                timePeriod = params.timePeriod ,value = sp.amount
+            ),
+            sp.mutez(0),
+            c
+        )

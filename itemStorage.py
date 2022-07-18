@@ -63,7 +63,17 @@ class ItemStorage(sp.Contract):
         sp.for i in params.tokens.keys() :
             self.data._items[params.tokens[i]][params.tokenIds[i]].owner = params.owner
 
-    
+    @sp.entry_point
+    def setItemStatus(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            tokens = sp.TMap(sp.TNat, sp.TAddress),
+            tokenIds = sp.TMap(sp.TNat, sp.TNat),
+            status = sp.TNat
+        ))
+        sp.for i in params.tokens.keys():
+            self.data._items[params.tokens[i]][params.tokenIds[i]].status = params.status
+
     @sp.entry_point
     def resetItems(self, params):
         self._onlyApproved()

@@ -9,6 +9,8 @@ fa12 = sp.io.import_stored_contract("fa12")
 fa2 = sp.io.import_stored_contract("fa2")
 Listing = sp.io.import_stored_contract("listing")
 Swap = sp.io.import_stored_contract('swap')
+Getters = sp.io.import_stored_contract('getters')
+OfferStorage = sp.io.import_stored_contract('offerStorage')
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 PLATFORM_FEES = 500000
@@ -22,6 +24,12 @@ def mintNFT(nft, id, to, admin):
                             amount = 1,
                             metadata = tok0_md,
                             token_id = id).run(sender = admin)
+
+def mintFT(ft, to, amount, admin):
+    ft.mint(address = to.address, value = amount).run(sender = admin)
+
+def approveFT(ft, spender, amount, owner):
+    ft.approve(spender = spender.address, value = amount).run(sender = owner)
 
 def setOperator(nft1, owner, operator, id):
         nft1.update_operators([
@@ -57,6 +65,10 @@ def test():
     scenario += whitelist
     swap = Swap.Swap()
     scenario += swap
+    getters = Getters.Getters()
+    scenario += getters
+    offerStorage = OfferStorage.OfferStorage()
+    scenario += offerStorage
 
     detailStorage.setWhitelist(whitelist.address)
     detailStorage.setListing(listing.address)
@@ -88,6 +100,13 @@ def test():
     swap.setVault(vault.address)
     swap.setItemStorage(itemStorage.address)
     swap.setDetailStorage(detailStorage.address)
+    swap.setOfferStorage(offerStorage.address)
+
+    getters.setWhitelist(whitelist.address)
+    getters.setItemStorage(itemStorage.address)
+    getters.setDetailStorage(detailStorage.address)
+
+    offerStorage.setSwap(swap.address)
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -106,6 +125,12 @@ def test():
             token_metadata      = token_metadata,
             contract_metadata   = contract_metadata
         )
+    # token2 = fa12.FA12(
+    #         admin.address,
+    #         config              = fa12.FA12_config(support_upgradable_metadata = False),
+    #         token_metadata      = token_metadata,
+    #         contract_metadata   = contract_metadata
+    #     )
     nft1 = fa2.FA2(
             config = fa2.FA2_config(non_fungible = True),
             metadata = sp.utils.metadata_of_url("https://example.com"),
@@ -123,6 +148,7 @@ def test():
         )
 
     scenario += token1
+    # scenario += token2
     scenario += nft1
     scenario += nft2
     scenario += nft3
@@ -174,7 +200,139 @@ def test():
     market.directSwap(sp.record(
         token = nft1.address, tokenId = 0
     )).run(sender = user1, amount = sp.mutez(10000000))
+
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 0)].balance == 0)
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(user1.address, 0)].balance == 1)
 
+    # ------------------ DIRECT SWAP OFFER --------------------
+
+    setOperator(nft1, user1, vault, 0)
+    market.createListing(sp.record(
+        token = nft1.address, tokenId = 0,
+        directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
+        timePeriod = sp.int(86400)
+    )).run(sender = user1, amount = sp.mutez(PLATFORM_FEES))
+
+    # it should not make offer if called by item owner
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({}), amounts = sp.map({})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user1, amount = sp.mutez(100), valid = False)
+
+    # it should not make offer if invalid time period
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({}), amounts = sp.map({})
+        ), timePeriod = sp.int(0), 
+    )).run(sender = user2, amount = sp.mutez(100), valid = False)
+
+    # it should not make offer if empty assets
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({}), amounts = sp.map({})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(0), valid = False)
+
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:0})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(0), valid = False)
+
+    # it should not make offer if FTs not supported
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({0:token1.address}), amounts = sp.map({0:1000})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(0), valid = False)
+
+    # it should not make offer if NFTs not supported
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({0:nft2.address}), tokenIds = sp.map({0:0}), paymentTokens = sp.map({}), amounts = sp.map({})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(0), valid = False)
+
+    # it should not make offer if insufficient funds
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(10), valid = False)
+    
+    # it should make offer with only FTs
+    market.whitelistFTContract(
+        [token1.address]
+    ).run(sender = admin)
+    
+    mintFT(token1, user2, 1000000, admin)
+    approveFT(token1, vault, 100000, user2)
+    mintFT(token1, admin, 1000000, admin)
+    approveFT(token1, vault, 100000, admin)
+
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(1000))
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}), paymentTokens = sp.map({0:token1.address}), amounts = sp.map({0:10000})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = user2, amount = sp.mutez(0))
+
+    scenario.verify(token1.data.balances[vault.address].balance == 10000)
+
+    # it should make offer with only NFTs
+    mintNFT(nft1, 2, admin.address, admin)
+    mintNFT(nft1, 3, admin.address, admin)
+    mintNFT(nft1, 4, admin.address, admin)
+    setOperator(nft1, admin, vault, 2)
+    setOperator(nft1, admin, vault, 3)
+    setOperator(nft1, admin, vault, 4)
+
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+            tokens = sp.map({0:nft1.address}), tokenIds = sp.map({0:2}), paymentTokens = sp.map({}), amounts = sp.map({})
+        ), timePeriod = sp.int(1000), 
+    )).run(sender = admin)
+
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 2)].balance == 1)
+
+    # it should make offer with FTs + NFTs
+    market.newSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, 
+        offerAssets = sp.record(
+                tokens = sp.map({0:nft1.address, 1:nft1.address}), tokenIds = sp.map({0:3, 1:4}), 
+                paymentTokens = sp.map({0:token1.address, 1:NULL_ADDRESS}), amounts = sp.map({0:10000, 1:10000})
+            ), 
+        timePeriod = sp.int(1000), 
+    )).run(sender = admin, amount = sp.mutez(10000))
+
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 3)].balance == 1)
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 4)].balance == 1)
+
+    item1 = getters.getItem(sp.record(token = nft1.address, tokenId = 3))
+    scenario.show(item1)
+    item1 = getters.getItem(sp.record(token = nft1.address, tokenId = 4))
+    scenario.show(item1)
+
+    # ------------------ CANCEL DIRECT SWAP OFFER -------------
+
+
+    # ------------------ ACCEPT DIRECT SWAP OFFER -------------
+
+
+    # ------------------ CLAIM REJECTED DIRECT SWAP OFFER ----
 
