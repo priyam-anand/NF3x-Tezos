@@ -175,14 +175,14 @@ class Swap(sp.Contract):
             to
         )
 
-    def _setRejectedOffers(self, tokens, tokenIds):
+    def _setRejectedOffer(self, token, tokenId):
         c = sp.contract(
-            sp.TRecord(tokens=sp.TMap(sp.TNat,sp.TAddress), tokenIds=sp.TMap(sp.TNat,sp.TNat)),
+            sp.TRecord(token=sp.TAddress, tokenId=sp.TNat),
             self.data.detailStorage,
-            entry_point = 'setRejectedOffers',
+            entry_point = 'setRejectedOffer',
         ).open_some()
         sp.transfer(
-            sp.record(tokens = tokens, tokenIds = tokenIds),
+            sp.record(token = token, tokenId = tokenId),
             sp.mutez(0),
             c
         )
@@ -273,20 +273,15 @@ class Swap(sp.Contract):
             item.listing.directListing.amount,
             item.owner
         )
-        self._setRejectedOffers(
-            sp.map({0:params.token}),
-            sp.map({0:params.tokenId})
+        self._setRejectedOffer(
+            params.token,
+            params.tokenId
         )
 
         self._sendNFTs(
             sp.map({0:params.token}),
             sp.map({0:params.tokenId}),
             sp.source
-        )
-        self._itemReset(
-            sp.map({0:params.token}),
-            sp.map({0:params.tokenId}), 
-            NULL_ADDRESS
         )
 
     @sp.entry_point
@@ -337,5 +332,40 @@ class Swap(sp.Contract):
             sp.record(token = params.token, tokenId = params.tokenId, offerId = params.offerId),
             sp.mutez(0),
             c
+        )
+
+    @sp.entry_point
+    def acceptSwapOffer(self, params):
+        self._onlyMarket()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
+        ))
+        offer = sp.local('offer',self._offerExist(params))
+        item = sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some()
+
+        self._itemOwnerOnly(item.owner, sp.source)
+        self._itemNotExpired(offer.value.timePeriod)
+
+        self._sendAssets(offer.value.assets, item.owner)
+        self._sendNFTs(
+            sp.map({0:params.token}),
+            sp.map({0:params.tokenId}),
+            offer.value.owner
+        )
+        c = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat),
+            self.data.offerStorage,
+            entry_point = 'removeSwapOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId, offerId = params.offerId),
+            sp.mutez(0),
+            c
+        )
+        self._setRejectedOffer(
+            params.token,
+            params.tokenId
         )
 

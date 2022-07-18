@@ -107,6 +107,9 @@ def test():
     getters.setDetailStorage(detailStorage.address)
 
     offerStorage.setSwap(swap.address)
+    offerStorage.setDetailStorage(detailStorage.address)
+    detailStorage.setOfferStorage(offerStorage.address)
+
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -323,15 +326,26 @@ def test():
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 3)].balance == 1)
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 4)].balance == 1)
 
-    item1 = getters.getItem(sp.record(token = nft1.address, tokenId = 3))
-    scenario.show(item1)
-    item1 = getters.getItem(sp.record(token = nft1.address, tokenId = 4))
-    scenario.show(item1)
-
     # ------------------ CANCEL DIRECT SWAP OFFER -------------
 
+    # it should not cancel offer if it does not exist
+    market.cancelSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 9
+    )).run(sender = admin, valid = False)    
+
+    # it should not cancel offer if not called by the offer owner
+    market.cancelSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 0
+    )).run(sender = user1, valid = False)
+
+    # it should cancel offer, return the amount, and remove the entry from the array
+    market.cancelSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 0
+    )).run(sender = user2)
 
     # ------------------ ACCEPT DIRECT SWAP OFFER -------------
+
+    
 
 
     # ------------------ CLAIM REJECTED DIRECT SWAP OFFER ----

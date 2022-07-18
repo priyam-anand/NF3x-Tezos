@@ -8,6 +8,7 @@ class OfferStorage(sp.Contract):
         self.structures = structures()
         self.init(
             swap = NULL_ADDRESS,
+            detailStorage = NULL_ADDRESS,
             offers = sp.big_map(tkey = sp.TAddress, 
                 tvalue = sp.TMap(
                     sp.TNat, self.structures.getOfferType()
@@ -21,9 +22,15 @@ class OfferStorage(sp.Contract):
         sp.set_type(_swap, sp.TAddress)
         self.data.swap = _swap
 
+    @sp.entry_point
+    def setDetailStorage(self, _detailStorage):
+        sp.set_type(_detailStorage, sp.TAddress)
+        self.data.detailStorage = _detailStorage
+
+
     # UTILITY FUNCTIONS
     def _onlyApproved(self):
-        ok = (self.data.swap == sp.sender)
+        ok = (self.data.swap == sp.sender) | (self.data.detailStorage == sp.sender)
         sp.verify(ok, "OfferStorage : Only Approved Contract")
 
     # CORE FUNCTIONS

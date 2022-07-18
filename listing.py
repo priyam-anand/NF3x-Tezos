@@ -215,15 +215,14 @@ class Listing(sp.Contract):
         self._itemOwnerOnly(item.owner, sp.source)
 
         c = sp.contract(
-            sp.TRecord(tokens=sp.TMap(sp.TNat,sp.TAddress), tokenIds=sp.TMap(sp.TNat,sp.TNat)),
+            sp.TRecord(tokens=sp.TAddress, tokenIds=sp.TNat),
             self.data.detailStorage,
-            entry_point = 'setRejectedOffers',
+            entry_point = 'setRejectedOffer',
         ).open_some()
         sp.transfer(
-            sp.record(tokens = sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress), tokenIds = sp.map({0:params.tokenId}, tkey = sp.TNat, tvalue = sp.TNat)),
+            sp.record(tokens = params.token, tokenIds = params.tokenId),
             sp.mutez(0),
             c
         )
-        
         self._sendNFTs(sp.map({0:params.token},tkey = sp.TNat, tvalue = sp.TAddress) ,sp.map({0:params.tokenId}, tkey = sp.TNat, tvalue = sp.TNat))
 
