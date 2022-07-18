@@ -49,5 +49,19 @@ class OfferStorage(sp.Contract):
                 id = 0, token = params.token, tokenId = params.tokenId, owner = sp.source, assets = params.offerAssets, timePeriod = sp.now.add_seconds(params.timePeriod)
             )
 
+    @sp.onchain_view()
+    def getOffers(self, params):
+        sp.set_type(params, sp.TRecord(token = sp.TAddress, tokenId = sp.TNat))
+        sp.if self.data.offers.contains(params.token) & self.data.offers[params.token].contains(params.tokenId):
+            sp.result(self.data.offers[params.token][params.tokenId])
+        sp.else:
+            sp.result(self.structures.getDefaultOffer())
 
-
+    @sp.entry_point
+    def removeSwapOffer(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            offerId = sp.TNat
+        ))
+        del self.data.offers[params.token][params.tokenId].swapOffers[params.offerId]
