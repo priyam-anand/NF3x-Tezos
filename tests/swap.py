@@ -345,8 +345,34 @@ def test():
 
     # ------------------ ACCEPT DIRECT SWAP OFFER -------------
 
+    # it should not accept offer if it does not exist
+    market.acceptSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 500   
+    )).run(sender = admin, valid = False)
+
+    # it should not accept offer if not called by the item owner
+    market.acceptSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 1   
+    )).run(sender = user2, valid = False)
+
+    # it should not accept offer if offer has expired
+    market.acceptSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 1
+    )).run(sender = user1, now = sp.timestamp(100000), valid = False)
+
+    # it should accept offer, exchange the assets, remove this offer and set rejected offers 
+    market.acceptSwapOffer(sp.record(
+        token = nft1.address, tokenId = 0, offerId = 3
+    )).run(sender = user1)
+    fnlBal = token1.data.balances[user1.address].balance
+    scenario.show(fnlBal)
+
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(user1.address, 3)].balance == 1)
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(user1.address, 4)].balance == 1)
     
+    scenario.verify(fnlBal == 10000)
 
-
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 0)].balance == 1)
+    
     # ------------------ CLAIM REJECTED DIRECT SWAP OFFER ----
 
