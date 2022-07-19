@@ -112,11 +112,29 @@ class Listing(sp.Contract):
         ).open_some()
         sp.transfer(sp.record(token = token, tokenId = tokenId, directSwapToken = directSwapToken, directSwapAmount = directSwapPrice), sp.mutez(0), c)
 
-    def _performListing(self, token, tokenId, directSwapToken, directSwapPrice, timePeriod):
-        sp.verify(directSwapToken.contains(0), "Listing : Invalid Listing")
+    def _listReserve(self, token, tokenId, reserveTokens, deposits, remainings, durations):
+        sp.verify(sp.view("isFTSupported", self.data.detailStorage, reserveTokens, t = sp.TBool).open_some(), "Listing : Not supported")
+        ok = sp.local('ok', True)
+        sp.for i in deposits.keys():
+            sp.if (deposits[i] == 0) | (remainings[i] == 0) | (durations[i] == 0):
+                ok.value = False
+        sp.verify(ok.value, "Listing : Invalid Params")
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat, reserveTokens = sp.TMap(sp.TNat, sp.TAddress), deposits = sp.TMap(sp.TNat, sp.TNat), remainings = sp.TMap(sp.TNat, sp.TNat), durations = sp.TMap(sp.TNat, sp.TInt)),
+            self.data.itemStorage,
+            entry_point = 'reserveListing'
+        ).open_some()
+        sp.transfer(sp.record(token = token, tokenId = tokenId, reserveTokens = reserveTokens, deposits = deposits, remainings = remainings, durations = durations), sp.mutez(0), c)
+
+    def _performListing(self, token, tokenId, directSwapToken, directSwapPrice, reserveTokens, deposits, remainings, durations, timePeriod):
+        sp.verify((directSwapToken.contains(0)) | (sp.len(reserveTokens.keys()) > 0), "Listing : Invalid Listing")
         
         sp.if directSwapToken.contains(0):
             self._listDirectSwap(token, tokenId, directSwapToken[0], directSwapPrice[0])
+
+        sp.if sp.len(reserveTokens.keys()) > 0:
+            self._listReserve(token, tokenId, reserveTokens, deposits, remainings, durations)
 
         c = sp.contract(
             sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, timePeriod = sp.TInt),
@@ -137,6 +155,10 @@ class Listing(sp.Contract):
             tokenId = sp.TNat,
             directSwapToken = sp.TMap(sp.TNat,sp.TAddress),
             directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
+            reserveToken = sp.TMap(sp.TNat, sp.TAddress),
+            deposits = sp.TMap(sp.TNat, sp.TNat),
+            remainings = sp.TMap(sp.TNat, sp.TNat),
+            durations = sp.TMap(sp.TNat, sp.TInt),
             timePeriod = sp.TInt,
             value = sp.TMutez
         ))
@@ -155,6 +177,10 @@ class Listing(sp.Contract):
             params.tokenId, 
             params.directSwapToken, 
             params.directSwapPrice, 
+            params.reserveToken,
+            params.deposits,
+            params.remainings,
+            params.durations,
             params.timePeriod
         )
     
@@ -163,7 +189,12 @@ class Listing(sp.Contract):
     def editListing(self, params):
         sp.set_type(params, sp.TRecord(
             token = sp.TAddress, tokenId = sp.TNat,
-            directSwapToken = sp.TMap(sp.TNat, sp.TAddress), directSwapPrice = sp.TMap(sp.TNat, sp.TNat),
+            directSwapToken = sp.TMap(sp.TNat, sp.TAddress), 
+            directSwapPrice = sp.TMap(sp.TNat, sp.TNat),
+            reserveToken = sp.TMap(sp.TNat, sp.TAddress),
+            deposits = sp.TMap(sp.TNat, sp.TNat),
+            remainings = sp.TMap(sp.TNat, sp.TNat),
+            durations = sp.TMap(sp.TNat, sp.TInt),
             timePeriod = sp.TInt
         ))
         self._onlyMarket()
@@ -196,6 +227,10 @@ class Listing(sp.Contract):
             params.tokenId, 
             params.directSwapToken, 
             params.directSwapPrice, 
+            params.reserveToken,
+            params.deposits,
+            params.remainings,
+            params.durations,
             params.timePeriod
         )
 

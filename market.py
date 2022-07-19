@@ -84,16 +84,28 @@ class Market(sp.Contract):
             tokenId = sp.TNat,
             directSwapToken = sp.TMap(sp.TNat,sp.TAddress),
             directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
+            reserveToken = sp.TMap(sp.TNat, sp.TAddress),
+            deposits = sp.TMap(sp.TNat, sp.TNat),
+            remainings = sp.TMap(sp.TNat, sp.TNat),
+            durations = sp.TMap(sp.TNat, sp.TInt),
             timePeriod = sp.TInt,
         ))
         c1 = sp.contract(
             sp.TRecord(
-                token = sp.TAddress,tokenId = sp.TNat,directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),timePeriod = sp.TInt,value = sp.TMutez
+                token = sp.TAddress,tokenId = sp.TNat,
+                directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
+                reserveToken = sp.TMap(sp.TNat, sp.TAddress), deposits = sp.TMap(sp.TNat, sp.TNat),
+                remainings = sp.TMap(sp.TNat, sp.TNat), durations = sp.TMap(sp.TNat, sp.TInt),
+                timePeriod = sp.TInt,value = sp.TMutez
             ), self.data.listing,
             entry_point = 'createListing'
         ).open_some()
         sp.transfer(
-            sp.record(token = params.token, tokenId = params.tokenId, directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, timePeriod = params.timePeriod, value = sp.amount),
+            sp.record(token = params.token, tokenId = params.tokenId, 
+                directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, 
+                reserveToken = params.reserveToken, deposits = params.deposits,
+                remainings = params.remainings,durations = params.durations,
+                timePeriod = params.timePeriod, value = sp.amount),
             sp.mutez(0),
             c1
         )
@@ -105,16 +117,28 @@ class Market(sp.Contract):
             tokenId = sp.TNat,
             directSwapToken = sp.TMap(sp.TNat,sp.TAddress),
             directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
+            reserveToken = sp.TMap(sp.TNat, sp.TAddress),
+            deposits = sp.TMap(sp.TNat, sp.TNat),
+            remainings = sp.TMap(sp.TNat, sp.TNat),
+            durations = sp.TMap(sp.TNat, sp.TInt),
             timePeriod = sp.TInt,
         ))
         c1 = sp.contract(
             sp.TRecord(
-                token = sp.TAddress,tokenId = sp.TNat,directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),timePeriod = sp.TInt
+                token = sp.TAddress,tokenId = sp.TNat,
+                directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
+                reserveToken = sp.TMap(sp.TNat, sp.TAddress), deposits = sp.TMap(sp.TNat, sp.TNat),
+                remainings = sp.TMap(sp.TNat, sp.TNat), durations = sp.TMap(sp.TNat, sp.TInt),
+                timePeriod = sp.TInt
             ), self.data.listing,
             entry_point = 'editListing'
         ).open_some()
         sp.transfer(
-            sp.record(token = params.token, tokenId = params.tokenId, directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, timePeriod = params.timePeriod),
+            sp.record(token = params.token, tokenId = params.tokenId, 
+                directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, 
+                reserveToken = params.reserveToken, deposits = params.deposits,
+                remainings = params.remainings,durations = params.durations,
+                timePeriod = params.timePeriod),
             sp.mutez(0),
             c1
         )

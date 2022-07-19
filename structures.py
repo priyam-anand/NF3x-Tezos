@@ -37,9 +37,9 @@ class structures:
 
     def getReserveListingType(self):
         listing = sp.TRecord(
-            deposit = sp.TList(self.getAssetsType()),
-            remaining = sp.TList(self.getAssetsType()),
-            duration = sp.TList(sp.TTimestamp),
+            deposit = sp.TMap(sp.TNat,sp.TNat),
+            remaining = sp.TMap(sp.TNat,sp.TNat),
+            duration = sp.TMap(sp.TNat,sp.TInt),
             accepted = sp.TBool,
             owner = sp.TAddress,
             positionToken = sp.TNat,
@@ -49,9 +49,9 @@ class structures:
 
     def getDefaultReserveListing(self):
         listing = sp.record(
-            deposit = sp.list(t = self.getAssetsType()),
-            remaining = sp.list(t = self.getAssetsType()),
-            duration = sp.list(t = sp.TTimestamp),
+            deposit = sp.map({}, tkey = sp.TNat, tvalue = sp.TNat),
+            remaining = sp.map({}, tkey = sp.TNat, tvalue = sp.TNat),
+            duration = sp.map({}, tkey = sp.TNat, tvalue = sp.TInt),
             accepted = False,
             owner = NULL_ADDRESS,
             positionToken = sp.nat(0),

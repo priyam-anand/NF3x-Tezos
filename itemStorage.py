@@ -98,6 +98,21 @@ class ItemStorage(sp.Contract):
         )
 
     @sp.entry_point
+    def reserveListing(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, 
+            reserveTokens = sp.TMap(sp.TNat, sp.TAddress), 
+            deposits = sp.TMap(sp.TNat, sp.TNat), 
+            remainings = sp.TMap(sp.TNat, sp.TNat), 
+            durations = sp.TMap(sp.TNat, sp.TInt)
+        ))
+        self.data._items[params.token][params.tokenId].listing.listingType[1] = True
+        self.data._items[params.token][params.tokenId].listing.reserveListing = sp.record(
+            deposit = params.deposits, remaining = params.remainings, duration = params.durations, accepted = False, owner = sp.source, positionToken = 0, dueDate = sp.timestamp(0)
+        )
+
+    @sp.entry_point
     def markListed(self, params):
         self._onlyApproved()
         sp.set_type(params, sp.TRecord(
