@@ -365,8 +365,6 @@ def test():
         token = nft1.address, tokenId = 0, offerId = 3
     )).run(sender = user1)
     fnlBal = token1.data.balances[user1.address].balance
-    scenario.show(fnlBal)
-
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(user1.address, 3)].balance == 1)
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(user1.address, 4)].balance == 1)
     
@@ -374,5 +372,18 @@ def test():
 
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 0)].balance == 1)
     
-    # ------------------ CLAIM REJECTED DIRECT SWAP OFFER ----
+    # ------------------ CLAIM REJECTED DIRECT SWAP OFFER ----------
+
+    # it should not claim rejected offer if it does not exist
+    market.claimRejectedSwapOffer(2).run(sender = user1, valid = False)
+
+    # it should claim rejected offer, return the assets and remove this entry from the map
+    market.claimRejectedSwapOffer(0).run(sender = admin)
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 2)].balance == 1)
+
+    market.claimRejectedSwapOffer(0).run(sender = user2)
+
+
+
+
 

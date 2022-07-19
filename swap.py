@@ -319,7 +319,7 @@ class Swap(sp.Contract):
             token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
         ))
         
-        offer = sp.local('0ffer',self._offerExist(params))
+        offer = sp.local('offer',self._offerExist(params))
         self._itemOwnerOnly(offer.value.owner, sp.source)
         self._sendAssets(offer.value.assets, sp.source)
 
@@ -367,5 +367,30 @@ class Swap(sp.Contract):
         self._setRejectedOffer(
             params.token,
             params.tokenId
+        )
+
+    @sp.entry_point
+    def claimRejectedSwapOffer(self, offerId):
+        self._onlyMarket()
+        sp.set_type(offerId, sp.TNat)
+        offers = sp.view(
+            'getRejectedSwapOffers',
+            self.data.detailStorage,
+            sp.source,
+            t = sp.TMap(sp.TNat, self.structures.getSwapOfferType())
+        ).open_some()
+
+        sp.verify(offers.contains(offerId),"Swap : Offer does not exist")
+        self._sendAssets(offers[offerId].assets, sp.source)
+
+        c = sp.contract(
+            sp.TRecord(from_ = sp.TAddress, _offerId = sp.TNat),
+            self.data.detailStorage,
+            entry_point = 'deleteSwapOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(from_ = sp.source , _offerId = offerId),
+            sp.mutez(0),
+            c
         )
 

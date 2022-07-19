@@ -217,3 +217,17 @@ class Market(sp.Contract):
             sp.mutez(0),
             c
         )
+
+    @sp.entry_point
+    def claimRejectedSwapOffer(self, offerId):
+        sp.set_type(offerId, sp.TNat)
+        c = sp.contract(
+            sp.TNat,
+            self.data.swap,
+            entry_point = 'claimRejectedSwapOffer' 
+        ).open_some()
+        sp.transfer(
+            offerId,
+            sp.mutez(0),
+            c
+        )

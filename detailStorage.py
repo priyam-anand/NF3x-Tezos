@@ -93,7 +93,7 @@ class DetailStorage(sp.Contract):
         sp.for i in offers.swapOffers.keys():
             sp.if ~self.data.rejectedSwapOffers.contains(offers.swapOffers[i].owner):
                 self.data.rejectedSwapOffers[offers.swapOffers[i].owner] = sp.map({},tkey = sp.TNat, tvalue = self.structures.getSwapOfferType())
-            self.data.rejectedSwapOffers[offers.swapOffers[i].owner][i] = offers.swapOffers[i]
+            self.data.rejectedSwapOffers[offers.swapOffers[i].owner][sp.len(self.data.rejectedSwapOffers[offers.swapOffers[i].owner].keys())] = offers.swapOffers[i]
             self._removeSwapOffer(params.token, params.tokenId, i)
         
 
@@ -129,6 +129,22 @@ class DetailStorage(sp.Contract):
                 ).open_some()
                 sp.verify(item.status == 0,"DetailStorage : Invalid Status")
         sp.result(True)
+
+    @sp.entry_point
+    def deleteSwapOffer(self, params):
+        self._onlyApprovedContracts()
+        sp.set_type(params, sp.TRecord(
+            from_ = sp.TAddress, _offerId = sp.TNat
+        ))
+        del self.data.rejectedSwapOffers[params.from_][params._offerId]
+
+    @sp.onchain_view()
+    def getRejectedSwapOffers(self, _owner):
+        sp.result(self.data.rejectedSwapOffers.get(_owner,
+            sp.map({},tkey = sp.TNat, tvalue = self.structures.getSwapOfferType())
+            )
+        )
+
 
     # Getter functions
     @sp.onchain_view()
