@@ -151,3 +151,23 @@ class structures:
             reserveOffers = sp.map({}, tkey = sp.TNat, tvalue = self.getReserveOfferType())
         )
         return offer
+
+    def getReservationDetailType(self):
+        reservation = sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            owner = sp.TAddress, 
+            deposit = self.getAssetsType(), 
+            remaining = self.getAssetsType(),
+            duration = sp.TInt,
+            dueDate = sp.TTimestamp
+        )   
+        return reservation
+
+    def getDefaultReservationDetails(self) :
+        reservation = sp.record(
+            token = NULL_ADDRESS, tokenId = 0,
+            owner = NULL_ADDRESS, deposit = self.getDefaultAsset(),
+            remaining = self.getDefaultAsset(), duration = sp.int(0),
+            dueDate = sp.timestamp(0)
+        )
+        return reservation
