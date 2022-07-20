@@ -113,7 +113,8 @@ class Listing(sp.Contract):
         sp.transfer(sp.record(token = token, tokenId = tokenId, directSwapToken = directSwapToken, directSwapAmount = directSwapPrice), sp.mutez(0), c)
 
     def _listReserve(self, token, tokenId, reserveTokens, deposits, remainings, durations):
-        sp.verify(sp.view("isFTSupported", self.data.detailStorage, reserveTokens, t = sp.TBool).open_some(), "Listing : Not supported")
+        sp.for i in reserveTokens.keys():
+            sp.verify(sp.view("isFTSupported", self.data.detailStorage, reserveTokens[i], t = sp.TBool).open_some(), "Listing : Not supported")
         ok = sp.local('ok', True)
         sp.for i in deposits.keys():
             sp.if (deposits[i] == 0) | (remainings[i] == 0) | (durations[i] == 0):
@@ -250,12 +251,12 @@ class Listing(sp.Contract):
         self._itemOwnerOnly(item.owner, sp.source)
 
         c = sp.contract(
-            sp.TRecord(tokens=sp.TAddress, tokenIds=sp.TNat),
+            sp.TRecord(token=sp.TAddress, tokenId=sp.TNat),
             self.data.detailStorage,
             entry_point = 'setRejectedOffer',
         ).open_some()
         sp.transfer(
-            sp.record(tokens = params.token, tokenIds = params.tokenId),
+            sp.record(token = params.token, tokenId = params.tokenId),
             sp.mutez(0),
             c
         )
