@@ -10,7 +10,8 @@ class Market(sp.Contract):
             whitelist = NULL_ADDRESS,
             listing = NULL_ADDRESS,
             vault = NULL_ADDRESS,
-            swap = NULL_ADDRESS
+            swap = NULL_ADDRESS,
+            reserve = NULL_ADDRESS
         )
 
     # Access setters
@@ -37,6 +38,12 @@ class Market(sp.Contract):
         # verify that the function caller is the admin
         sp.set_type(_vault, sp.TAddress)
         self.data.vault = _vault
+
+    @sp.entry_point
+    def setReserve(self, _reserve):
+        # verify that the function caller is the admin
+        sp.set_type(_reserve, sp.TAddress)
+        self.data.reserve = _reserve
 
     # Utility Functions
     def _recieveTez(self):
@@ -253,5 +260,28 @@ class Market(sp.Contract):
         sp.transfer(
             offerId,
             sp.mutez(0),
+            c
+        )
+
+    @sp.entry_point
+    def reserve(self, params):
+        self._recieveTez()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            reservationId = sp.TNat
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat,
+                reservationId = sp.TNat, value = sp.TMutez
+            ),
+            self.data.reserve,
+            entry_point = 'reserve' 
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token = params.token, tokenId = params.tokenId,
+                reservationId = params.reservationId, value = sp.amount 
+            ),sp.mutez(0),
             c
         )

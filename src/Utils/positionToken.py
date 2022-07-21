@@ -420,10 +420,10 @@ class FA2_mint(FA2_core):
             self.data.ledger[user] = Ledger_value.make(params.amount)
         sp.if ~ self.token_id_set.contains(self.data.all_tokens, params.token_id):
             self.token_id_set.add(self.data.all_tokens, params.token_id)
-            self.data.token_metadata[params.token_id] = sp.record(
-                token_id    = params.token_id,
-                token_info  = params.metadata
-            )
+            # self.data.token_metadata[params.token_id] = sp.record(
+            #     token_id    = params.token_id,
+            #     token_info  = params.metadata
+            # )
             self.data.reservationDetails[params.token_id] = params.reservationDetails
         if self.config.store_total_supply:
             self.data.total_supply[params.token_id] = params.amount + self.data.total_supply.get(params.token_id, default_value = 0)
@@ -432,8 +432,8 @@ class FA2_mint(FA2_core):
     def burn(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         user = self.ledger_key.make(params.address, params.token_id)
-        self.data.ledger[user].balance -= 1
-        
+        self.data.ledger[user].balance = sp.as_nat(self.data.ledger[user].balance - 1)
+
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):

@@ -12,6 +12,7 @@ class DetailStorage(sp.Contract):
             itemStorage = NULL_ADDRESS,
             swap = NULL_ADDRESS,
             offerStorage = NULL_ADDRESS,
+            reserve = NULL_ADDRESS,
             whitelistedNFTs = sp.map(tkey = sp.TAddress, tvalue = sp.TBool),
             whitelistedFTs = sp.map(tkey = sp.TAddress, tvalue = sp.TBool),
             rejectedSwapOffers = sp.map(
@@ -50,9 +51,14 @@ class DetailStorage(sp.Contract):
         sp.set_type(_itemStorage, sp.TAddress)
         self.data.itemStorage = _itemStorage
 
+    @sp.entry_point
+    def setReserve(self, _reserve):
+        sp.set_type(_reserve, sp.TAddress)
+        self.data.reserve = _reserve
+
     # Utility functions/ internal functions
     def _onlyApprovedContracts(self):
-        ok = (sp.sender == self.data.whitelist) | (sp.sender == self.data.listing) | (sp.sender == self.data.itemStorage) | (sp.sender == self.data.swap)
+        ok = (sp.sender == self.data.whitelist) | (sp.sender == self.data.listing) | (sp.sender == self.data.itemStorage) | (sp.sender == self.data.swap) | (sp.sender == self.data.reserve)
         sp.verify(ok
         , "DetailStorage : Only Approved Contract")
 

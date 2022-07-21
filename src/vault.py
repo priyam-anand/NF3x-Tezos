@@ -31,6 +31,12 @@ class Vault(sp.Contract):
         # verify that the function caller is the admin
         self.data.swap = _swap
 
+    @sp.entry_point
+    def setReserve(self, _reserve):
+        sp.set_type(_reserve, sp.TAddress)
+        # verify that the function caller is the admin
+        self.data.reserve = _reserve
+
     # Utility Functions
     def _onlyApproved(self):
         ok = (sp.sender == self.data.market) | (sp.sender == self.data.reserve) | (sp.sender == self.data.listing) | (sp.sender == self.data.swap) | (sp.sender == self.data.collectionOffer)

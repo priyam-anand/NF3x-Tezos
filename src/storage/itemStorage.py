@@ -10,6 +10,7 @@ class ItemStorage(sp.Contract):
             detailStorage = NULL_ADDRESS,
             listing = NULL_ADDRESS,
             swap = NULL_ADDRESS,
+            reserve = NULL_ADDRESS,
             _items = sp.big_map(tkey = sp.TAddress,
                 tvalue = sp.TMap(
                     sp.TNat,self.structures.getItemType()
@@ -33,10 +34,14 @@ class ItemStorage(sp.Contract):
         sp.set_type(_detailStorage, sp.TAddress)
         self.data.detailStorage = _detailStorage
 
+    @sp.entry_point
+    def setReserve(self, _reserve):
+        sp.set_type(_reserve, sp.TAddress)
+        self.data.reserve = _reserve
 
     # INTERNAL FUNCTIONS
     def _onlyApproved(self):
-        ok = (self.data.detailStorage == sp.sender) | (self.data.listing == sp.sender) | (self.data.swap == sp.sender)
+        ok = (self.data.detailStorage == sp.sender) | (self.data.listing == sp.sender) | (self.data.swap == sp.sender) | (self.data.reserve == sp.sender)
         sp.verify(ok, "ItemStorage : Only Approved Contract")
 
     def _resetItem(self, token, tokenId):
@@ -109,8 +114,18 @@ class ItemStorage(sp.Contract):
         ))
         self.data._items[params.token][params.tokenId].listing.listingType[1] = True
         self.data._items[params.token][params.tokenId].listing.reserveListing = sp.record(
-            deposit = params.deposits, remaining = params.remainings, duration = params.durations, accepted = False, owner = sp.source, positionToken = 0, dueDate = sp.timestamp(0)
+            reserveToken = params.reserveTokens, deposit = params.deposits, remaining = params.remainings, duration = params.durations, accepted = False, owner = sp.source, positionToken = 0, dueDate = sp.timestamp(0)
         )
+
+    @sp.entry_point
+    def reserveItem(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, positionToken = sp.TNat
+        ))
+        self.data._items[params.token][params.tokenId].status = sp.nat(3)
+        self.data._items[params.token][params.tokenId].listing.reserveListing.accepted = True
+        self.data._items[params.token][params.tokenId].listing.reserveListing.positionToken = params.positionToken
 
     @sp.entry_point
     def markListed(self, params):

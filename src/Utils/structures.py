@@ -37,6 +37,7 @@ class structures:
 
     def getReserveListingType(self):
         listing = sp.TRecord(
+            reserveToken = sp.TMap(sp.TNat, sp.TAddress),
             deposit = sp.TMap(sp.TNat,sp.TNat),
             remaining = sp.TMap(sp.TNat,sp.TNat),
             duration = sp.TMap(sp.TNat,sp.TInt),
@@ -49,6 +50,7 @@ class structures:
 
     def getDefaultReserveListing(self):
         listing = sp.record(
+            reserveToken = sp.map({}, tkey = sp.TNat, tvalue = sp.TAddress),
             deposit = sp.map({}, tkey = sp.TNat, tvalue = sp.TNat),
             remaining = sp.map({}, tkey = sp.TNat, tvalue = sp.TNat),
             duration = sp.map({}, tkey = sp.TNat, tvalue = sp.TInt),
@@ -105,6 +107,14 @@ class structures:
         )
         return Item
 
+    '''
+        Item Status
+        0 : Unlisted
+        1 : Listed
+        2 : Locked
+        3 : On Hold
+        4 : Bundle
+    '''
     def getDefaultItem(self):
         item = sp.record(
             token = NULL_ADDRESS,
