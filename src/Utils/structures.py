@@ -138,12 +138,13 @@ class structures:
 
     def getReserveOfferType(self):
         offer = sp.TRecord(
+            id = sp.TNat,
             token = sp.TAddress,
             tokenId = sp.TNat,
             owner = sp.TAddress,
             deposit = self.getAssetsType(),
             remaining = self.getAssetsType(),
-            duration = sp.TTimestamp,
+            duration = sp.TInt,
             timePeriod = sp.TTimestamp
         )
         return offer

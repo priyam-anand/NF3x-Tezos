@@ -9,6 +9,7 @@ class OfferStorage(sp.Contract):
         self.init(
             swap = NULL_ADDRESS,
             detailStorage = NULL_ADDRESS,
+            reserve = NULL_ADDRESS,
             offers = sp.big_map(tkey = sp.TAddress, 
                 tvalue = sp.TMap(
                     sp.TNat, self.structures.getOfferType()
@@ -27,10 +28,14 @@ class OfferStorage(sp.Contract):
         sp.set_type(_detailStorage, sp.TAddress)
         self.data.detailStorage = _detailStorage
 
+    @sp.entry_point
+    def setReserve(self, _reserve):
+        sp.set_type(_reserve, sp.TAddress)
+        self.data.reserve = _reserve
 
     # UTILITY FUNCTIONS
     def _onlyApproved(self):
-        ok = (self.data.swap == sp.sender) | (self.data.detailStorage == sp.sender)
+        ok = (self.data.swap == sp.sender) | (self.data.detailStorage == sp.sender) | (self.data.reserve == sp.sender)
         sp.verify(ok, "OfferStorage : Only Approved Contract")
 
     # CORE FUNCTIONS
@@ -56,6 +61,31 @@ class OfferStorage(sp.Contract):
                 id = 0, token = params.token, tokenId = params.tokenId, owner = sp.source, assets = params.offerAssets, timePeriod = sp.now.add_seconds(params.timePeriod)
             )
 
+    @sp.entry_point
+    def addNewReserveOffer(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, 
+            deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, 
+            timePeriod = sp.TInt
+        ))
+        sp.if (self.data.offers.contains(params.token) & self.data.offers[params.token].contains(params.tokenId)):
+            currId = sp.len(self.data.offers[params.token][params.tokenId].reserveOffers.keys())
+            self.data.offers[params.token][params.tokenId].reserveOffers[currId] = sp.record(
+                id = currId, token = params.token, tokenId = params.tokenId, 
+                owner = sp.source, deposit = params.deposit, remaining = params.remaining, duration = params.duration, timePeriod = sp.now.add_seconds(params.timePeriod)
+            )
+        sp.else:
+            sp.if ~self.data.offers.contains(params.token):
+                self.data.offers[params.token] = sp.map({}, tkey = sp.TNat, tvalue = self.structures.getOfferType())
+            self.data.offers[params.token][params.tokenId] = self.structures.getDefaultOffer()
+            self.data.offers[params.token][params.tokenId].reserveOffers[0] = sp.record(
+                id = 0, token = params.token, tokenId = params.tokenId, 
+                owner = sp.source, deposit = params.deposit, remaining = params.remaining, duration = params.duration, timePeriod = sp.now.add_seconds(params.timePeriod)
+            )
+
+    
+    
     @sp.onchain_view()
     def getOffers(self, params):
         sp.set_type(params, sp.TRecord(token = sp.TAddress, tokenId = sp.TNat))

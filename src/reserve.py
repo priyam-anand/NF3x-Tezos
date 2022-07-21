@@ -11,7 +11,8 @@ class Reserve(sp.Contract):
             itemStorage = NULL_ADDRESS,
             vault = NULL_ADDRESS,
             positionToken = NULL_ADDRESS,
-            detailStorage = NULL_ADDRESS
+            detailStorage = NULL_ADDRESS,
+            offerStorage = NULL_ADDRESS
         )
 
     # Access Setter Functions
@@ -34,6 +35,10 @@ class Reserve(sp.Contract):
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
         self.data.detailStorage = _detailStorage
+
+    @sp.entry_point
+    def setOfferStorage(self, _offerStorage):
+        self.data.offerStorage = _offerStorage
 
     # Utility Functions
     def _itemNotExpired(self, timePeriod):
@@ -193,6 +198,51 @@ class Reserve(sp.Contract):
             c
         )
 
+    def _assetSupported(self, offerAssets):
+        sp.for i in offerAssets.tokens.keys():
+            sp.verify(sp.view(
+                'isNFTSupported',
+                self.data.detailStorage,
+                offerAssets.tokens[i],
+                t = sp.TBool
+            ).open_some(),"Reserve : Not Supported")
+        sp.for i in offerAssets.paymentTokens.keys():
+            sp.verify(sp.view(
+                'isFTSupported',
+                self.data.detailStorage,
+                offerAssets.paymentTokens[i],
+                t = sp.TBool
+            ).open_some(),"Reserve : Not Supported")
+
+    def _checkEmptyAssets(self, offerAssets):
+        sp.verify((sp.len(offerAssets.tokens.keys()) > 0) | (sp.len(offerAssets.paymentTokens.keys()) > 0), "Reserve : Empty Asset")
+        sp.if sp.len(offerAssets.tokens.keys()) == 0:
+            ttl = sp.local('value', sp.nat(0))
+            sp.for i in offerAssets.paymentTokens.keys():
+                ttl.value += offerAssets.amounts[i]
+            sp.verify(ttl.value > 0, "Reserve : Empty Asset")
+
+    def _checkReserveOfferRequirements(self, item, timePeriod, deposit, remaining, duration, value):
+        self._notItemOwner(sp.source, item.owner)
+        sp.verify(timePeriod > 0,"Reserve : Invalid Time Period")
+        self._assetSupported(deposit)
+        self._assetSupported(remaining)
+
+        self._checkEmptyAssets(deposit)
+        self._checkEmptyAssets(remaining)
+
+        sp.verify(duration > 0,"Reserve : Invalid Params")
+
+        self._checkPayment(
+            deposit.paymentTokens, 
+            deposit.amounts, 
+            value
+        )
+
+    def _receiveAssets(self, offerAssets):
+        self._receiveNFTs(offerAssets.tokens, offerAssets.tokenIds)
+        self._receiveFTs(offerAssets.paymentTokens, offerAssets.amounts)
+
     # Core Functions
     @sp.entry_point
     def reserve(self, params):
@@ -265,6 +315,28 @@ class Reserve(sp.Contract):
 
         self._reserveItem(params.token, params.tokenId, positionTokenId.value)
 
+    @sp.entry_point
+    def newReserveOffer(self, params):
+        self._onlyMarket()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, 
+            deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, 
+            timePeriod = sp.TInt, value = sp.TMutez
+        ))
+        item = sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some()
 
+        self._checkReserveOfferRequirements(item, params.timePeriod, params.deposit, params.remaining, params.duration, params.value)
+        self._receiveAssets(params.deposit)
+        c = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, timePeriod = sp.TInt),
+            self.data.offerStorage, 
+            entry_point = 'addNewReserveOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId, deposit = params.deposit, remaining = params.remaining, duration = params.duration, timePeriod = params.timePeriod),
+            sp.mutez(0),
+            c
+        )
 
-        

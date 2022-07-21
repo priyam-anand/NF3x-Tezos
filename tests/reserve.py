@@ -87,6 +87,7 @@ def test():
     detailStorage.setItemStorage(itemStorage.address)
     detailStorage.setSwap(swap.address)
     detailStorage.setReserve(reserve.address)
+    detailStorage.setOfferStorage(offerStorage.address)
 
     itemStorage.setListing(listing.address)
     itemStorage.setDetailStorage(detailStorage.address)
@@ -124,13 +125,14 @@ def test():
 
     offerStorage.setSwap(swap.address)
     offerStorage.setDetailStorage(detailStorage.address)
-    detailStorage.setOfferStorage(offerStorage.address)
+    offerStorage.setReserve(reserve.address)
 
     reserve.setMarket(market.address)
     reserve.setItemStorage(itemStorage.address)
     reserve.setVault(vault.address)
     reserve.setPositionToken(positionToken.address)
     reserve.setDetailStorage(detailStorage.address)
+    reserve.setOfferStorage(offerStorage.address)
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -260,6 +262,96 @@ def test():
     market.reserve(sp.record(
         token = nft1.address, tokenId = 1, reservationId = 0
     )).run(sender = user2, amount = sp.mutez(1500), valid = False) 
+
+    # ----------------- New Reserve Offer ----------------
+
+    # it should not make offer if called by the item owner
+    market.newReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, 
+        deposit = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({}), amounts = sp.map({})
+        ),
+        remaining = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({}), amounts = sp.map({})
+        ),
+        duration = sp.int(1000), timePeriod = sp.int(100000)
+    )).run(sender = admin, amount = sp.mutez(1000), valid = False)
+
+    # it should not make offer if time period is 0
+    market.newReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, 
+        deposit = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:10000})
+        ),
+        remaining = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000000})
+        ),
+        duration = sp.int(1000), timePeriod = sp.int(0)
+    )).run(sender = user1, amount = sp.mutez(1000), valid = False)
+
+    # it shoudl not make offer if duration is 0
+    market.newReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, 
+        deposit = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:10000})
+        ),
+        remaining = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000000})
+        ),
+        duration = sp.int(0), timePeriod = sp.int(100000)
+    )).run(sender = user1, amount = sp.mutez(10000), valid = False)
+
+    # it should make reservation offer using only FTs
+    market.newReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, 
+        deposit = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:10000})
+        ),
+        remaining = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000000})
+        ),
+        duration = sp.int(10000), timePeriod = sp.int(100000)
+    )).run(sender = user1, amount = sp.mutez(10000))
+
+    # it should make reservation offer using NFTs + FTs
+    market.whitelistFTContract(
+        [token1.address]
+    ).run(sender = admin)
+
+    mintNFT(nft1, 4, user1.address, admin)
+    mintNFT(nft1, 5, user1.address, admin)
+    setOperator(nft1, user1, vault, 4)
+    setOperator(nft1, user1, vault, 5)
+
+    mintFT(token1, user1, 1000000, admin)
+    approveFT(token1, vault, 10000, user1)
+
+    market.newReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, 
+        deposit = sp.record(
+            tokens = sp.map({0:nft1.address, 1:nft1.address}), tokenIds = sp.map({0:4, 1:5}),
+            paymentTokens = sp.map({0:NULL_ADDRESS, 1:token1.address}), amounts = sp.map({0:10000, 1:10000})
+        ),
+        remaining = sp.record(
+            tokens = sp.map({0:nft1.address}), tokenIds = sp.map({0:6}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000000})
+        ),
+        duration = sp.int(10000), timePeriod = sp.int(100000)
+    )).run(sender = user1, amount = sp.mutez(10000))
+
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 4)].balance == 1)
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 5)].balance == 1)
+    scenario.verify(token1.data.balances[vault.address].balance == 10000)
+    
+
 
 
 

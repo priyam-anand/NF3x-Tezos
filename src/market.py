@@ -285,3 +285,30 @@ class Market(sp.Contract):
             ),sp.mutez(0),
             c
         )
+
+    @sp.entry_point
+    def newReserveOffer(self, params):
+        self._recieveTez()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, 
+            deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, 
+            timePeriod = sp.TInt
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat, 
+                deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, 
+                timePeriod = sp.TInt, value = sp.TMutez
+            ),
+            self.data.reserve,
+            entry_point = 'newReserveOffer' 
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token = params.token, tokenId = params.tokenId,
+                deposit = params.deposit, remaining = params.remaining,
+                duration = params.duration, timePeriod = params.timePeriod, value = sp.amount
+            ),sp.mutez(0),
+            c
+        )
+        
