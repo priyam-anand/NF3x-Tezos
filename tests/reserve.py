@@ -350,16 +350,45 @@ def test():
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 4)].balance == 1)
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 5)].balance == 1)
     scenario.verify(token1.data.balances[vault.address].balance == 10000)
+
+    market.newReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, 
+        deposit = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:10000})
+        ),
+        remaining = sp.record(
+            tokens = sp.map({}), tokenIds = sp.map({}),
+            paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000000})
+        ),
+        duration = sp.int(10000), timePeriod = sp.int(100000)
+    )).run(sender = user2, amount = sp.mutez(10000))
+
+    # --------------- Cancel Reserve Offer ----------------
+
+    # it should not cancel offer if it does not exist
+    market.cancelReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, offerId = 10
+    )).run(sender = user2, valid = False)
+
+    # it should cancel offer, return the locked assets and remove this entry from the mapping
+    market.cancelReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, offerId = 2
+    )).run(sender = user2)
+
+
+    # --------------- Accept Reserve Offer -----------------
+
+    # it should accept reserve offer, transfer deposit to the seller and mint position token with the required params
+    market.acceptReserveOffer(sp.record(
+        token = nft1.address, tokenId = 2, offerId = 1
+    )).run(sender = admin)
+ 
+    item = getters.getItem(sp.record(token = nft1.address, tokenId = 2))
+    scenario.show(item)
+
     
 
-
-
-
     
-
-    
-
-
-
 
 
