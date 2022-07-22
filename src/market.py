@@ -353,3 +353,26 @@ class Market(sp.Contract):
             sp.mutez(0),
             c
         )
+
+    @sp.entry_point
+    def payRemaining(self, params):
+        self._recieveTez()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat,
+                value = sp.TMutez
+            ),self.data.reserve
+            ,entry_point = 'payRemaining' 
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token = params.token, tokenId = params.tokenId, 
+                value = sp.amount
+            ),
+            sp.mutez(0),
+            c
+        )
+        

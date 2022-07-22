@@ -328,11 +328,24 @@ def test():
 
     mintNFT(nft1, 4, user1.address, admin)
     mintNFT(nft1, 5, user1.address, admin)
+    mintNFT(nft1, 6, user2.address, admin)
+    mintNFT(nft1, 7, user2.address, admin)
+
     setOperator(nft1, user1, vault, 4)
     setOperator(nft1, user1, vault, 5)
+    setOperator(nft1, user2, vault, 6)
+    setOperator(nft1, user2, vault, 7)
 
     mintFT(token1, user1, 1000000, admin)
     approveFT(token1, vault, 10000, user1)
+
+    market.createListing(sp.record(
+        token = nft1.address, tokenId = 6,
+        directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:9000}),
+        reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        timePeriod = sp.int(86400)
+    )).run(sender = user2, amount = sp.mutez(PLATFORM_FEES))
 
     market.newReserveOffer(sp.record(
         token = nft1.address, tokenId = 2, 
@@ -341,7 +354,7 @@ def test():
             paymentTokens = sp.map({0:NULL_ADDRESS, 1:token1.address}), amounts = sp.map({0:10000, 1:10000})
         ),
         remaining = sp.record(
-            tokens = sp.map({0:nft1.address}), tokenIds = sp.map({0:6}),
+            tokens = sp.map({0:nft1.address}), tokenIds = sp.map({0:7}),
             paymentTokens = sp.map({0:NULL_ADDRESS}), amounts = sp.map({0:1000000})
         ),
         duration = sp.int(10000), timePeriod = sp.int(100000)
@@ -383,12 +396,44 @@ def test():
     market.acceptReserveOffer(sp.record(
         token = nft1.address, tokenId = 2, offerId = 1
     )).run(sender = admin)
- 
+    scenario.verify(positionToken.data.ledger[positionToken.ledger_key.make(user1.address, 1)].balance == 1)
+
     item = getters.getItem(sp.record(token = nft1.address, tokenId = 2))
     scenario.show(item)
 
-    
+    # ----------------- Pay Remaining -------------------
 
-    
+    # it should not pay remainig if not yet reserved
+    market.payRemaining(sp.record(
+        token = nft1.address, tokenId = 6
+    )).run(sender = user2, valid = False)
+
+    # it should not pay remaining if not called by the position token owner
+    market.payRemaining(sp.record(
+        token = nft1.address, tokenId = 2
+    )).run(sender = user2, valid = False)
+
+    # it should send the remainig to the seller, transfer the NFT to the buyer and burn the position token
+    positionToken.transfer(
+        sp.list([sp.record(
+            from_=user1.address, 
+            txs=sp.list([sp.record(
+                amount=1, 
+                to_=user2.address, 
+                token_id=1)
+            ]))
+        ])
+    ).run(sender = user1)
+    market.payRemaining(sp.record(
+        token = nft1.address, tokenId = 2
+    )).run(sender = user2, amount = sp.mutez(1000000))
+
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 7)].balance == 1)
+    scenario.verify(nft1.data.ledger[nft1.ledger_key.make(user2.address, 2)].balance == 1)
+
+    item = getters.getItem(sp.record(token = nft1.address, tokenId = 2))
+    scenario.show(item)
+
+
 
 

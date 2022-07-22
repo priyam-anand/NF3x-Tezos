@@ -337,6 +337,17 @@ class FA2_core(sp.Contract):
         sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
         sp.result(self.data.ledger[user].balance)
 
+    @sp.onchain_view()
+    def get_balance_onchain(self, params):
+        sp.set_type(params, sp.TRecord(
+            owner = sp.TAddress, token_id = sp.TNat
+        ))
+        user = self.ledger_key.make(params.owner, params.token_id)
+        val = sp.local('val',sp.nat(0))
+        sp.if self.data.ledger.contains(user):
+            val.value = self.data.ledger[user].balance
+        sp.result(val.value)
+        
 
     @sp.entry_point
     def update_operators(self, params):
@@ -420,10 +431,10 @@ class FA2_mint(FA2_core):
             self.data.ledger[user] = Ledger_value.make(params.amount)
         sp.if ~ self.token_id_set.contains(self.data.all_tokens, params.token_id):
             self.token_id_set.add(self.data.all_tokens, params.token_id)
-            # self.data.token_metadata[params.token_id] = sp.record(
-            #     token_id    = params.token_id,
-            #     token_info  = params.metadata
-            # )
+            self.data.token_metadata[params.token_id] = sp.record(
+                token_id    = params.token_id,
+                token_info  = sp.map({})
+            )
             self.data.reservationDetails[params.token_id] = params.reservationDetails
         if self.config.store_total_supply:
             self.data.total_supply[params.token_id] = params.amount + self.data.total_supply.get(params.token_id, default_value = 0)
@@ -433,6 +444,7 @@ class FA2_mint(FA2_core):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         user = self.ledger_key.make(params.address, params.token_id)
         self.data.ledger[user].balance = sp.as_nat(self.data.ledger[user].balance - 1)
+        del self.data.token_metadata[params.token_id]
 
 
 class FA2_token_metadata(FA2_core):
