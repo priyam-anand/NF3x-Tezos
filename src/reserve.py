@@ -247,6 +247,31 @@ class Reserve(sp.Contract):
         self._sendNFTs(offerAssets.tokens, offerAssets.tokenIds, to)
         self._sendFTs(offerAssets.paymentTokens, offerAssets.amounts, to)
 
+    def _removeReserveOffer(self, token, tokenId, offerId):
+        c = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat),
+            self.data.offerStorage,
+            entry_point = 'removeReserveOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = token, tokenId = tokenId, offerId = offerId),
+            sp.mutez(0),
+            c
+        )
+
+    def _mintPositionToken(self, positionTokenId, reservationDetails):
+        c = sp.contract(
+            sp.TRecord(token_id = sp.TNat, amount = sp.TNat, address = sp.TAddress, reservationDetails = self.structures.getReservationDetailType()),
+            self.data.positionToken,
+            entry_point = 'mint'
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token_id = positionTokenId, amount = 1, address = sp.source, reservationDetails = reservationDetails
+            ), sp.mutez(0),
+            c
+        )
+
     @sp.private_lambda(with_storage="read-only")
     def _offerExist(self, params):
         sp.set_type(params, sp.TRecord(
@@ -317,19 +342,7 @@ class Reserve(sp.Contract):
             duration = item.listing.reserveListing.duration[params.reservationId], dueDate = sp.now.add_seconds(item.listing.reserveListing.duration[params.reservationId])
         )
 
-        c = sp.contract(
-            sp.TRecord(token_id = sp.TNat, amount = sp.TNat, address = sp.TAddress, reservationDetails = self.structures.getReservationDetailType()),
-            self.data.positionToken,
-            entry_point = 'mint'
-        ).open_some()
-
-        sp.transfer(
-            sp.record(
-                token_id = positionTokenId.value, amount = 1, address = sp.source, reservationDetails = _reservationDetails
-            ), sp.mutez(0),
-            c
-        )
-
+        self._mintPositionToken(positionTokenId.value, _reservationDetails)
         self._reserveItem(params.token, params.tokenId, positionTokenId.value)
 
     @sp.entry_point
@@ -367,15 +380,44 @@ class Reserve(sp.Contract):
         offer = sp.local('offer',self._offerExist(params))
         self._itemOwnerOnly(offer.value.owner, sp.source)
         self._sendAssets(offer.value.deposit, sp.source)
-        c = sp.contract(
-            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat),
-            self.data.offerStorage,
-            entry_point = 'removeReserveOffer'
+        self._removeReserveOffer(params.token, params.tokenId, params.offerId)
+
+    @sp.entry_point
+    def acceptReserveOffer(self, params):
+        self._onlyMarket()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
+        ))
+        offer = sp.local('offer',self._offerExist(params))
+        item = sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
         ).open_some()
-        sp.transfer(
-            sp.record(token = params.token, tokenId = params.tokenId, offerId = params.offerId),
-            sp.mutez(0),
-            c
+
+        self._itemOwnerOnly(item.owner, sp.source)
+        self._itemNotExpired(offer.value.timePeriod)
+
+        self._sendAssets(offer.value.deposit, sp.source)
+        self._removeReserveOffer(params.token, params.tokenId, params.offerId)
+
+        self._setRejectedOffer(
+            params.token,
+            params.tokenId
         )
+
+        positionTokenId = sp.local('positionTokenId', 
+            sp.view(
+                'count_tokens',
+                self.data.positionToken,
+                sp.unit, t = sp.TNat
+            ).open_some()
+        )
+        _reservationDetails = sp.record(
+            token = params.token, tokenId = params.tokenId,
+            owner = item.owner, deposit = offer.value.deposit, remaining = offer.value.remaining,
+            duration = offer.value.duration, dueDate = sp.now.add_seconds(offer.value.duration)
+        )
+        self._mintPositionToken(positionTokenId.value, _reservationDetails)
+        self._reserveItem(params.token, params.tokenId, positionTokenId.value)
+
 
 
