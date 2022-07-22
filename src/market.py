@@ -312,3 +312,23 @@ class Market(sp.Contract):
             c
         )
         
+    @sp.entry_point
+    def cancelReserveOffer(self, params):
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat,
+                offerId = sp.TNat
+            ),self.data.reserve
+            ,entry_point = 'cancelReserveOffer' 
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token = params.token, tokenId = params.tokenId, 
+                offerId = params.offerId
+            ),
+            sp.mutez(0),
+            c
+        )

@@ -243,6 +243,23 @@ class Reserve(sp.Contract):
         self._receiveNFTs(offerAssets.tokens, offerAssets.tokenIds)
         self._receiveFTs(offerAssets.paymentTokens, offerAssets.amounts)
 
+    def _sendAssets(self, offerAssets, to):
+        self._sendNFTs(offerAssets.tokens, offerAssets.tokenIds, to)
+        self._sendFTs(offerAssets.paymentTokens, offerAssets.amounts, to)
+
+    @sp.private_lambda(with_storage="read-only")
+    def _offerExist(self, params):
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
+        ))
+        offers = sp.view(
+            'getOffers', self.data.offerStorage,
+            sp.record(token = params.token, tokenId = params.tokenId),
+            t = self.structures.getOfferType()
+        ).open_some()
+        sp.verify(offers.reserveOffers.contains(params.offerId),"Reserve : Offer does not exist")
+        sp.result(offers.reserveOffers[params.offerId])
+
     # Core Functions
     @sp.entry_point
     def reserve(self, params):
@@ -339,4 +356,26 @@ class Reserve(sp.Contract):
             sp.mutez(0),
             c
         )
+
+    @sp.entry_point
+    def cancelReserveOffer(self, params):
+        self._onlyMarket()
+        sp.set_type(params,sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
+        ))
+        
+        offer = sp.local('offer',self._offerExist(params))
+        self._itemOwnerOnly(offer.value.owner, sp.source)
+        self._sendAssets(offer.value.deposit, sp.source)
+        c = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat),
+            self.data.offerStorage,
+            entry_point = 'removeReserveOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, tokenId = params.tokenId, offerId = params.offerId),
+            sp.mutez(0),
+            c
+        )
+
 

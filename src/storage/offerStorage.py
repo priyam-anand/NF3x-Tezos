@@ -102,3 +102,12 @@ class OfferStorage(sp.Contract):
             offerId = sp.TNat
         ))
         del self.data.offers[params.token][params.tokenId].swapOffers[params.offerId]
+
+    @sp.entry_point
+    def removeReserveOffer(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            offerId = sp.TNat
+        ))
+        del self.data.offers[params.token][params.tokenId].reserveOffers[params.offerId]
