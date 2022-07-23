@@ -19,6 +19,10 @@ class DetailStorage(sp.Contract):
                 tkey = sp.TAddress, 
                 tvalue = sp.TMap(sp.TNat,self.structures.getSwapOfferType())
             ),
+            rejectedReserveOffers = sp.map(
+                tkey = sp.TAddress, 
+                tvalue = sp.TMap(sp.TNat,self.structures.getReserveOfferType())
+            ),
             platformFees = _platformFee
         )
 
@@ -74,6 +78,18 @@ class DetailStorage(sp.Contract):
             c
         )
 
+    def _removeReserveOffer(self, token, tokenId, offerId):
+        c = sp.contract(
+            sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat),
+            self.data.offerStorage,
+            entry_point = 'removeReserveOffer'
+        ).open_some()
+        sp.transfer(
+            sp.record(token = token, tokenId = tokenId, offerId = offerId),
+            sp.mutez(0),
+            c
+        )
+
     # Core functions 
     @sp.entry_point
     def setWhitelistedNFT(self, token):
@@ -101,7 +117,11 @@ class DetailStorage(sp.Contract):
                 self.data.rejectedSwapOffers[offers.swapOffers[i].owner] = sp.map({},tkey = sp.TNat, tvalue = self.structures.getSwapOfferType())
             self.data.rejectedSwapOffers[offers.swapOffers[i].owner][sp.len(self.data.rejectedSwapOffers[offers.swapOffers[i].owner].keys())] = offers.swapOffers[i]
             self._removeSwapOffer(params.token, params.tokenId, i)
-        
+        sp.for i in offers.reserveOffers.keys():
+            sp.if ~self.data.rejectedReserveOffers.contains(offers.reserveOffers[i].owner):
+                self.data.rejectedReserveOffers[offers.reserveOffers[i].owner] = sp.map({},tkey = sp.TNat, tvalue = self.structures.getReserveOfferType())
+            self.data.rejectedReserveOffers[offers.reserveOffers[i].owner][sp.len(self.data.rejectedReserveOffers[offers.reserveOffers[i].owner].keys())] = offers.reserveOffers[i]
+            self._removeReserveOffer(params.token, params.tokenId, i)
 
     @sp.onchain_view()
     def isNFTSupported(self, token):
@@ -151,6 +171,20 @@ class DetailStorage(sp.Contract):
             )
         )
 
+    @sp.onchain_view()
+    def getRejectedReserveOffers(self, _owner):
+        sp.result(self.data.rejectedReserveOffers.get(_owner,
+            sp.map({},tkey = sp.TNat, tvalue = self.structures.getReserveOfferType())
+            )
+        )
+
+    @sp.entry_point
+    def deleteReserveOffer(self, params):
+        self._onlyApprovedContracts()
+        sp.set_type(params, sp.TRecord(
+            from_ = sp.TAddress, _offerId = sp.TNat
+        ))
+        del self.data.rejectedReserveOffers[params.from_][params._offerId]
 
     # Getter functions
     @sp.onchain_view()

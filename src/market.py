@@ -376,3 +376,36 @@ class Market(sp.Contract):
             c
         )
         
+    @sp.entry_point
+    def claimDefaultedPayment(self, params):
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress,
+            tokenId = sp.TNat
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat
+            ),self.data.reserve
+            ,entry_point = 'claimDefaultedPayment' 
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                token = params.token, tokenId = params.tokenId
+            ),
+            sp.mutez(0),
+            c
+        )
+
+    @sp.entry_point
+    def claimRejectedReserveOffer(self, offerId):
+        sp.set_type(offerId, sp.TNat)
+        c = sp.contract(
+            sp.TNat,
+            self.data.reserve,
+            entry_point = 'claimRejectedReserveOffer' 
+        ).open_some()
+        sp.transfer(
+            offerId,
+            sp.mutez(0),
+            c
+        )

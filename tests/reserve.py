@@ -434,6 +434,40 @@ def test():
     item = getters.getItem(sp.record(token = nft1.address, tokenId = 2))
     scenario.show(item)
 
+    # ------------------- Claim defaulted payment -------------------
+
+    # it should not claim if item is not reserved
+    market.claimDefaultedPayment(sp.record(
+        token = nft1.address, tokenId = 6
+    )).run(sender = user2, valid = False)
+
+    # it should not claim if not yet defaulted
+    market.claimDefaultedPayment(sp.record(
+        token = nft1.address, tokenId = 1
+    )).run(sender = admin, now = sp.timestamp(10000), valid = False)
+
+    # it should claim defaulted payment and burn the position token
+    market.claimDefaultedPayment(sp.record(
+        token = nft1.address, tokenId = 1
+    )).run(sender = admin, now = sp.timestamp(964000))
+
+    item = getters.getItem(sp.record(token = nft1.address, tokenId = 1))
+    scenario.show(item)
+
+    # it should not pay remaining if claimed by seller
+    market.payRemaining(sp.record(
+        token = nft1.address, tokenId = 1
+    )).run(sender = user1, amount = sp.mutez(100000), valid = False)
+
+
+    # --------------- Claim rejected reserve offer ---------------------
+
+    # it should not claim if offer does not exist
+    market.claimRejectedReserveOffer(10).run(sender = user1, valid = False)
+
+    # it should claim rejected offer, refund the owner and delte this entry form the map
+    market.claimRejectedReserveOffer(0).run(sender = user1)
+
 
 
 
