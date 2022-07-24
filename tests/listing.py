@@ -11,6 +11,8 @@ Listing = sp.io.import_stored_contract("listing")
 Swap = sp.io.import_stored_contract('swap')
 Getters = sp.io.import_stored_contract('getters')
 OfferStorage = sp.io.import_stored_contract('offerStorage')
+PositionToken = sp.io.import_stored_contract('positionToken')
+Reserve = sp.io.import_stored_contract('reserve')
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 PLATFORM_FEES = 500000
@@ -69,15 +71,28 @@ def test():
     scenario += getters
     offerStorage = OfferStorage.OfferStorage()
     scenario += offerStorage
+    reserve = Reserve.Reserve()
+    scenario += reserve
+    positionToken = PositionToken.PositionToken(
+            config = PositionToken.FA2_config(non_fungible = True),
+            metadata = sp.utils.metadata_of_url("https://example.com"),
+            admin = reserve.address
+        )
+    scenario += positionToken
+
+
 
     detailStorage.setWhitelist(whitelist.address)
     detailStorage.setListing(listing.address)
     detailStorage.setItemStorage(itemStorage.address)
     detailStorage.setSwap(swap.address)
+    detailStorage.setReserve(reserve.address)
+    detailStorage.setOfferStorage(offerStorage.address)
 
     itemStorage.setListing(listing.address)
     itemStorage.setDetailStorage(detailStorage.address)
     itemStorage.setSwap(swap.address)
+    itemStorage.setReserve(reserve.address)
 
     listing.setItemStorage(itemStorage.address)
     listing.setDetailStorage(detailStorage.address)
@@ -88,10 +103,12 @@ def test():
     market.setListing(listing.address)
     market.setVault(vault.address)
     market.setSwap(swap.address)
+    market.setReserve(reserve.address)
 
     vault.setListing(listing.address)
     vault.setMarket(market.address)
     vault.setSwap(swap.address)
+    vault.setReserve(reserve.address)
 
     whitelist.setDetailStorage(detailStorage.address)
     whitelist.setMarket(market.address)
@@ -108,8 +125,14 @@ def test():
 
     offerStorage.setSwap(swap.address)
     offerStorage.setDetailStorage(detailStorage.address)
-    detailStorage.setOfferStorage(offerStorage.address)
+    offerStorage.setReserve(reserve.address)
 
+    reserve.setMarket(market.address)
+    reserve.setItemStorage(itemStorage.address)
+    reserve.setVault(vault.address)
+    reserve.setPositionToken(positionToken.address)
+    reserve.setDetailStorage(detailStorage.address)
+    reserve.setOfferStorage(offerStorage.address)
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -128,12 +151,6 @@ def test():
             token_metadata      = token_metadata,
             contract_metadata   = contract_metadata
         )
-    # token2 = fa12.FA12(
-    #         admin.address,
-    #         config              = fa12.FA12_config(support_upgradable_metadata = False),
-    #         token_metadata      = token_metadata,
-    #         contract_metadata   = contract_metadata
-    #     )
     nft1 = fa2.FA2(
             config = fa2.FA2_config(non_fungible = True),
             metadata = sp.utils.metadata_of_url("https://example.com"),
@@ -151,7 +168,6 @@ def test():
         )
 
     scenario += token1
-    # scenario += token2
     scenario += nft1
     scenario += nft2
     scenario += nft3
@@ -179,7 +195,9 @@ def test():
         token = nft1.address, tokenId = 0, 
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:0}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = 10, value = sp.mutez(PLATFORM_FEES)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
+        timePeriod = 10, value = sp.mutez(PLATFORM_FEES)
     )).run(sender = admin, valid = False) 
 
     # it should not list nft if enough fees not sent
@@ -187,7 +205,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = 100
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = 100
     )).run(sender = admin, amount = sp.mutez(0), valid = False)
 
     # it should not list nft if time period is 0
@@ -195,7 +214,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(0)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(0)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
     # it should not list nft if collection is not supported
@@ -203,7 +223,8 @@ def test():
         token = nft2.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(100)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(100)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
     # it should not list nft if not approved by owner
@@ -211,7 +232,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(100)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(100)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
     setOperator(nft1, admin, vault, 0)
@@ -220,7 +242,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(100)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(100)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
     # it should not list if asking FT is not supported
@@ -228,7 +251,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:token1.address}), directSwapPrice = sp.map({0:10000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}),timePeriod = sp.int(100)
+        durations = sp.map({}),swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(100)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
     # it should not list if asking price is 0
@@ -236,7 +260,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:0}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(100)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(100)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
     # it should transfer NFT to the vault, initialize item, set item's owner as sp.sender, set direct swap details to the item listing, mark the item as listed ie status = 2 
@@ -244,7 +269,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(86400)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
     
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 0)].balance == 1)
@@ -252,12 +278,16 @@ def test():
 
     setOperator(nft1, admin, vault, 1)
     setOperator(nft1, admin, vault, 2)
+
+    #------------------- Reserve Listing ------------------
+
     # it should not list for reserve if asking FT is not supported
     market.createListing(sp.record(
         token = nft1.address, tokenId = 1,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:token1.address}), deposits = sp.map({0:100, 1:100}), 
-        remainings = sp.map({0:100, 1:100}), durations = sp.map({0:100, 1:100}), 
+        remainings = sp.map({0:100, 1:100}), durations = sp.map({0:100, 1:100}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
@@ -266,21 +296,24 @@ def test():
         token = nft1.address, tokenId = 1,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({0:NULL_ADDRESS}), deposits = sp.map({0:0}), 
-        remainings = sp.map({0:100}), durations = sp.map({0:100}), 
+        remainings = sp.map({0:100}), durations = sp.map({0:100}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
     market.createListing(sp.record(
         token = nft1.address, tokenId = 1,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({0:NULL_ADDRESS}), deposits = sp.map({0:100}), 
-        remainings = sp.map({0:0}), durations = sp.map({0:100}), 
+        remainings = sp.map({0:0}), durations = sp.map({0:100}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
     market.createListing(sp.record(
         token = nft1.address, tokenId = 1,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({0:NULL_ADDRESS}), deposits = sp.map({0:100}), 
-        remainings = sp.map({0:0}), durations = sp.map({0:100}), 
+        remainings = sp.map({0:0}), durations = sp.map({0:100}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
 
@@ -289,7 +322,8 @@ def test():
         token = nft1.address, tokenId = 1,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 1)].balance == 1)
@@ -300,7 +334,8 @@ def test():
         token = nft1.address, tokenId = 2,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:9000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 2)].balance == 1)
@@ -311,18 +346,73 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
     
-    # # -------------- EDIT LISTING -------------
+    # --------------- NFT Swap listing ------------------
+
+    mintNFT(nft1, 4, admin.address, admin)
+    mintNFT(nft1, 5, admin.address, admin)
+    setOperator(nft1, admin, vault, 4)
+    setOperator(nft1, admin, vault, 5)
+
+    # it should not list if FT is not supported
+    market.createListing(sp.record(
+        token = nft1.address, tokenId = 4,
+        directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
+        reserveToken = sp.map({}), deposits = sp.map({}), 
+        remainings = sp.map({}), durations = sp.map({}), 
+        swapTokens = sp.map({0:nft1.address}), swapPaymentTokens = sp.map({0:nft1.address}), 
+        swapAmounts = sp.map({0:10000}), swapAllowed = True,
+        timePeriod = sp.int(86400)
+    )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
+
+
+    # it should not list if NFT is not supported
+    market.createListing(sp.record(
+        token = nft1.address, tokenId = 4,
+        directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
+        reserveToken = sp.map({}), deposits = sp.map({}), 
+        remainings = sp.map({}), durations = sp.map({}), 
+        swapTokens = sp.map({0:nft2.address}), swapPaymentTokens = sp.map({0:NULL_ADDRESS}), 
+        swapAmounts = sp.map({0:10000}), swapAllowed = True,
+        timePeriod = sp.int(86400)
+    )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES), valid = False)
+
+
+    # it should list NFT for nft swap but allow only offers
+    market.createListing(sp.record(
+        token = nft1.address, tokenId = 4,
+        directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
+        reserveToken = sp.map({}), deposits = sp.map({}), 
+        remainings = sp.map({}), durations = sp.map({}), 
+        swapTokens = sp.map({0:nft1.address}), swapPaymentTokens = sp.map({0:NULL_ADDRESS}), 
+        swapAmounts = sp.map({0:10000}), swapAllowed = False,
+        timePeriod = sp.int(86400)
+    )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
+
+    # it shoult list NFT and allow direct nft swap
+    market.createListing(sp.record(
+        token = nft1.address, tokenId = 5,
+        directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
+        reserveToken = sp.map({}), deposits = sp.map({}), 
+        remainings = sp.map({}), durations = sp.map({}), 
+        swapTokens = sp.map({0:nft1.address}), swapPaymentTokens = sp.map({0:NULL_ADDRESS}), 
+        swapAmounts = sp.map({0:10000}), swapAllowed = True,
+        timePeriod = sp.int(86400)
+    )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
+
+    # -------------- EDIT LISTING -------------
 
     # it should not edit listing if it is not listed
     market.editListing(sp.record(
         token = nft1.address, tokenId = 3,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(8000)
     )).run(sender = admin, valid = False)
 
@@ -331,7 +421,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(8000)
     )).run(sender = user1, valid = False)
 
@@ -340,7 +431,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:50000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(80000)
     )).run(sender = admin)
 
@@ -366,10 +458,5 @@ def test():
 
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(vault.address, 0)].balance == 0)
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 0)].balance == 1)
-
-    
-
-
-
 
 

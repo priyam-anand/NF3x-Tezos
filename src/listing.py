@@ -128,8 +128,26 @@ class Listing(sp.Contract):
         ).open_some()
         sp.transfer(sp.record(token = token, tokenId = tokenId, reserveTokens = reserveTokens, deposits = deposits, remainings = remainings, durations = durations), sp.mutez(0), c)
 
-    def _performListing(self, token, tokenId, directSwapToken, directSwapPrice, reserveTokens, deposits, remainings, durations, timePeriod):
-        sp.verify((directSwapToken.contains(0)) | (sp.len(reserveTokens.keys()) > 0), "Listing : Invalid Listing")
+    def _listNFTSwap(self,token, tokenId, swapTokens, swapPaymentTokens, swapAmounts, swapAllowed):
+        sp.for i in swapPaymentTokens.keys():
+            sp.verify(sp.view("isFTSupported", self.data.detailStorage, swapPaymentTokens[i], t = sp.TBool).open_some(), "Listing : Not supported")
+        sp.for i in swapTokens.keys():
+            sp.verify(sp.view(
+                'isNFTSupported',self.data.detailStorage,swapTokens[i],t = sp.TBool
+                ).open_some()
+                ,"Swap : Not Supported"
+            )
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat, swapTokens = sp.TMap(sp.TNat, sp.TAddress), swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress), swapAmounts = sp.TMap(sp.TNat, sp.TNat), swapAllowed = sp.TBool),
+            self.data.itemStorage,
+            entry_point = 'swapListing'
+        ).open_some()
+        sp.transfer(sp.record(token = token, tokenId = tokenId, swapTokens = swapTokens, swapPaymentTokens = swapPaymentTokens, swapAmounts = swapAmounts, swapAllowed = swapAllowed), sp.mutez(0), c)
+        
+
+    def _performListing(self, token, tokenId, directSwapToken, directSwapPrice, reserveTokens, deposits, remainings, durations, swapTokens, swapPaymentTokens, swapAmounts, swapAllowed, timePeriod):
+        sp.verify((directSwapToken.contains(0)) | (sp.len(reserveTokens.keys()) > 0 ) | (sp.len(swapTokens.keys()) > 0), "Listing : Invalid Listing")
         
         sp.if directSwapToken.contains(0):
             self._listDirectSwap(token, tokenId, directSwapToken[0], directSwapPrice[0])
@@ -137,6 +155,9 @@ class Listing(sp.Contract):
         sp.if sp.len(reserveTokens.keys()) > 0:
             self._listReserve(token, tokenId, reserveTokens, deposits, remainings, durations)
 
+        sp.if sp.len(swapTokens.keys()) > 0:
+            self._listNFTSwap(token, tokenId, swapTokens, swapPaymentTokens, swapAmounts, swapAllowed)
+            
         c = sp.contract(
             sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, timePeriod = sp.TInt),
             self.data.itemStorage,
@@ -160,6 +181,10 @@ class Listing(sp.Contract):
             deposits = sp.TMap(sp.TNat, sp.TNat),
             remainings = sp.TMap(sp.TNat, sp.TNat),
             durations = sp.TMap(sp.TNat, sp.TInt),
+            swapTokens = sp.TMap(sp.TNat, sp.TAddress),
+            swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress),
+            swapAmounts = sp.TMap(sp.TNat, sp.TNat),
+            swapAllowed = sp.TBool,
             timePeriod = sp.TInt,
             value = sp.TMutez
         ))
@@ -182,6 +207,10 @@ class Listing(sp.Contract):
             params.deposits,
             params.remainings,
             params.durations,
+            params.swapTokens,
+            params.swapPaymentTokens,
+            params.swapAmounts,
+            params.swapAllowed,
             params.timePeriod
         )
     
@@ -196,6 +225,10 @@ class Listing(sp.Contract):
             deposits = sp.TMap(sp.TNat, sp.TNat),
             remainings = sp.TMap(sp.TNat, sp.TNat),
             durations = sp.TMap(sp.TNat, sp.TInt),
+            swapTokens = sp.TMap(sp.TNat, sp.TAddress),
+            swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress),
+            swapAmounts = sp.TMap(sp.TNat, sp.TNat),
+            swapAllowed = sp.TBool,
             timePeriod = sp.TInt
         ))
         self._onlyMarket()
@@ -232,6 +265,10 @@ class Listing(sp.Contract):
             params.deposits,
             params.remainings,
             params.durations,
+            params.swapTokens,
+            params.swapPaymentTokens,
+            params.swapAmounts,
+            params.swapAllowed,
             params.timePeriod
         )
 

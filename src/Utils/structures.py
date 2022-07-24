@@ -63,17 +63,19 @@ class structures:
 
     def getSwapListingType(self):
         listing = sp.TRecord(
-            tokens = sp.TList(sp.TAddress),
-            paymentTokens = sp.TList(sp.TAddress),
-            amounts = sp.TList(sp.TNat)
+            tokens = sp.TMap(sp.TNat, sp.TAddress),
+            paymentTokens = sp.TMap(sp.TNat, sp.TAddress),
+            amounts = sp.TMap(sp.TNat, sp.TNat),
+            swapAllowed = sp.TBool
         )
         return listing
 
     def getDefaultSwapListing(self):
         listing = sp.record(
-            tokens = sp.list(t=sp.TAddress),
-            paymentTokens = sp.list(t=sp.TAddress),
-            amounts = sp.list(t=sp.TNat)
+            tokens = sp.map({},tkey = sp.TNat, tvalue = sp.TAddress),
+            paymentTokens = sp.map({}, tkey =sp.TNat, tvalue = sp.TAddress),
+            amounts = sp.map({}, tkey =sp.TNat, tvalue = sp.TNat),
+            swapAllowed = False
         )
         return listing
 

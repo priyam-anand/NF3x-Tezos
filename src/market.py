@@ -95,25 +95,48 @@ class Market(sp.Contract):
             deposits = sp.TMap(sp.TNat, sp.TNat),
             remainings = sp.TMap(sp.TNat, sp.TNat),
             durations = sp.TMap(sp.TNat, sp.TInt),
+            swapTokens = sp.TMap(sp.TNat, sp.TAddress),
+            swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress),
+            swapAmounts = sp.TMap(sp.TNat, sp.TNat),
+            swapAllowed = sp.TBool,
             timePeriod = sp.TInt,
         ))
         c1 = sp.contract(
             sp.TRecord(
-                token = sp.TAddress,tokenId = sp.TNat,
-                directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
-                reserveToken = sp.TMap(sp.TNat, sp.TAddress), deposits = sp.TMap(sp.TNat, sp.TNat),
-                remainings = sp.TMap(sp.TNat, sp.TNat), durations = sp.TMap(sp.TNat, sp.TInt),
-                timePeriod = sp.TInt,value = sp.TMutez
+                token = sp.TAddress,
+                tokenId = sp.TNat, 
+                directSwapToken = sp.TMap(sp.TNat,sp.TAddress), 
+                directSwapPrice = sp.TMap(sp.TNat,sp.TNat), 
+                reserveToken = sp.TMap(sp.TNat, sp.TAddress), 
+                deposits = sp.TMap(sp.TNat, sp.TNat), 
+                remainings = sp.TMap(sp.TNat, sp.TNat), 
+                durations = sp.TMap(sp.TNat, sp.TInt), 
+                swapTokens = sp.TMap(sp.TNat, sp.TAddress), 
+                swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress), 
+                swapAmounts = sp.TMap(sp.TNat, sp.TNat), 
+                swapAllowed = sp.TBool, 
+                timePeriod = sp.TInt,
+                value = sp.TMutez
             ), self.data.listing,
             entry_point = 'createListing'
         ).open_some()
         sp.transfer(
-            sp.record(token = params.token, tokenId = params.tokenId, 
-                directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, 
-                reserveToken = params.reserveToken, deposits = params.deposits,
-                remainings = params.remainings,durations = params.durations,
-                timePeriod = params.timePeriod, value = sp.amount),
-            sp.mutez(0),
+            sp.record(
+                token = params.token, 
+                tokenId = params.tokenId, 
+                directSwapToken= params.directSwapToken, 
+                directSwapPrice = params.directSwapPrice, 
+                reserveToken = params.reserveToken, 
+                deposits = params.deposits,
+                remainings = params.remainings,
+                durations = params.durations,
+                swapTokens = params.swapTokens, 
+                swapPaymentTokens = params.swapPaymentTokens, 
+                swapAmounts = params.swapAmounts, 
+                swapAllowed = params.swapAllowed, 
+                timePeriod = params.timePeriod, 
+                value = sp.amount
+            ),sp.mutez(0),
             c1
         )
 
@@ -121,32 +144,53 @@ class Market(sp.Contract):
     def editListing(self, params):
         sp.set_type(params, sp.TRecord(
             token = sp.TAddress,
-            tokenId = sp.TNat,
-            directSwapToken = sp.TMap(sp.TNat,sp.TAddress),
-            directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
-            reserveToken = sp.TMap(sp.TNat, sp.TAddress),
-            deposits = sp.TMap(sp.TNat, sp.TNat),
-            remainings = sp.TMap(sp.TNat, sp.TNat),
-            durations = sp.TMap(sp.TNat, sp.TInt),
-            timePeriod = sp.TInt,
+            tokenId = sp.TNat, 
+            directSwapToken = sp.TMap(sp.TNat,sp.TAddress), 
+            directSwapPrice = sp.TMap(sp.TNat,sp.TNat), 
+            reserveToken = sp.TMap(sp.TNat, sp.TAddress), 
+            deposits = sp.TMap(sp.TNat, sp.TNat), 
+            remainings = sp.TMap(sp.TNat, sp.TNat), 
+            durations = sp.TMap(sp.TNat, sp.TInt), 
+            swapTokens = sp.TMap(sp.TNat, sp.TAddress), 
+            swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress), 
+            swapAmounts = sp.TMap(sp.TNat, sp.TNat), 
+            swapAllowed = sp.TBool, 
+            timePeriod = sp.TInt
         ))
         c1 = sp.contract(
             sp.TRecord(
-                token = sp.TAddress,tokenId = sp.TNat,
-                directSwapToken = sp.TMap(sp.TNat,sp.TAddress),directSwapPrice = sp.TMap(sp.TNat,sp.TNat),
-                reserveToken = sp.TMap(sp.TNat, sp.TAddress), deposits = sp.TMap(sp.TNat, sp.TNat),
-                remainings = sp.TMap(sp.TNat, sp.TNat), durations = sp.TMap(sp.TNat, sp.TInt),
+                token = sp.TAddress,
+                tokenId = sp.TNat, 
+                directSwapToken = sp.TMap(sp.TNat,sp.TAddress), 
+                directSwapPrice = sp.TMap(sp.TNat,sp.TNat), 
+                reserveToken = sp.TMap(sp.TNat, sp.TAddress), 
+                deposits = sp.TMap(sp.TNat, sp.TNat), 
+                remainings = sp.TMap(sp.TNat, sp.TNat), 
+                durations = sp.TMap(sp.TNat, sp.TInt), 
+                swapTokens = sp.TMap(sp.TNat, sp.TAddress), 
+                swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress), 
+                swapAmounts = sp.TMap(sp.TNat, sp.TNat), 
+                swapAllowed = sp.TBool, 
                 timePeriod = sp.TInt
             ), self.data.listing,
             entry_point = 'editListing'
         ).open_some()
         sp.transfer(
-            sp.record(token = params.token, tokenId = params.tokenId, 
-                directSwapToken= params.directSwapToken, directSwapPrice = params.directSwapPrice, 
-                reserveToken = params.reserveToken, deposits = params.deposits,
-                remainings = params.remainings,durations = params.durations,
-                timePeriod = params.timePeriod),
-            sp.mutez(0),
+            sp.record(
+                token = params.token, 
+                tokenId = params.tokenId, 
+                directSwapToken= params.directSwapToken, 
+                directSwapPrice = params.directSwapPrice, 
+                reserveToken = params.reserveToken, 
+                deposits = params.deposits,
+                remainings = params.remainings,
+                durations = params.durations,
+                swapTokens = params.swapTokens, 
+                swapPaymentTokens = params.swapPaymentTokens, 
+                swapAmounts = params.swapAmounts, 
+                swapAllowed = params.swapAllowed, 
+                timePeriod = params.timePeriod
+            ), sp.mutez(0),
             c1
         )
 

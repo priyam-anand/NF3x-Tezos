@@ -103,6 +103,19 @@ class ItemStorage(sp.Contract):
         )
 
     @sp.entry_point
+    def swapListing(self, params):
+        self._onlyApproved()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, 
+            swapTokens = sp.TMap(sp.TNat, sp.TAddress), swapPaymentTokens = sp.TMap(sp.TNat, sp.TAddress), swapAmounts = sp.TMap(sp.TNat, sp.TNat), swapAllowed = sp.TBool
+        ))
+        self.data._items[params.token][params.tokenId].listing.listingType[2] = True
+        self.data._items[params.token][params.tokenId].listing.swapListing = sp.record(
+            tokens = params.swapTokens, paymentTokens = params.swapPaymentTokens,
+            amounts = params.swapAmounts, swapAllowed = params.swapAllowed
+        )
+
+    @sp.entry_point
     def reserveListing(self, params):
         self._onlyApproved()
         sp.set_type(params, sp.TRecord(
