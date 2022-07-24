@@ -228,6 +228,32 @@ class Market(sp.Contract):
         )
 
     @sp.entry_point
+    def nftSwap(self, params):
+        self._recieveTez()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat, offerToken = sp.TAddress,
+            offerTokenId = sp.TNat, swapId = sp.TNat
+        ))
+        c = sp.contract(
+            sp.TRecord(
+                token = sp.TAddress, tokenId = sp.TNat, 
+                offerToken = sp.TAddress, offerTokenId = sp.TNat, swapId = sp.TNat, 
+                value = sp.TMutez
+            ),self.data.swap,
+            entry_point = 'nftSwap' 
+        ).open_some()
+        sp.transfer(
+            sp.record(token = params.token, 
+                tokenId = params.tokenId, 
+                offerToken = params.offerToken,
+                offerTokenId = params.offerTokenId,
+                swapId = params.swapId,
+                value = sp.amount
+            ),sp.mutez(0),
+            c
+        )
+
+    @sp.entry_point
     def newSwapOffer(self, params):
         self._recieveTez()
         sp.set_type(params, sp.TRecord(

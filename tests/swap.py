@@ -11,6 +11,8 @@ Listing = sp.io.import_stored_contract("listing")
 Swap = sp.io.import_stored_contract('swap')
 Getters = sp.io.import_stored_contract('getters')
 OfferStorage = sp.io.import_stored_contract('offerStorage')
+PositionToken = sp.io.import_stored_contract('positionToken')
+Reserve = sp.io.import_stored_contract('reserve')
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 PLATFORM_FEES = 500000
@@ -69,15 +71,28 @@ def test():
     scenario += getters
     offerStorage = OfferStorage.OfferStorage()
     scenario += offerStorage
+    reserve = Reserve.Reserve()
+    scenario += reserve
+    positionToken = PositionToken.PositionToken(
+            config = PositionToken.FA2_config(non_fungible = True),
+            metadata = sp.utils.metadata_of_url("https://example.com"),
+            admin = reserve.address
+        )
+    scenario += positionToken
+
+
 
     detailStorage.setWhitelist(whitelist.address)
     detailStorage.setListing(listing.address)
     detailStorage.setItemStorage(itemStorage.address)
     detailStorage.setSwap(swap.address)
+    detailStorage.setReserve(reserve.address)
+    detailStorage.setOfferStorage(offerStorage.address)
 
     itemStorage.setListing(listing.address)
     itemStorage.setDetailStorage(detailStorage.address)
     itemStorage.setSwap(swap.address)
+    itemStorage.setReserve(reserve.address)
 
     listing.setItemStorage(itemStorage.address)
     listing.setDetailStorage(detailStorage.address)
@@ -88,10 +103,12 @@ def test():
     market.setListing(listing.address)
     market.setVault(vault.address)
     market.setSwap(swap.address)
+    market.setReserve(reserve.address)
 
     vault.setListing(listing.address)
     vault.setMarket(market.address)
     vault.setSwap(swap.address)
+    vault.setReserve(reserve.address)
 
     whitelist.setDetailStorage(detailStorage.address)
     whitelist.setMarket(market.address)
@@ -108,8 +125,14 @@ def test():
 
     offerStorage.setSwap(swap.address)
     offerStorage.setDetailStorage(detailStorage.address)
-    detailStorage.setOfferStorage(offerStorage.address)
+    offerStorage.setReserve(reserve.address)
 
+    reserve.setMarket(market.address)
+    reserve.setItemStorage(itemStorage.address)
+    reserve.setVault(vault.address)
+    reserve.setPositionToken(positionToken.address)
+    reserve.setDetailStorage(detailStorage.address)
+    reserve.setOfferStorage(offerStorage.address)
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -128,12 +151,6 @@ def test():
             token_metadata      = token_metadata,
             contract_metadata   = contract_metadata
         )
-    # token2 = fa12.FA12(
-    #         admin.address,
-    #         config              = fa12.FA12_config(support_upgradable_metadata = False),
-    #         token_metadata      = token_metadata,
-    #         contract_metadata   = contract_metadata
-    #     )
     nft1 = fa2.FA2(
             config = fa2.FA2_config(non_fungible = True),
             metadata = sp.utils.metadata_of_url("https://example.com"),
@@ -151,7 +168,6 @@ def test():
         )
 
     scenario += token1
-    # scenario += token2
     scenario += nft1
     scenario += nft2
     scenario += nft3
@@ -185,6 +201,9 @@ def test():
     market.createListing(sp.record(
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
+        reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
     market.directSwap(sp.record(
@@ -213,6 +232,9 @@ def test():
     market.createListing(sp.record(
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
+        reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = user1, amount = sp.mutez(PLATFORM_FEES))
 
@@ -382,7 +404,6 @@ def test():
     scenario.verify(nft1.data.ledger[nft1.ledger_key.make(admin.address, 2)].balance == 1)
 
     market.claimRejectedSwapOffer(0).run(sender = user2)
-
 
 
 

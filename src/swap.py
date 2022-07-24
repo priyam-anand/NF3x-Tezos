@@ -163,18 +163,6 @@ class Swap(sp.Contract):
             sp.else : 
                 self._sendTez(amounts[i], to_)
 
-    def _transferAssets(self, paymentToken, amount, to):
-        sp.if ~(paymentToken == NULL_ADDRESS):
-            self._receiveFTs(
-                sp.map({0:paymentToken}), 
-                sp.map({0:amount})
-            )
-        self._sendFTs(
-            sp.map({0:paymentToken}), 
-            sp.map({0:amount}),
-            to
-        )
-
     def _setRejectedOffer(self, token, tokenId):
         c = sp.contract(
             sp.TRecord(token=sp.TAddress, tokenId=sp.TNat),
@@ -230,6 +218,20 @@ class Swap(sp.Contract):
         self._sendNFTs(offerAssets.tokens, offerAssets.tokenIds, to)
         self._sendFTs(offerAssets.paymentTokens, offerAssets.amounts, to)
 
+    def _transferAssets(self,tokens, tokenIds, paymentTokens, amounts, to):
+        self._receiveNFTs(tokens, tokenIds)
+        self._receiveFTs(paymentTokens, amounts)
+
+        self._sendNFTs(tokens, tokenIds, to)
+        self._sendFTs(paymentTokens, amounts, to)
+
+    @sp.private_lambda(with_storage="read-write")
+    def _getItem(self,params): 
+        item = sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some()
+        sp.result(item)
+
     @sp.private_lambda(with_storage="read-only")
     def _offerExist(self, params):
         sp.set_type(params, sp.TRecord(
@@ -253,9 +255,7 @@ class Swap(sp.Contract):
             value = sp.TMutez
         ))
 
-        item = sp.view(
-            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
-        ).open_some()
+        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))        
 
         sp.verify(item.status == 1,"Swap : Invalid Status")
         self._itemNotExpired(item.listing.timePeriod)
@@ -269,8 +269,7 @@ class Swap(sp.Contract):
             params.value
         )
         self._transferAssets(
-            item.listing.directListing.paymentToken,
-            item.listing.directListing.amount,
+            sp.map({}), sp.map({}), sp.map({0:item.listing.directListing.paymentToken}), sp.map({0:item.listing.directListing.amount}),
             item.owner
         )
         self._setRejectedOffer(
@@ -284,6 +283,49 @@ class Swap(sp.Contract):
             sp.source
         )
 
+    @sp.entry_point 
+    def nftSwap(self, params):
+        self._onlyMarket()
+        sp.set_type(params, sp.TRecord(
+            token = sp.TAddress, tokenId = sp.TNat,
+            offerToken = sp.TAddress, offerTokenId = sp.TNat,
+            swapId = sp.TNat, value = sp.TMutez
+        ))
+        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
+
+        sp.verify(item.status == 1,"Swap : Invalid Status")
+        self._itemNotExpired(item.listing.timePeriod)
+        self._notItemOwner(item.owner, sp.source)
+        sp.verify(
+            (item.listing.listingType[2] == True) & (item.listing.swapListing.swapAllowed == True) ,
+            "Swap : Item Now listed for NFT swap"
+        )
+        sp.verify(item.listing.swapListing.tokens.contains(params.swapId),"Swap : Offer does not exist")
+        sp.verify(item.listing.swapListing.tokens[params.swapId] == params.offerToken, "Swap : Invalid Swap")
+
+        self._checkPayment(
+            sp.map({0:item.listing.swapListing.paymentTokens[params.swapId]}),
+            sp.map({0:item.listing.swapListing.amounts[params.swapId]}),
+            params.value
+        )
+
+        self._transferAssets(
+            sp.map({0:params.offerToken}), sp.map({0:params.offerTokenId}), 
+            sp.map({0:item.listing.swapListing.paymentTokens[params.swapId]}), sp.map({0:item.listing.swapListing.amounts[params.swapId]}),
+            item.owner
+        )
+
+        self._setRejectedOffer(
+            params.token,
+            params.tokenId
+        )
+        self._sendNFTs(
+            sp.map({0:params.token}),
+            sp.map({0:params.tokenId}),
+            sp.source
+        )
+
+
     @sp.entry_point
     def newSwapOffer(self, params):
         self._onlyMarket()
@@ -293,9 +335,7 @@ class Swap(sp.Contract):
             timePeriod = sp.TInt, value = sp.TMutez 
         ))
 
-        item = sp.view(
-            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
-        ).open_some()
+        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
 
         self._checkSwapOfferRequirements(item, params.timePeriod, params.offerAssets, params.value)
 
@@ -341,10 +381,9 @@ class Swap(sp.Contract):
             token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
         ))
         offer = sp.local('offer',self._offerExist(params))
-        item = sp.view(
-            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
-        ).open_some()
-
+        
+        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
+        
         self._itemOwnerOnly(item.owner, sp.source)
         self._itemNotExpired(offer.value.timePeriod)
 
