@@ -122,6 +122,7 @@ def test():
     getters.setWhitelist(whitelist.address)
     getters.setItemStorage(itemStorage.address)
     getters.setDetailStorage(detailStorage.address)
+    getters.setOfferStorage(offerStorage.address)
 
     offerStorage.setSwap(swap.address)
     offerStorage.setDetailStorage(detailStorage.address)

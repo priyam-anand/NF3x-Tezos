@@ -156,3 +156,13 @@ class ItemStorage(sp.Contract):
             sp.result(self.data._items[params.token][params.tokenId])
         sp.else:
             sp.result(self.structures.getDefaultItem())
+
+    @sp.onchain_view()
+    def getItems(self, token):
+        sp.set_type(token, sp.TAddress)
+        sp.result(
+            self.data._items.get(
+                token, 
+                sp.map({})
+            )
+        )
