@@ -122,6 +122,7 @@ def test():
     getters.setWhitelist(whitelist.address)
     getters.setItemStorage(itemStorage.address)
     getters.setDetailStorage(detailStorage.address)
+    getters.setOfferStorage(offerStorage.address)
 
     offerStorage.setSwap(swap.address)
     offerStorage.setDetailStorage(detailStorage.address)
@@ -196,7 +197,8 @@ def test():
         token = nft1.address, tokenId = 0,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:10000000}),
         reserveToken = sp.map({}), deposits = sp.map({}), remainings = sp.map({}),
-        durations = sp.map({}), timePeriod = sp.int(86400)
+        durations = sp.map({}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False, timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
   
 
@@ -204,7 +206,8 @@ def test():
         token = nft1.address, tokenId = 1,
         directSwapToken = sp.map({}), directSwapPrice = sp.map({}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
 
@@ -212,7 +215,8 @@ def test():
         token = nft1.address, tokenId = 2,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:9000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = admin, amount = sp.mutez(PLATFORM_FEES))
     
@@ -343,7 +347,8 @@ def test():
         token = nft1.address, tokenId = 6,
         directSwapToken = sp.map({0:NULL_ADDRESS}), directSwapPrice = sp.map({0:9000}),
         reserveToken = sp.map({0:NULL_ADDRESS, 1:NULL_ADDRESS}), deposits = sp.map({0:1000,1:2000}), 
-        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), 
+        remainings = sp.map({0:10000, 1:7500}), durations = sp.map({0:864000, 1:864000}), swapTokens = sp.map({}), swapPaymentTokens = sp.map({}), 
+        swapAmounts = sp.map({}), swapAllowed = False,
         timePeriod = sp.int(86400)
     )).run(sender = user2, amount = sp.mutez(PLATFORM_FEES))
 

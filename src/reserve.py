@@ -18,26 +18,32 @@ class Reserve(sp.Contract):
     # Access Setter Functions
     @sp.entry_point
     def setMarket(self, _market):
+        sp.set_type(_market, sp.TAddress)
         self.data.market = _market
 
     @sp.entry_point
     def setItemStorage(self, _itemStorage):
+        sp.set_type(_itemStorage, sp.TAddress)
         self.data.itemStorage = _itemStorage
 
     @sp.entry_point
     def setVault(self, _vault):
+        sp.set_type(_vault, sp.TAddress)
         self.data.vault = _vault
     
     @sp.entry_point
     def setPositionToken(self, _positionToken):
+        sp.set_type(_positionToken, sp.TAddress)
         self.data.positionToken = _positionToken
         
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
+        sp.set_type(_detailStorage, sp.TAddress)
         self.data.detailStorage = _detailStorage
 
     @sp.entry_point
     def setOfferStorage(self, _offerStorage):
+        sp.set_type(_offerStorage, sp.TAddress)
         self.data.offerStorage = _offerStorage
 
     # Utility Functions
@@ -272,32 +278,12 @@ class Reserve(sp.Contract):
             c
         )        
 
-    @sp.private_lambda(with_storage="read-write")
-    def _getItem(self,params): 
-        item = sp.view(
-            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
-        ).open_some()
-        sp.result(item)
-
-    @sp.private_lambda(with_storage="read-write")
-    def _offerExist(self, params):
-        sp.set_type(params, sp.TRecord(
-            token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
-        ))
-        offers = sp.view(
-            'getOffers', self.data.offerStorage,
-            sp.record(token = params.token, tokenId = params.tokenId),
-            t = self.structures.getOfferType()
-        ).open_some()
-        sp.verify(offers.reserveOffers.contains(params.offerId),"Reserve : Offer does not exist")
-        sp.result(offers.reserveOffers[params.offerId])
-
     def _burnPositionToken(self, positionTokenId):
-        item = self._getItem(sp.record(
-            token = self.data.positionToken,
-            tokenId = positionTokenId
-        ))
-        sp.if item.status == 1:
+        item_ = sp.local('item_',sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = self.data.positionToken, tokenId = positionTokenId), t = self.structures.getItemType() 
+        ).open_some())
+         
+        sp.if item_.value.status == 1:
             self._setRejectedOffer(
                 self.data.positionToken,
                 positionTokenId
@@ -306,16 +292,6 @@ class Reserve(sp.Contract):
         
     def _isAccepted(self, item):
         sp.verify(item.listing.reserveListing.accepted,"Reserve : Invalid Status")
-    
-    @sp.private_lambda(with_storage="read-write")
-    def _getReservationDetails(self, positionTokenId):
-        details = sp.view(
-            'getReservationDetails', 
-            self.data.positionToken, 
-            positionTokenId,
-            t = self.structures.getReservationDetailType()
-        ).open_some()
-        sp.result(details)
         
 
     # Core Functions
@@ -327,24 +303,26 @@ class Reserve(sp.Contract):
             reservationId = sp.TNat, value = sp.TMutez
         ))
 
-        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
+        item = sp.local('item',sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some())
 
-        sp.verify(item.status == 1,"Reserve : Invalid Status")
-        self._itemNotExpired(item.listing.timePeriod)
-        self._notItemOwner(item.owner, sp.source)
+        sp.verify(item.value.status == 1,"Reserve : Invalid Status")
+        self._itemNotExpired(item.value.listing.timePeriod)
+        self._notItemOwner(item.value.owner, sp.source)
 
-        sp.verify(item.listing.listingType[1] == True,"Reserve : Item Now listed for reservation")
-        sp.verify(item.listing.reserveListing.deposit.contains(params.reservationId),"Reserve : Offer does not exist")
+        sp.verify(item.value.listing.listingType[1] == True,"Reserve : Item Now listed for reservation")
+        sp.verify(item.value.listing.reserveListing.deposit.contains(params.reservationId),"Reserve : Offer does not exist")
 
         self._checkPayment(
-            sp.map({0:item.listing.reserveListing.reserveToken[params.reservationId]}),
-            sp.map({0:item.listing.reserveListing.deposit[params.reservationId]}),
+            sp.map({0:item.value.listing.reserveListing.reserveToken[params.reservationId]}),
+            sp.map({0:item.value.listing.reserveListing.deposit[params.reservationId]}),
             params.value
         )
         self._transferAssets(
-            item.listing.reserveListing.reserveToken[params.reservationId],
-            item.listing.reserveListing.deposit[params.reservationId],
-            item.owner
+            item.value.listing.reserveListing.reserveToken[params.reservationId],
+            item.value.listing.reserveListing.deposit[params.reservationId],
+            item.value.owner
         )
         self._setRejectedOffer(
             params.token,
@@ -360,17 +338,17 @@ class Reserve(sp.Contract):
         )
 
         _deposit = sp.local('_deposit',self.structures.getDefaultAsset())
-        _deposit.value.paymentTokens[0] = item.listing.reserveListing.reserveToken[params.reservationId]
-        _deposit.value.amounts[0] = item.listing.reserveListing.deposit[params.reservationId]
+        _deposit.value.paymentTokens[0] = item.value.listing.reserveListing.reserveToken[params.reservationId]
+        _deposit.value.amounts[0] = item.value.listing.reserveListing.deposit[params.reservationId]
 
         _remaining = sp.local('_remaining',self.structures.getDefaultAsset())
-        _remaining.value.paymentTokens[0] = item.listing.reserveListing.reserveToken[params.reservationId]
-        _remaining.value.amounts[0] = item.listing.reserveListing.remaining[params.reservationId]
+        _remaining.value.paymentTokens[0] = item.value.listing.reserveListing.reserveToken[params.reservationId]
+        _remaining.value.amounts[0] = item.value.listing.reserveListing.remaining[params.reservationId]
 
         _reservationDetails = sp.record(
             token = params.token, tokenId = params.tokenId,
-            owner = item.owner, deposit = _deposit.value, remaining = _remaining.value,
-            duration = item.listing.reserveListing.duration[params.reservationId], dueDate = sp.now.add_seconds(item.listing.reserveListing.duration[params.reservationId])
+            owner = item.value.owner, deposit = _deposit.value, remaining = _remaining.value,
+            duration = item.value.listing.reserveListing.duration[params.reservationId], dueDate = sp.now.add_seconds(item.value.listing.reserveListing.duration[params.reservationId])
         )
 
         self._mintPositionToken(positionTokenId.value, _reservationDetails, sp.source)
@@ -384,9 +362,11 @@ class Reserve(sp.Contract):
             deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, 
             timePeriod = sp.TInt, value = sp.TMutez
         ))
-        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
+        item = sp.local('item',sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some())
 
-        self._checkReserveOfferRequirements(item, params.timePeriod, params.deposit, params.remaining, params.duration, params.value)
+        self._checkReserveOfferRequirements(item.value, params.timePeriod, params.deposit, params.remaining, params.duration, params.value)
         self._receiveAssets(params.deposit)
         c = sp.contract(
             sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, timePeriod = sp.TInt),
@@ -405,10 +385,16 @@ class Reserve(sp.Contract):
         sp.set_type(params,sp.TRecord(
             token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
         ))
-        
-        offer = sp.local('offer',self._offerExist(params))
-        self._itemOwnerOnly(offer.value.owner, sp.source)
-        self._sendAssets(offer.value.deposit, sp.source)
+        offers = sp.view(
+            'getOffers', self.data.offerStorage,
+            sp.record(token = params.token, tokenId = params.tokenId),
+            t = self.structures.getOfferType()
+        ).open_some()
+        sp.verify(offers.reserveOffers.contains(params.offerId),"Reserve : Offer does not exist")
+        offer = offers.reserveOffers[params.offerId]
+
+        self._itemOwnerOnly(offer.owner, sp.source)
+        self._sendAssets(offer.deposit, sp.source)
         self._removeReserveOffer(params.token, params.tokenId, params.offerId)
 
     @sp.entry_point
@@ -417,13 +403,22 @@ class Reserve(sp.Contract):
         sp.set_type(params, sp.TRecord(
             token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat
         ))
-        offer = sp.local('offer',self._offerExist(params))
-        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
+        offers = sp.view(
+            'getOffers', self.data.offerStorage,
+            sp.record(token = params.token, tokenId = params.tokenId),
+            t = self.structures.getOfferType()
+        ).open_some()
+        sp.verify(offers.reserveOffers.contains(params.offerId),"Reserve : Offer does not exist")
+        offer = offers.reserveOffers[params.offerId]
 
-        self._itemOwnerOnly(item.owner, sp.source)
-        self._itemNotExpired(offer.value.timePeriod)
+        item = sp.local('item',sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some())
 
-        self._sendAssets(offer.value.deposit, sp.source)
+        self._itemOwnerOnly(item.value.owner, sp.source)
+        self._itemNotExpired(offer.timePeriod)
+
+        self._sendAssets(offer.deposit, sp.source)
         self._removeReserveOffer(params.token, params.tokenId, params.offerId)
 
         self._setRejectedOffer(
@@ -440,10 +435,10 @@ class Reserve(sp.Contract):
         )
         _reservationDetails = sp.record(
             token = params.token, tokenId = params.tokenId,
-            owner = item.owner, deposit = offer.value.deposit, remaining = offer.value.remaining,
-            duration = offer.value.duration, dueDate = sp.now.add_seconds(offer.value.duration)
+            owner = item.value.owner, deposit = offer.deposit, remaining = offer.remaining,
+            duration = offer.duration, dueDate = sp.now.add_seconds(offer.duration)
         )
-        self._mintPositionToken(positionTokenId.value, _reservationDetails, offer.value.owner)
+        self._mintPositionToken(positionTokenId.value, _reservationDetails, offer.owner)
         self._reserveItem(params.token, params.tokenId, positionTokenId.value)
 
     @sp.entry_point
@@ -452,10 +447,12 @@ class Reserve(sp.Contract):
         sp.set_type(params,sp.TRecord(
             token = sp.TAddress, tokenId = sp.TNat, value = sp.TMutez
         ))
-        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
+        item = sp.local('item',sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some())
 
-        self._isAccepted(item)
-        positionTokenId = sp.local('positionTokenId',item.listing.reserveListing.positionToken)
+        self._isAccepted(item.value)
+        positionTokenId = sp.local('positionTokenId',item.value.listing.reserveListing.positionToken)
 
         bal = sp.view(
             'get_balance_onchain',
@@ -466,7 +463,12 @@ class Reserve(sp.Contract):
 
         sp.verify(bal > 0, "Reserve : Item owner only")
 
-        details = self._getReservationDetails(positionTokenId.value)
+        details = sp.view(
+            'getReservationDetails', 
+            self.data.positionToken, 
+            positionTokenId.value,
+            t = self.structures.getReservationDetailType()
+        ).open_some()
 
         self._itemNotExpired(details.dueDate)
         self._checkPayment(
@@ -475,7 +477,7 @@ class Reserve(sp.Contract):
             params.value
         )
         self._receiveAssets(details.remaining)
-        self._sendAssets(details.remaining, item.owner)
+        self._sendAssets(details.remaining, item.value.owner)
 
         self._sendNFTs(
             sp.map({0:params.token}),
@@ -491,10 +493,18 @@ class Reserve(sp.Contract):
             token = sp.TAddress, 
             tokenId = sp.TNat
         ))
-        item = self._getItem(sp.record(token = params.token, tokenId = params.tokenId))
-        self._isAccepted(item)
-        self._itemOwnerOnly(item.owner, sp.source)
-        details = self._getReservationDetails(item.listing.reserveListing.positionToken)
+        item = sp.local('item',sp.view(
+            'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
+        ).open_some())        
+        self._isAccepted(item.value)
+        self._itemOwnerOnly(item.value.owner, sp.source)
+        positionTokenId = item.value.listing.reserveListing.positionToken
+        details = sp.view(
+            'getReservationDetails', 
+            self.data.positionToken, 
+            positionTokenId,
+            t = self.structures.getReservationDetailType()
+        ).open_some()
 
         sp.verify(details.dueDate < sp.now,"Reserve : Not Defaulted")
 
@@ -503,7 +513,7 @@ class Reserve(sp.Contract):
             sp.map({0:params.tokenId}),
             sp.source
         )
-        self._burnPositionToken(item.listing.reserveListing.positionToken)
+        self._burnPositionToken(positionTokenId)
 
     @sp.entry_point
     def claimRejectedReserveOffer(self, offerId):
