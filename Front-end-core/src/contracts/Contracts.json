@@ -1,0 +1,18 @@
+{
+    "NFTs": [
+        "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B",
+        "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ",
+        "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H",
+        "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk",
+        "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1",
+        "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb",
+        "KT1SnnJqRCGYSgpXQAwWBN6XJxRu84Lh9PF6"
+    ],
+    "Getters": "KT1TsvfDMUvK2PFFcwsuHYafRYYz4e8RADNN",
+    "Market": "KT1CmNQSLsu8GpzN7kSmA1DoJy7f1L3pR3yJ",
+    "Vault": "KT1Xu6hVPyMkxZTWzLdBmYb7vmYqRTtc1f3a",
+    "XTZ": "tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU",
+    "PositionToken": "KT1SnnJqRCGYSgpXQAwWBN6XJxRu84Lh9PF6",
+    "nameToAddress": {},
+    "addressToName": {}
+}

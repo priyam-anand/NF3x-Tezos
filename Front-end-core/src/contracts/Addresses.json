@@ -1,0 +1,42 @@
+{
+    "ERC721": [
+        "0x91d0c5784804bd8d27a30be96b3da4037f095251",
+        "0x67ac9571ac0c7ef21cf72d25268704ae5db1a491",
+        "0xe844e8ae8a066a6d103a72b770c36949d4dbc557",
+        "0x8ec835205416ab2c840a8ca70c7cb56472ddb760",
+        "0xb5aecd917af13b5b34b53e2a2aad3f90e057a580",
+        "0xc68a02588b50ed16f3066c38767bb8c64c5b50a7",
+        "0x3d279979e413e39fba4ee6b384fb07790cdfc8cc"
+    ],
+    "Getters": "0x887A958e46c1c4B259C05E0577F00c4F4F060a15",
+    "Market": "0x9ec938036C2F1D36128997e9ecc06893b52805d2",
+    "Vault": "0x7b2209F22f3362373A0956E477e6fdDdb3b3cA54",
+    "ETH": "0x0000000000000000000000000000000000000000",
+    "nameToAddress": {
+        "Bored Apes": "0x91d0c5784804bd8d27a30be96b3da4037f095251",
+        "Azuki": "0x67ac9571ac0c7ef21cf72d25268704ae5db1a491",
+        "Noodles": "0xe844e8ae8a066a6d103a72b770c36949d4dbc557",
+        "Mooncats": "0x8ec835205416ab2c840a8ca70c7cb56472ddb760",
+        "WVRP": "0xb5aecd917af13b5b34b53e2a2aad3f90e057a580",
+        "World of Women": "0xc68a02588b50ed16f3066c38767bb8c64c5b50a7",
+        "Doodles": "0x3d279979e413e39fba4ee6b384fb07790cdfc8cc"
+    },
+    "addressToName": {
+        "0x91d0c5784804bd8d27a30be96b3da4037f095251": "Bored Apes",
+        "0x67ac9571ac0c7ef21cf72d25268704ae5db1a491": "Azuki",
+        "0xe844e8ae8a066a6d103a72b770c36949d4dbc557": "Noodles",
+        "0x8ec835205416ab2c840a8ca70c7cb56472ddb760": "Mooncats",
+        "0xb5aecd917af13b5b34b53e2a2aad3f90e057a580": "WVRP",
+        "0xc68a02588b50ed16f3066c38767bb8c64c5b50a7": "World of Women",
+        "0x3d279979e413e39fba4ee6b384fb07790cdfc8cc": "Doodles"
+    },
+    "nameToImageUri": {
+        "Bored Apes": "https://lh3.googleusercontent.com/9WkSu8CP7gZjaEmUy8cpaKG3mK6ScHeEDvQf8driDoRxuxy4GPAs_W_Dn_DQascQSGDkdUL4cjmsnRrL6xN-NDp-s_RNwN5pxiCo",
+        "Azuki": "https://lh3.googleusercontent.com/FEHXrzlVkW_JgoCSGEmdSNn6TlHbKhixpeEbxjAy6lQ-AD46AfApo25_K3dcQzdChBAVKN9MbEf7MOlTHvKAUpedXN4Ujhb-viJHAw",
+        "Noodles": "https://lh3.googleusercontent.com/_SlOFhBFfGkWAVzqc8VJpBL9T-it5PIrwS9uuuW93Picx7xVZpZTbcAZBSrORW2oudwBil9w5FjUCGweHZ8ppF02kfy7how-clVWmg",
+        "Mooncats": "https://lh3.googleusercontent.com/gzBAeCVGahV7Qa09FWqz85rOxXxf7wuJkOpyQDi2ZO1oSS2GIW7PtKJ1haW_IPbXbKgeRQJyZ8Lx1T7Z3CP46N9zqCtVfL6tfu-i",
+        "WVRP": "https://lh3.googleusercontent.com/V4jHXMcs6l-tUbH3WT7X1r9BcrJB5FJpdWPW-X4yPhiulG-U-8sKZtm-zjTF2ZAF_GDmmCh1e9CfLGCuzzyLAcs6k0Yo-NAsbFOhsA",
+        "World of Women": "https://lh3.googleusercontent.com/yNa9-_o1S9DimqnvZWP2H4eFFemwzM9bF7XBYpEVyaHquoSmvVd3HQY7BDKIBnQvxZCsDkaiSEf-xquc96jXlGqaXxu6hKfB7xK2",
+        "Doodles": "https://lh3.googleusercontent.com/yWy_tJBplCswPRCmVjxNbV6a7sbSCCrWak2iIRtFgUBFn9vtUeqP9WBe9R5ImzS7kTekMC930SAJ0bFHy19UY3GwSE66beAzKtlmcDA"
+    }
+}

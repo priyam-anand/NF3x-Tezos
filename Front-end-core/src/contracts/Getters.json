@@ -1,0 +1,2354 @@
+{
+  "contractName": "Getters",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paramsAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setParams1",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_paramsAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setParams2",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_whitelistContract",
+          "type": "address"
+        }
+      ],
+      "name": "setWhitelist",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getSupportedTokens",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [],
+      "name": "getPaymentTokens",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "",
+          "type": "address[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getTokenDetails",
+      "outputs": [
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        },
+        {
+          "internalType": "string",
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function",
+      "constant": true
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getItem",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "id",
+          "type": "uint256"
+        }
+      ],
+      "name": "getItemWithId",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getListedItems",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMyListedItems",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveBuyNowPayLaterItems_Seller",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getActiveBuyNowPayLaterItems_Buyer",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getUnavailableItems",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "tokenId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum IParams1.Status",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bool[]",
+              "name": "listingType",
+              "type": "bool[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.DirectListing",
+              "name": "directListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.DirectSaleOffer[]",
+              "name": "directSaleOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "bool",
+                  "name": "accpeted",
+                  "type": "bool"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "buyer",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "nextPaymentDate",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterListing[]",
+              "name": "bnplListings",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                }
+              ],
+              "internalType": "struct IParams1.SwapListing",
+              "name": "swapListing",
+              "type": "tuple"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address",
+                  "name": "payment_token",
+                  "type": "address"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "deposit",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "remaining_amount",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "duration",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+              "name": "bnplOffers",
+              "type": "tuple[]"
+            },
+            {
+              "components": [
+                {
+                  "internalType": "uint256",
+                  "name": "itemId",
+                  "type": "uint256"
+                },
+                {
+                  "internalType": "address",
+                  "name": "owner",
+                  "type": "address"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "token_addresses",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "tokenIds",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "address[]",
+                  "name": "payment_tokens",
+                  "type": "address[]"
+                },
+                {
+                  "internalType": "uint256[]",
+                  "name": "amounts",
+                  "type": "uint256[]"
+                },
+                {
+                  "internalType": "uint256",
+                  "name": "time_period",
+                  "type": "uint256"
+                }
+              ],
+              "internalType": "struct IParams1.SwapOffer[]",
+              "name": "swapOffers",
+              "type": "tuple[]"
+            }
+          ],
+          "internalType": "struct IParams1.Item[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getDirectSaleOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "payment_tokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "amounts",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.DirectSaleOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMyDirectSaleOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "payment_tokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "amounts",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.DirectSaleOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRejectedDirectSaleOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address[]",
+              "name": "payment_tokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "amounts",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.DirectSaleOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getBuyNowPayLaterOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "payment_token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deposit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "remaining_amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "duration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMyBuyNowPayLaterOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "payment_token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deposit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "remaining_amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "duration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRejectedBuyNowPayLaterOffer",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "payment_token",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deposit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "remaining_amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "duration",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.BuyNowPayLaterOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token_address",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_tokenId",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSwapOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "token_addresses",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "tokenIds",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "address[]",
+              "name": "payment_tokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "amounts",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.SwapOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getMyActiveSwapOffers",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "token_addresses",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "tokenIds",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "address[]",
+              "name": "payment_tokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "amounts",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.SwapOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "getRejectedSwapOffer",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "itemId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "owner",
+              "type": "address"
+            },
+            {
+              "internalType": "address[]",
+              "name": "token_addresses",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "tokenIds",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "address[]",
+              "name": "payment_tokens",
+              "type": "address[]"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "amounts",
+              "type": "uint256[]"
+            },
+            {
+              "internalType": "uint256",
+              "name": "time_period",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct IParams1.SwapOffer[]",
+          "name": "",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ]
+}
