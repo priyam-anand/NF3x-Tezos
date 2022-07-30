@@ -27,7 +27,7 @@ function Main() {
             {useRoutes([
                 { path: "/", element: <HomePage /> },
                 { path: "/listing", element: <ListingPage /> },
-                { path: "/listdetail/:id", element: <ListDetailPage /> },
+                { path: "/listdetail/:collection/:tokenId", element: <ListDetailPage /> },
                 { path: "/createlist", element: <CreateListing /> },
                 { path: "/dashboard", element: <DashboardPage /> },
             ])}

@@ -36,6 +36,9 @@ import { fetchAccount, fetchGetter, fetchWeb3, fetchMarket, setNetwork, fetchNFT
 import { getItemWIthId, getUnavailableItems, getTime, _getTokens, _getToken } from '../api/getter';
 import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _confirmPayLater, _confirmReserveOffer, _confirmSwapNow, _confirmSwapNowOffer, _confirmSwapOffer, _handleCancelListing } from '../api/market';
 import { useNavigate } from 'react-router-dom';
+import { init, getAccount, getGetters, getMarket } from "../api/tezos"
+import { _getItem, _getTokenMetadata, getImageURI } from '../api/getterTezos';
+import { MichelsonMap } from "@taquito/taquito";
 
 const useStyles = makeStyles({
   root: {
@@ -421,8 +424,9 @@ const useStyles = makeStyles({
 });
 
 function ListDetailPage() {
-  const { id } = useParams();
-  const { account, web3, getter, market, nfts } = useSelector((state) => state.web3Config);
+  const { collection, tokenId } = useParams();
+  // const { account, web3, getter, market, nfts } = useSelector((state) => state.web3Config);
+  const { tezos, wallet, account, market, getters } = useSelector((state) => state.tezosConfig);
   const dispatch = useDispatch();
   const [swapOfferModal, setSwapOfferModal] = useState(false);
   const [reservePayLater, setReservePayLater] = useState(false);
@@ -431,21 +435,22 @@ function ListDetailPage() {
 
   const [token, setToken] = useState({
     name: '',
-    image_url: '',
-    traits: [],
-    token_id: '',
-    asset_contract: { address: '' },
-    owner: { address: '' }
+    displayUri: '',
+    attributes: []
   });
   const [item, setItem] = useState({
-    bnplListings: [{ deposit: "0", remaining_amount: "0", duration: "0" }],
-    directListing: { amounts: [] },
-    swapListing: { amounts: [] },
-    token: '',
-    tokenId: '',
     owner: '',
-    time_period: ''
+    listing: {
+      listingType: new MichelsonMap(),
+      timePeriod: '',
+      directListing: {
+        amount: 0
+      }
+    }
   });
+  const [reserveListing, setReserveListing] = useState([{ deposit: '', remaining: '', duration: '' }]);
+  const [swapListing, setSwapListing] = useState([{ token: '', paymentToken: '', amount: '' }])
+
   const [available, setAvailable] = useState([]);
   const [unAvailable, setUnAvailable] = useState([]);
   const [swapNowOffer, setSwapNowOffer] = useState({
@@ -531,47 +536,69 @@ function ListDetailPage() {
 
   const getItem = async () => {
     try {
-      const item = await getItemWIthId(id, getter, account);
-      const token = await _getToken(item.token, item.tokenId);
+
+      const item = await _getItem(collection, tokenId, getters);
+      const metadata = await _getTokenMetadata(collection, tokenId);
+
+      console.log(item);
+      console.log(metadata);
 
       setItem(item);
-      setItem({ ...item, owner: token.owner.address })
-      setToken(token);
-    } catch (err) {
-      if (err.response.status == 429) {
-        setTimeout(() => {
-          getItem();
-        }, 500);
-      } else {
-        window.alert(err.message);
-        console.error(err);
+      setToken(metadata);
+
+      var listings = [];
+      for (var i = 0; i < item.listing.reserveListing.deposit.size; i++) {
+        listings[i] = {
+          deposit: item.listing.reserveListing.deposit.get((i + "")),
+          remaining: item.listing.reserveListing.remaining.get((i + "")),
+          duration: item.listing.reserveListing.duration.get((i + "")),
+        }
       }
+      setReserveListing(listings);
 
+      listings = [];
+      for (var i = 0; i < item.listing.swapListing.tokens.size; i++) {
+        listings[i] = {
+          token: item.listing.swapListing.tokens.get((i + "")),
+          paymentToken: item.listing.swapListing.paymentTokens.get((i + "")),
+          amount: item.listing.swapListing.amounts.get((i + "")),
+        }
+      }
+      setSwapListing(listings);
+
+    } catch (err) {
+      window.alert(err.message);
+      console.error(err);
     }
 
   }
 
-  const init = async () => {
+  const _init = async () => {
     try {
-      var _web3 = await fetchWeb3(web3, dispatch);
-      await fetchAccount(_web3, account, dispatch);
-      await setNetwork(_web3);
-      await fetchGetter(_web3, getter, dispatch);
-      await fetchMarket(_web3, market, dispatch);
+      const { _tezos, _wallet } = await init(tezos, wallet, dispatch);
+      await getAccount(_tezos, _wallet, account, dispatch);
+
+      await getGetters(_tezos, getters, dispatch);
+      await getMarket(_tezos, market, dispatch);
+      // var _web3 = await fetchWeb3(web3, dispatch);
+      // await fetchAccount(_web3, account, dispatch);
+      // await setNetwork(_web3);
+      // await fetchGetter(_web3, getter, dispatch);
+      // await fetchMarket(_web3, market, dispatch);
     } catch (error) {
       console.error(error);
       window.alert("An error ocurred");
     }
   }
 
-  const getContracts = async () => {
-    try {
-      await fetchNFTs(web3, dispatch);
-    } catch (error) {
-      console.error(error);
-      window.alert("An error ocurred");
-    }
-  }
+  // const getContracts = async () => {
+  //   try {
+  //     await fetchNFTs(web3, dispatch);
+  //   } catch (error) {
+  //     console.error(error);
+  //     window.alert("An error ocurred");
+  //   }
+  // }
 
   const resetPopupState = () => {
     setPopupState({
@@ -614,293 +641,293 @@ function ListDetailPage() {
 
   const isReady = () => {
     return (
-      typeof web3 !== 'undefined'
+      typeof tezos !== 'undefined'
       && typeof account !== 'undefined'
-      && typeof getter !== 'undefined'
+      && typeof getters !== 'undefined'
       && typeof market !== 'undefined'
     )
   }
 
-  const toETH = (amount) => {
-    return web3.utils.fromWei(amount, 'ether');
+  const toTez = (amount) => {
+    return amount / 1000000;
   }
 
-  const toWei = (amount) => {
-    return web3.utils.toWei(amount, 'ether');
-  }
+  // const toWei = (amount) => {
+  //   return web3.utils.toWei(amount, 'ether');
+  // }
 
   const handleBuyNow = async () => {
-    setPopupState({
-      ...popupState, swapNow: {
-        open: true,
-        value: toETH(item.directListing.amounts[0])
-      }
-    })
+    // setPopupState({
+    //   ...popupState, swapNow: {
+    //     open: true,
+    //     value: toTez(item.directListing.amounts[0])
+    //   }
+    // })
   }
 
-  const confirmSwapNow = async () => {
-    try {
-      await _confirmSwapNow(item, market, account, popupState, setPopupState, toETH, toWei, dispatch);
-      resetPopupState();
-    } catch (error) {
-      resetPopupState();
-      window.alert(error.message);
-      console.error(error);
-    }
-  }
+  // const confirmSwapNow = async () => {
+  //   try {
+  //     await _confirmSwapNow(item, market, account, popupState, setPopupState, toTez, toWei, dispatch);
+  //     resetPopupState();
+  //   } catch (error) {
+  //     resetPopupState();
+  //     window.alert(error.message);
+  //     console.error(error);
+  //   }
+  // }
 
   const handlePayLater = async (index) => {
-    setPopupState({
-      ...popupState,
-      reserverNow: {
-        open: true,
-        deposit: toETH(item.bnplListings[index].deposit),
-        remainingAmount: toETH(item.bnplListings[index].remaining_amount),
-        duration: item.bnplListings[index].duration,
-        index: index
-      }
-    });
+    // setPopupState({
+    //   ...popupState,
+    //   reserverNow: {
+    //     open: true,
+    //     deposit: toTez(item.bnplListings[index].deposit),
+    //     remainingAmount: toTez(item.bnplListings[index].remaining_amount),
+    //     duration: item.bnplListings[index].duration,
+    //     index: index
+    //   }
+    // });
   }
 
-  const confirmPayLater = async (index) => {
-    try {
-      await _confirmPayLater(item, market, account, popupState, setPopupState, toETH, toWei, index, dispatch);
-      resetPopupState();
-    } catch (error) {
-      resetPopupState();
-      window.alert(error.message);
-      console.error(error);
-    }
-  }
+  // const confirmPayLater = async (index) => {
+  //   try {
+  //     await _confirmPayLater(item, market, account, popupState, setPopupState, toTez, toWei, index, dispatch);
+  //     resetPopupState();
+  //   } catch (error) {
+  //     resetPopupState();
+  //     window.alert(error.message);
+  //     console.error(error);
+  //   }
+  // }
 
-  const getTokens = async () => {
-    try {
-      await _getTokens(account, setAvailable);
-      const _unAvailable = await getUnavailableItems(getter, account);
-      setUnAvailable(_unAvailable);
-    } catch (err) {
-      if (err.response.status == 429) {
-        setTimeout(() => {
-          getTokens();
-        }, 500);
-      } else {
-        window.alert("an error occured");
-        navigate('/listing');
-      }
-    }
-  }
+  // const getTokens = async () => {
+  //   try {
+  //     await _getTokens(account, setAvailable);
+  //     const _unAvailable = await getUnavailableItems(getter, account);
+  //     setUnAvailable(_unAvailable);
+  //   } catch (err) {
+  //     if (err.response.status == 429) {
+  //       setTimeout(() => {
+  //         getTokens();
+  //       }, 500);
+  //     } else {
+  //       window.alert("an error occured");
+  //       navigate('/listing');
+  //     }
+  //   }
+  // }
 
-  const isAvailable = (token) => {
-    for (let i = 0; i < unAvailable.length; i++) {
-      if (unAvailable[i].token.toLowerCase() == token.asset_contract.address && unAvailable[i].tokenId == token.token_id)
-        return false;
-    }
-    return true;
-  }
+  // const isAvailable = (token) => {
+  //   for (let i = 0; i < unAvailable.length; i++) {
+  //     if (unAvailable[i].token.toLowerCase() == token.asset_contract.address && unAvailable[i].tokenId == token.token_id)
+  //       return false;
+  //   }
+  //   return true;
+  // }
 
-  const makeSwapNowOffer = () => {
-    const { amount, time_period } = swapNowOffer;
-    var _amount = amount == undefined || amount == '' ? 0 : amount;
-    if (_amount == 0 || time_period == 0) {
-      window.alert("Invalid Parameters");
-      return;
-    }
-    setPopupState({
-      ...popupState,
-      offer: {
-        open: 1,
-        token: {
-          tokenAddress: '',
-          tokenId: ''
-        },
-        amount: _amount
-      }
-    });
-  }
+  // const makeSwapNowOffer = () => {
+  //   const { amount, time_period } = swapNowOffer;
+  //   var _amount = amount == undefined || amount == '' ? 0 : amount;
+  //   if (_amount == 0 || time_period == 0) {
+  //     window.alert("Invalid Parameters");
+  //     return;
+  //   }
+  //   setPopupState({
+  //     ...popupState,
+  //     offer: {
+  //       open: 1,
+  //       token: {
+  //         tokenAddress: '',
+  //         tokenId: ''
+  //       },
+  //       amount: _amount
+  //     }
+  //   });
+  // }
 
-  const confirmSwapNowOffer = async () => {
-    try {
-      await _confirmSwapNowOffer(item, market, account, toWei, swapNowOffer, popupState, setPopupState, dispatch);
-    } catch (error) {
-      resetPopupState();
-      window.alert(error.message);
-      console.log(error);
-    }
-  }
+  // const confirmSwapNowOffer = async () => {
+  //   try {
+  //     await _confirmSwapNowOffer(item, market, account, toWei, swapNowOffer, popupState, setPopupState, dispatch);
+  //   } catch (error) {
+  //     resetPopupState();
+  //     window.alert(error.message);
+  //     console.log(error);
+  //   }
+  // }
 
-  const makeReserveOffer = () => {
-    const { deposit, remainingAmount, duration, time_period } = reserveOffer;
-    const _deposit = deposit == undefined || deposit == '' ? 0 : deposit;
-    const _remainingAmt = remainingAmount == undefined || remainingAmount == '' ? 0 : remainingAmount;
-    const _duration = duration == undefined || duration == '' ? 0 : duration;
-    const _timePeriod = time_period == undefined || time_period == '' ? 0 : time_period;
+  // const makeReserveOffer = () => {
+  //   const { deposit, remainingAmount, duration, time_period } = reserveOffer;
+  //   const _deposit = deposit == undefined || deposit == '' ? 0 : deposit;
+  //   const _remainingAmt = remainingAmount == undefined || remainingAmount == '' ? 0 : remainingAmount;
+  //   const _duration = duration == undefined || duration == '' ? 0 : duration;
+  //   const _timePeriod = time_period == undefined || time_period == '' ? 0 : time_period;
 
-    if (_deposit == 0 || _remainingAmt == 0 || _duration == 0 || _timePeriod == 0) {
-      window.alert("Invalid Parameters");
-      return;
-    }
-    setPopupState({
-      ...popupState,
-      offer: {
-        open: 1,
-        token: {
-          tokenAddress: '',
-          tokenId: ''
-        },
-        deposit: _deposit,
-        remainingAmount: _remainingAmt,
-        duration: _duration
-      }
-    });
-  }
+  //   if (_deposit == 0 || _remainingAmt == 0 || _duration == 0 || _timePeriod == 0) {
+  //     window.alert("Invalid Parameters");
+  //     return;
+  //   }
+  //   setPopupState({
+  //     ...popupState,
+  //     offer: {
+  //       open: 1,
+  //       token: {
+  //         tokenAddress: '',
+  //         tokenId: ''
+  //       },
+  //       deposit: _deposit,
+  //       remainingAmount: _remainingAmt,
+  //       duration: _duration
+  //     }
+  //   });
+  // }
 
-  const confirmReserveOffer = async () => {
-    try {
-      await _confirmReserveOffer(item, market, account, toWei, reserveOffer, popupState, setPopupState, dispatch);
-      // resetPopupState();
-    } catch (error) {
-      resetPopupState();
-      window.alert(error.message);
-      console.log(error);
-    }
-  }
+  // const confirmReserveOffer = async () => {
+  //   try {
+  //     await _confirmReserveOffer(item, market, account, toWei, reserveOffer, popupState, setPopupState, dispatch);
+  //     // resetPopupState();
+  //   } catch (error) {
+  //     resetPopupState();
+  //     window.alert(error.message);
+  //     console.log(error);
+  //   }
+  // }
 
-  const makeSwapOffer = () => {
-    const { tokenAddress, tokenId, amount, name, image, time_period } = swapOffer;
-    var _amount = amount == undefined || amount == '' ? 0 : amount;
-    const timePeriod = time_period * 86400;
+  // const makeSwapOffer = () => {
+  //   const { tokenAddress, tokenId, amount, name, image, time_period } = swapOffer;
+  //   var _amount = amount == undefined || amount == '' ? 0 : amount;
+  //   const timePeriod = time_period * 86400;
 
-    if (tokenAddress == '' || timePeriod == 0) {
-      window.alert("Invalid Parameters");
-      return;
-    }
+  //   if (tokenAddress == '' || timePeriod == 0) {
+  //     window.alert("Invalid Parameters");
+  //     return;
+  //   }
 
-    setPopupState({
-      ...popupState,
-      offer: {
-        open: 1,
-        token: {
-          tokenAddress: tokenAddress,
-          tokenId: tokenId
-        },
-        amount: _amount
-      }
-    });
-  }
+  //   setPopupState({
+  //     ...popupState,
+  //     offer: {
+  //       open: 1,
+  //       token: {
+  //         tokenAddress: tokenAddress,
+  //         tokenId: tokenId
+  //       },
+  //       amount: _amount
+  //     }
+  //   });
+  // }
 
-  const confirmSwapOffer = async () => {
-    try {
-      await _confirmSwapOffer(item, market, account, nfts, toWei, swapOffer, popupState, setPopupState, dispatch);
-    } catch (error) {
-      resetPopupState();
-      window.alert(error.message);
-      console.log(error);
-    }
-  }
+  // const confirmSwapOffer = async () => {
+  //   try {
+  //     await _confirmSwapOffer(item, market, account, nfts, toWei, swapOffer, popupState, setPopupState, dispatch);
+  //   } catch (error) {
+  //     resetPopupState();
+  //     window.alert(error.message);
+  //     console.log(error);
+  //   }
+  // }
 
-  const acceptOffer = (image, name, value, index, swap) => {
-    setOfferPopup({
-      open: true,
-      image: image,
-      name: name,
-      value: value == undefined || value == '' ? 0 : value,
-      swap: swap,
-      index: index
-    })
-  }
+  // const acceptOffer = (image, name, value, index, swap) => {
+  //   setOfferPopup({
+  //     open: true,
+  //     image: image,
+  //     name: name,
+  //     value: value == undefined || value == '' ? 0 : value,
+  //     swap: swap,
+  //     index: index
+  //   })
+  // }
 
-  const confirmAcceptOffer = async () => {
-    try {
-      await _confirmAcceptOffer(item, market, account, offerPopup, dispatch);
-      resetOfferPopup();
-    } catch (err) {
-      window.alert(err.message);
-      resetOfferPopup();
-      console.log(err);
-    }
-  }
+  // const confirmAcceptOffer = async () => {
+  //   try {
+  //     await _confirmAcceptOffer(item, market, account, offerPopup, dispatch);
+  //     resetOfferPopup();
+  //   } catch (err) {
+  //     window.alert(err.message);
+  //     resetOfferPopup();
+  //     console.log(err);
+  //   }
+  // }
 
-  const acceptReserveOffer = (image, name, deposit, remainingAmount, duration, index) => {
-    setOfferPopup({
-      open: true,
-      image: image,
-      name: name,
-      deposit: deposit,
-      remainingAmount: remainingAmount,
-      duration: duration,
-      index: index,
-      reserve: true
-    })
-  }
+  // const acceptReserveOffer = (image, name, deposit, remainingAmount, duration, index) => {
+  //   setOfferPopup({
+  //     open: true,
+  //     image: image,
+  //     name: name,
+  //     deposit: deposit,
+  //     remainingAmount: remainingAmount,
+  //     duration: duration,
+  //     index: index,
+  //     reserve: true
+  //   })
+  // }
 
-  const confirmAcceptReserveOffer = async () => {
-    try {
-      await _confirmAcceptReserveOffer(item, market, account, offerPopup, dispatch);
-      resetOfferPopup();
-    } catch (err) {
-      window.alert(err.message);
-      resetOfferPopup();
-      console.log(err);
-    }
-  }
+  // const confirmAcceptReserveOffer = async () => {
+  //   try {
+  //     await _confirmAcceptReserveOffer(item, market, account, offerPopup, dispatch);
+  //     resetOfferPopup();
+  //   } catch (err) {
+  //     window.alert(err.message);
+  //     resetOfferPopup();
+  //     console.log(err);
+  //   }
+  // }
 
   const handleCancelListing = async () => {
-    try {
-      await _handleCancelListing(item, market, account, dispatch);
-      resetPopupState();
-    } catch (err) {
-      window.alert(err);
-      console.log(err);
-      resetPopupState();
-    }
+    // try {
+    //   await _handleCancelListing(item, market, account, dispatch);
+    //   resetPopupState();
+    // } catch (err) {
+    //   window.alert(err);
+    //   console.log(err);
+    //   resetPopupState();
+    // }
   }
 
-  const isFiltered = (item) => {
-    if (filtered == '')
-      return true;
-    if (Addresses.nameToAddress[filtered] == item.asset_contract.address)
-      return true;
-    return false;
-  }
+  // const isFiltered = (item) => {
+  //   if (filtered == '')
+  //     return true;
+  //   if (Addresses.nameToAddress[filtered] == item.asset_contract.address)
+  //     return true;
+  //   return false;
+  // }
 
   useEffect(() => {
-    init();
+    _init();
   }, [])
 
-  useEffect(() => {
-    if (web3 != undefined) {
-      web3._provider.on('chainChanged', () => {
-        window.location.reload();
-      })
-      web3._provider.on('accountsChanged', () => {
-        window.location.reload();
-      })
-    }
-  }, [web3]);
+  // useEffect(() => {
+  //   if (web3 != undefined) {
+  //     web3._provider.on('chainChanged', () => {
+  //       window.location.reload();
+  //     })
+  //     web3._provider.on('accountsChanged', () => {
+  //       window.location.reload();
+  //     })
+  //   }
+  // }, [web3]);
 
   useEffect(() => {
-    if (getter != undefined && market != undefined) {
+    if (getters != undefined) {
       getItem();
     }
-  }, [getter, market]);
+  }, [getters]);
 
-  useEffect(() => {
-    if (web3 != undefined)
-      getContracts();
-  }, [web3]);
+  // useEffect(() => {
+  //   if (web3 != undefined)
+  //     getContracts();
+  // }, [web3]);
 
-  useEffect(() => {
-    if (nfts[0] != undefined && getter != undefined)
-      getTokens();
-  }, [nfts[0], getter]);
+  // useEffect(() => {
+  //   if (nfts[0] != undefined && getter != undefined)
+  //     getTokens();
+  // }, [nfts[0], getter]);
 
-  useEffect(() => {
-    if (item.owner != '') {
-      setSwapOffers(item.swapOffers);
-      setDirectSaleOffers(item.directSaleOffers);
-      setReserveOffers(item.bnplOffers);
-    }
-  }, [item])
+  // useEffect(() => {
+  //   if (item.owner != '') {
+  //     setSwapOffers(item.swapOffers);
+  //     setDirectSaleOffers(item.directSaleOffers);
+  //     setReserveOffers(item.bnplOffers);
+  //   }
+  // }, [item])
 
   const classes = useStyles();
 
@@ -924,7 +951,7 @@ function ListDetailPage() {
 
   return (
     <div className={classes.root}>
-      <PopupContainer isOpen={popupState.swapNow.open} popupTitle={"Confirm Swap Now"} setState={e => setPopupState({ ...popupState, swapNow: { ...popupState.swapNow, open: false } })}>
+      {/* <PopupContainer isOpen={popupState.swapNow.open} popupTitle={"Confirm Swap Now"} setState={e => setPopupState({ ...popupState, swapNow: { ...popupState.swapNow, open: false } })}>
         <PopupConfirmSwapNow value={popupState.swapNow.value} token={token} confirmSwapNow={confirmSwapNow} />
       </PopupContainer>
       <PopupContainer isOpen={popupState.reserverNow.open} popupTitle={"Reserve Now & Swap Later"} setState={e => setPopupState({ ...popupState, reserverNow: { ...popupState.reserverNow, open: false } })}>
@@ -945,7 +972,7 @@ function ListDetailPage() {
 
       <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"} setState={e => setOfferPopup({ ...offerPopup, open: false })}>
         <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmAcceptReserveOffer} />
-      </PopupContainer>
+      </PopupContainer> */}
 
       <ComponentHeader />
       <div className={classes.detailContainer}>
@@ -953,13 +980,11 @@ function ListDetailPage() {
           <div>
             <span className='font-26 bold swap-title'>
               {
-                token.name != null
-                  ? token.name
-                  : token.asset_contract.name + " #" + token.token_id
+                token.name
               }
             </span>
             <div className='img-block-round overflow-hidden'>
-              <img className='radius-13' src={token.image_url} />
+              <img className='radius-13' src={getImageURI(token.displayUri)} />
             </div>
             <div className='margin-top-20'>
               <Accordion className={classes.accordion}>
@@ -973,10 +998,10 @@ function ListDetailPage() {
                 </AccordionSummary>
                 <AccordionDetails>
                   <div className={classes.accordionContentContainer}>
-                    {token.traits.map((attribute, index) => {
+                    {token.attributes.map((attribute, index) => {
                       if (attribute.value != 0)
                         return <div className={classes.accordionContentBlock} key={index}>
-                          <span className='primary-text'>{attribute.trait_type}</span>
+                          <span className='primary-text'>{attribute.name}</span>
                           <span>{attribute.value}</span>
                         </div>
                     })}
@@ -1000,19 +1025,19 @@ function ListDetailPage() {
                     <div className={`${classes.accordionContentBlock} ${classes.accodionContentBlockDetail}`}>
                       <div>
                         <label>Contact Address</label>
-                        <label><span className="primary-text">{token.asset_contract.address}</span></label>
+                        <label><span className="primary-text">{collection}</span></label>
                       </div>
                       <div>
                         <label>Token ID</label>
-                        <label>{token.token_id}</label>
+                        <label>{tokenId}</label>
                       </div>
                       <div>
                         <label>Token Standard</label>
-                        <label>ERC-721</label>
+                        <label>FA2</label>
                       </div>
                       <div>
                         <label>Blockchain</label>
-                        <label>Ethereum</label>
+                        <label>Tezos</label>
                       </div>
                       <div>
                         <label>Metadata</label>
@@ -1029,7 +1054,7 @@ function ListDetailPage() {
             <div className="bold font-18 ">Owner</div>
             <div className='flex-justify-start align-center margin-top-20'>
               <div className='flex-justify-start column-direction'>
-                <span className='old2-text font-16 relative word-break'>{token.owner.address}<OpenInNew sx={{ color: "#B0B7C3", fontSize: "13px" }} /></span>
+                <span className='old2-text font-16 relative word-break'>{item.owner}<OpenInNew sx={{ color: "#B0B7C3", fontSize: "13px" }} /></span>
               </div>
             </div>
           </div>
@@ -1040,14 +1065,14 @@ function ListDetailPage() {
               <span className={`flex-justify align-center`}><span className='old1-text font-26 bold swap-options'>Swap Options</span>
                 {item.owner == account ? <Button disableRipple variant='outlined' size="small" className={"btn bg-white primary-text primary-border margin-left-10"} onClick={handleCancelListing}>Cancel Listing</Button> : null}
               </span>
-              <span className='font-16 old2-text font-16'>Expires in {getTime(item.time_period)}</span>
+              <span className='font-16 old2-text font-16'>Expires in {item.listing.timePeriod}</span>
             </div>
             {
-              item.directListing.amounts.length == 0 ? <></>
+              !item.listing.listingType.get('0') ? <></>
                 : <div className={`section-block swap-now`}>
                   <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Swap Now</div>
                   <div className='section-btn-block p24'>
-                    <span className="display-flex align-center"><img src='../img/ethereum.png' className="eth-img" />{toETH(item.directListing.amounts[0])} </span>
+                    <span className="display-flex align-center"><img src='../img/ethereum.png' className="eth-img" />{toTez(item.listing.directListing.amount.toNumber())} </span>
                     {
                       item.owner == account ? <></> : <div>
                         <Button disableRipple variant='outlined' className={"btn bg-white primary-text primary-border swap-button"} onClick={handleBuyNow}>Swap now</Button>
@@ -1059,16 +1084,16 @@ function ListDetailPage() {
             }
 
             {
-              item.bnplListings.length == 0 ? <></>
+              !item.listing.listingType.get('1') ? <></>
                 : <div className={`section-block swap-now`}>
                   <div className={"neutral2-text font-22 medium-weight margin-top-40 margin-bottom-10 options-block"}>Reserve and Swap Later</div>
                   {
-                    item.bnplListings.map((listing, index) => {
+                    reserveListing.map((listing, index) => {
                       return <div className='section-btn-block reserve-now-block p24' key={index}>
                         <div className='flex-justify align-center'>
-                          <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toETH(listing.deposit)}  </div>
+                          <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toTez(listing.deposit)}  </div>
                           <div className="font-16 plus">+</div>
-                          <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toETH(listing.remaining_amount)} </div>
+                          <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toTez(listing.remaining)} </div>
                           <div className='expire-text'>{`within ${listing.duration / 86400} days`}</div>
                         </div>
                         <div>
@@ -1087,7 +1112,7 @@ function ListDetailPage() {
                   <InterestedSwap addresses={item.swapListing.token_addresses} amounts={item.swapListing.amounts} setOfferNftModal={setOfferNftModal} owner={item.owner} />
                 </div>
             }
-            {
+            {/* {
               item.owner != account ?
                 <div className={`section-block ${classes.makeOffer}`}>
                   <Modal
@@ -1260,18 +1285,6 @@ function ListDetailPage() {
                             Days
                           </IconButton>
                         </Paper>
-                        {/* <FormControl sx={{ m: 0 }}>
-                          <Select
-                            className='input-text margin-left-0'
-                            value={""}
-                            onChange={() => { }}
-                            displayEmpty
-                            sx={{ height: "57px", width: "188px", background: "#ffffff" }}
-                            inputProps={{ 'aria-label': 'Without label' }}
-                          >
-                            <MenuItem value="">5 Days</MenuItem>
-                          </Select>
-                        </FormControl> */}
                       </div>
                       <div className={`section-block margin-top-20 bottom-section`}>
                         <div>
@@ -1426,43 +1439,11 @@ function ListDetailPage() {
                       </Box>
                     </Modal>
                   </div>
-
-                  {/* <div className={`section-block margin-top-20 padding-lr-10`}>
-                    <div>
-                      <span>Locking Period</span>
-                    </div>
-
-                    <div className={`section-block margin-tb-10`}>
-                      <Paper
-                        component="form"
-                        className={"outline-border radius-10"}
-                        sx={{ p: '2px 4px', height: "57px", display: 'flex', boxShadow: "none !important", marginTop: "10px", alignItems: 'center', width: 200, color: "#23262F" }}
-                      >
-                        <InputBase
-                          onInput={(e)=> e.target.value = Math.abs(e.target.value)}
-                          sx={{ ml: 1, flex: 1 }}
-                          placeholder="0"
-                          type="number"
-                          inputProps={{ 'aria-label': 'search google maps' }}
-                          value={selected.time_period}
-                          onChange={(e) => setSelected({ ...selected, time_period: e.target.value })}
-                        />
-                        <IconButton disableRipple sx={{ p: '10px', fontSize: "16px", color: '#B0B7C3' }} aria-label="search">
-                          Days
-                        </IconButton>
-                      </Paper>
-                    </div>
-                  </div> */}
-
-                  {/* <div className={`section-block float-right margin-tb-10`}>
-                    <Button disableRipple className="btn " variant='contained' onClick={submitOffer}>Confirm</Button>
-                  </div> */}
-                </div> : <></>}
+                </div> : <></>} */}
 
           </div>
 
-          {/* Offers Received */}
-          <div className={`section-block ${classes.offersReceived} `}>
+          {/* <div className={`section-block ${classes.offersReceived} `}>
             <div className="outline-border radius-tlr-14">
               <div>
                 <div className='outline-border radius-tlr-14 flex-justify align-center padding-15 center'>
@@ -1487,33 +1468,9 @@ function ListDetailPage() {
                     return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} acceptReserveOffer={acceptReserveOffer} />
                   })
                 }
-
-                {/* <div className='outline-border radius-blr-14 flex-justify align-center padding-15'>
-                  <div style={{ flex: "1 1 30%" }}>
-                    <div className='section-image-block'>
-                      <img src={"../img/eth.png"} alt="ethLogo" />
-                      <div className='section-image-desc'>
-                        <span>{
-                          "Bored App"
-                        }</span>
-                        <span>
-                          Any
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="primary-text center font-16">sdfgfsdlfghlsjkdhgjsdfgsdg</div>
-                  <div style={{ flex: "1 1 20%" }} className="center font-16 t1-text">4d</div>
-                  <div style={{ flex: "0 0 30%" }} className="center">
-                    <Button variant='outlined' className={"btn bg-white primary-text primary-border margin-top-5"}>View</Button>
-                    <Button variant='contained' className={"btn margin-top-5"} >
-                      Accept
-                    </Button>
-                  </div>
-                </div> */}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </div >);

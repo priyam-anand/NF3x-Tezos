@@ -16,6 +16,7 @@ import { useNavigate } from 'react-router-dom';
 import { getImageURI, getTokenDetails, _getToken } from "../api/getter"
 import { _claimBackNFT } from '../api/market';
 import Contracts from "../contracts/Contracts.json";
+import { _getTokenMetadata } from '../api/getterTezos';
 
 const useStyles = makeStyles({
 
@@ -48,7 +49,7 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
             const token = item.token;
             const tokenId = item.tokenId.toNumber();
 
-            const metadata = (await axios.get(`https://api.ghostnet.tzkt.io/v1/tokens?contract=${token}&tokenId=${tokenId}`)).data[0].metadata;
+            const metadata = await _getTokenMetadata(token, tokenId);
 
             setData(metadata);
         } catch (err) {
