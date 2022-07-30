@@ -10,7 +10,6 @@ import PopupContainer from '../components/PopupContainer';
 import PopupCompleteListing from '../components/PopupCompleteListing';
 import PopupListedForSale from '../components/PopupListedForSale';
 import { useNavigate } from 'react-router-dom';
-import { fetchWeb3, fetchAccount, setNetwork, fetchGetter, fetchMarket, fetchNFTs } from "../api/web3";
 import { _completeListing } from '../api/marketTezos';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos";
 import { _getTokens } from '../api/getterTezos';

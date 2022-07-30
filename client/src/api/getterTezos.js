@@ -30,6 +30,17 @@ export const _getTokens = async (account) => {
     });
 }
 
+export const getListedItems = async (getters) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const items = await getters.views.getListedItems([['unit']]).read();
+            resolve(items);
+        } catch (e) {
+            reject(e);
+        }
+    })
+}
+
 export const getImageURI = (uri) => {
     uri = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
     return uri;

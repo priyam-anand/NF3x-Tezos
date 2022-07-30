@@ -5,7 +5,7 @@ import Addresses from "../contracts/Contracts.json";
 
 export const init = async (Tezos, wallet, dispatch) => {
     if (Tezos != undefined && wallet != undefined) {
-        return { Tezos, wallet }
+        return { _tezos: Tezos, _wallet: wallet }
     }
     return new Promise(async (resolve, reject) => {
         try {

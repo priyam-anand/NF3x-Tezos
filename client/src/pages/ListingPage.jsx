@@ -7,8 +7,10 @@ import ListingCard from '../components/ListingCard';
 import Addresses from "../contracts/Addresses.json";
 import { ReactComponent as FilterFill } from "../SVG/filter-fill.svg";
 import { ReactComponent as FilterStroke } from "../SVG/filter-stroke.svg";
-import { fetchAccount, fetchGetter, fetchWeb3, setNetwork } from '../api/web3';
-import { getListedItems } from '../api/getter';
+// import { fetchAccount, fetchGetter, fetchWeb3, setNetwork } from '../api/web3';
+// import { getListedItems } from '../api/getter';
+import { init, getAccount, getGetters } from "../api/tezos";
+import { getListedItems } from '../api/getterTezos';
 
 const useStyles = makeStyles({
   root: {
@@ -87,7 +89,8 @@ const useStyles = makeStyles({
 
 function ListingPage() {
   const classes = useStyles();
-  const { account, web3, getter } = useSelector((state) => state.web3Config);
+  // const { account, web3, getter } = useSelector((state) => state.web3Config);
+  const { tezos, wallet, account, getters } = useSelector((state) => state.tezosConfig);
   const dispatch = useDispatch();
   const [filterCategories, setFilterCategories] = useState([
     { name: 'Payments', filters: [{ name: "Pay in full", isSelected: true }, { name: "Pay partial", isSelected: true }, { name: 'Swap', isSelected: true }] }]);
@@ -118,12 +121,12 @@ function ListingPage() {
     setFilterCategories(currentData);
   }
 
-  const init = async () => {
+  const _init = async () => {
     try {
-      var _web3 = await fetchWeb3(web3, dispatch);
-      await fetchAccount(_web3, account, dispatch);
-      await setNetwork(_web3);
-      await fetchGetter(_web3, getter, dispatch);
+      const { _tezos, _wallet } = await init(tezos, wallet, dispatch);
+      await getAccount(_tezos, _wallet, account, dispatch);
+      await getGetters(_tezos, getters, dispatch);
+
     } catch (error) {
       console.log(error);
       window.alert("An error occured");
@@ -175,7 +178,7 @@ function ListingPage() {
   }
 
   const _getListedItems = async () => {
-    const items = await getListedItems(getter, account)
+    const items = await getListedItems(getters);
     setListedItems(items);
   }
 
@@ -195,37 +198,37 @@ function ListingPage() {
   }
 
   useEffect(() => {
-    init();
+    _init();
     updateSize();
   }, []);
 
-  useEffect(() => {
-    if (web3 != undefined) {
-      web3._provider.on('chainChanged', () => {
-        window.location.reload();
-      })
-      web3._provider.on('accountsChanged', () => {
-        window.location.reload();
-      })
-    }
-  }, [web3]);
+  // useEffect(() => {
+  //   if (web3 != undefined) {
+  //     web3._provider.on('chainChanged', () => {
+  //       window.location.reload();
+  //     })
+  //     web3._provider.on('accountsChanged', () => {
+  //       window.location.reload();
+  //     })
+  //   }
+  // }, [web3]);
 
   useEffect(() => {
-    if (getter != undefined)
+    if (getters != undefined)
       _getListedItems();
-  }, [getter]);
+  }, [getters]);
 
-  useEffect(() => {
-    getCount();
-  }, [listedItems]);
+  // useEffect(() => {
+  //   getCount();
+  // }, [listedItems]);
 
-  useEffect(() => {
-    getCount();
-  }, [offeredFilter.length, filterCategories[0].filters[0].isSelected, filterCategories[0].filters[1].isSelected, filterCategories[0].filters[2].isSelected, wantedOfferFilter.length, searchResult])
+  // useEffect(() => {
+  //   getCount();
+  // }, [offeredFilter.length, filterCategories[0].filters[0].isSelected, filterCategories[0].filters[1].isSelected, filterCategories[0].filters[2].isSelected, wantedOfferFilter.length, searchResult])
 
-  if (web3 == undefined)
-    return <></>
-  console.log(searchResult);
+  if (tezos == undefined)
+    return <>{"not ready"}</>
+  // console.log(searchResult);
   return (
     <Fragment>
       <ComponentHeader searchResult={searchResult} setSearchResult={setSearchResult} />
@@ -255,32 +258,33 @@ function ListingPage() {
                 searchResult == null
                   ? <span className='bold'>{`All Collections (${count})`}</span>
                   : <span className='flex-justify width-100'>
-                      <span className="display-flex column-direction" style={{flex: "80%"}}>
-                        <span className='font-20 bold'>{`${searchResult} (${count})`}</span>
-                        <span className='flex-justify-start medium-weight'>
-                          <span className='b-grey-text margin-right-5'>By</span>
-                          <span className='black-text'>kingofthegoblin</span>
-                        </span>
-                      </span>
-                      <span className='display-flex column-direction margin-right-40 center'>
-                        <span className='black-text'>2351</span>
-                        <span className='b-grey-text font-normal'>Items</span>
-                      </span>
-                      <span className='display-flex column-direction margin-right-40 center'>
-                        <span className='black-text'>4.6K</span>
-                        <span className='b-grey-text font-normal'>Owners</span>
+                    <span className="display-flex column-direction" style={{ flex: "80%" }}>
+                      <span className='font-20 bold'>{`${searchResult} (${count})`}</span>
+                      <span className='flex-justify-start medium-weight'>
+                        <span className='b-grey-text margin-right-5'>By</span>
+                        <span className='black-text'>kingofthegoblin</span>
                       </span>
                     </span>
+                    <span className='display-flex column-direction margin-right-40 center'>
+                      <span className='black-text'>2351</span>
+                      <span className='b-grey-text font-normal'>Items</span>
+                    </span>
+                    <span className='display-flex column-direction margin-right-40 center'>
+                      <span className='black-text'>4.6K</span>
+                      <span className='b-grey-text font-normal'>Owners</span>
+                    </span>
+                  </span>
               }
             </span>
           </div>
 
           <div className={`list-main-cards`}>
             {listedItems.map((item, index) => {
-              if (validateCardData(item) && validOfferedFilter(item) && validWantedCollection(item)) {
-                if (isSearchValid(item))
-                  return <ListingCard key={index} item={item} />
-              }
+
+              // if (validateCardData(item) && validOfferedFilter(item) && validWantedCollection(item)) {
+              //   if (isSearchValid(item))
+              return <ListingCard key={index} item={item} />
+              // }
             })}
           </div>
         </div>
