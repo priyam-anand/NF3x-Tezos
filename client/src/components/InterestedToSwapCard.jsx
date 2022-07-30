@@ -109,13 +109,12 @@ const useStyles = makeStyles({
 const InterestedToSwapCard = ({ index, setSwapAmount, setSwapToken, removeInterestedSwap, key, item }) => {
     const classes = useStyles();
     const collections = [
-        { title: 'Bored Apes' },
-        { title: 'Azuki' },
-        { title: 'Noodles' },
-        { title: 'Mooncats' },
-        { title: 'WVRP' },
-        { title: 'World of Women' },
-        { title: "Doodles" }
+        { title: 'Ottez' },
+        { title: 'Tezzardz' },
+        { title: 'Neonz' },
+        { title: 'Ziggurats' },
+        { title: 'Prjktneon' },
+        { title: 'GOGOs' }
     ];
     const flatProps = {
         options: collections.map((option) => option.title),

@@ -187,7 +187,6 @@ function SwapOptions({ selected, setSelected, completeListing, bnplListings, set
   }
 
   const classes = useStyles();
-  const dispatch = useDispatch();
   return (
     <div className={classes.root}>
       <div className={`${classes.swapOption} ${selected && !selected.token ? 'inactive' : ''}`}>
@@ -245,6 +244,10 @@ function SwapOptions({ selected, setSelected, completeListing, bnplListings, set
               <label>Interested to Swap for</label>
             </AccordionSummary>
             <AccordionDetails>
+              <div>
+                <Checkbox className="p-0" {...label} size='small' checked={selected.directSwap} onChange={e => setSelected({ ...selected, directSwap: !selected.directSwap })} sx={{ color: pink[800], '&.Mui-checked': { color: '#FF0083', }, }} />
+                <label>Enable Direct Swap</label>
+              </div>
               {interestedToSwap.map((item, index) => <>
                 {index > 0 &&
                   <div className='inline-flex-row width-50'>
@@ -259,7 +262,6 @@ function SwapOptions({ selected, setSelected, completeListing, bnplListings, set
                   <Button disableRipple startIcon={<Add />} className={"btn bg-white primary-text primary-border"} sx={{ marginTop: "19px" }} variant="outlined" onClick={addInterestedSwap}>Add Another Option</Button>
                 </div> : null
               }
-
             </AccordionDetails>
           </Accordion>
         </div>
@@ -292,21 +294,6 @@ function SwapOptions({ selected, setSelected, completeListing, bnplListings, set
                       Days
                     </IconButton>
                   </Paper>
-                  {/* <FormControl sx={{ m: 1, minWidth: 200, marginLeft: 0 }}>
-                <Select
-                  className='option-input-field'
-                  value={selected.timePeriod}
-                  onChange={(e) => { setSelected({ ...selected, timePeriod: e.target.value }) }}
-                  displayEmpty
-                  sx={{ height: "57px", width: "300px"}}
-                  inputProps={{ 'aria-label': 'Without label' }}
-                >
-                  <MenuItem value={1}>1 Day</MenuItem>
-                  <MenuItem value={3}>3 Days</MenuItem>
-                  <MenuItem value={5}>5 Days</MenuItem>
-                  <MenuItem value={10}>10 Days</MenuItem>
-                </Select>
-              </FormControl> */}
                 </div>
               </AccordionDetails>
             </Accordion>
@@ -316,13 +303,7 @@ function SwapOptions({ selected, setSelected, completeListing, bnplListings, set
         <div className='section-block swap-option-btn' style={{ maxWidth: "900px" }}>
           <Button disableRipple className={"btn bg-primary white-text"} endIcon={<ArrowRightAlt />} variant="contained" onClick={completeListing}>Complete listing</Button>
           <Button disableRipple className={"btn bg-white text-capitalize old3-text old3-border"} variant="outlined" onClick={canceCreatelListing}>Cancel</Button>
-          <label className='float-right block-elem' style={{ marginTop: '12px' }}>
-            Auto saving
-            <Box sx={{ display: 'inline-block', marginLeft: "5px" }}>
-              <CircularProgress sx={{ width: "15px !important", height: "15px !important", verticalAlign: "top", marginTop: "5px" }} />
-            </Box>
-          </label>
-          <div style={{ color: "#777E90", marginLeft: "15px", fontSize: "12px", marginTop: "17px" }}>Platform swap fee 0.05Eth</div>
+          <div style={{ color: "#777E90", marginLeft: "15px", fontSize: "12px", marginTop: "17px" }}>Platform swap fee 0.5 XTZ</div>
         </div>
 
       </div>

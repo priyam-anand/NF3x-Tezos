@@ -13,6 +13,13 @@
     "Vault": "KT1Xu6hVPyMkxZTWzLdBmYb7vmYqRTtc1f3a",
     "XTZ": "tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU",
     "PositionToken": "KT1SnnJqRCGYSgpXQAwWBN6XJxRu84Lh9PF6",
-    "nameToAddress": {},
+    "nameToAddress": {
+        "Ottez" : "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B",
+        "Tezzardz" : "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ",
+        "Neonz" : "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H",
+        "Ziggurats" : "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk",
+        "Prjktneon" : "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1",
+        "GOGOs" : "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb"
+    },
     "addressToName": {}
 }

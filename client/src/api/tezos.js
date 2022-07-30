@@ -26,21 +26,23 @@ export const init = async (Tezos, wallet, dispatch) => {
 
 export const getAccount = async (Tezos, wallet, _account, dispatch) => {
     if (_account != undefined) {
+        console.log("predefined account", _account)
         return _account;
     }
     return new Promise(async (resolve, reject) => {
-        var account = await wallet.client.getActiveAccount();
-        if (account) {
-            dispatch(setAccount({ account: account.address }))
-            resolve(account.address);
-            return;
-        }
+        // var account = await wallet.client.getActiveAccount();
+        // console.log("account", account)
+        // if (account) {
+        //     dispatch(setAccount({ account: account.address }))
+        //     resolve(account.address);
+        //     return;
+        // }
         try {
             await wallet.requestPermissions({
                 network: { type: 'ghostnet' }
             });
             Tezos.setWalletProvider(wallet);
-            account = await wallet.client.getActiveAccount();
+            var account = await wallet.client.getActiveAccount();
             dispatch(setTezos({ tezos: Tezos }));
             dispatch(setWallet({ wallet: wallet }));
             dispatch(setAccount({ account: account.address }))

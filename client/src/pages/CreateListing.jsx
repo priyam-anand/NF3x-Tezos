@@ -11,7 +11,7 @@ import PopupCompleteListing from '../components/PopupCompleteListing';
 import PopupListedForSale from '../components/PopupListedForSale';
 import { useNavigate } from 'react-router-dom';
 import { fetchWeb3, fetchAccount, setNetwork, fetchGetter, fetchMarket, fetchNFTs } from "../api/web3";
-import { _completeListing } from '../api/market';
+import { _completeListing } from '../api/marketTezos';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos";
 import { _getTokens } from '../api/getterTezos';
 
@@ -78,6 +78,7 @@ function CreateListing() {
     sale: false,
     bnpl: false,
     swap: false,
+    directSwap : false,
     directSalePrice: [''],
     offerToken: '',
     offerAmt: '',
@@ -146,26 +147,26 @@ function CreateListing() {
 
   const completeListing = async (e) => {
     e.preventDefault();
-    // try {
-    //   await _completeListing(selected, market, account, toWei, bnplListings, interestedToSwap, setPopupState, nfts, dispatch);
-    //   setPopupState({
-    //     completeListing: {
-    //       open: false,
-    //       state: 0,
-    //     },
-    //     listed: true
-    //   });
-    // } catch (error) {
-    //   setPopupState({
-    //     completeListing: {
-    //       open: false,
-    //       state: 0,
-    //     },
-    //     listed: false
-    //   });
-    //   window.alert(error.message);
-    //   console.error(error);
-    // }
+    try {
+      await _completeListing(tezos, selected, market, account, bnplListings, interestedToSwap, setPopupState, dispatch);
+      // setPopupState({
+      //   completeListing: {
+      //     open: false,
+      //     state: 0,
+      //   },
+      //   listed: true
+      // });
+    } catch (error) {
+      // setPopupState({
+      //   completeListing: {
+      //     open: false,
+      //     state: 0,
+      //   },
+      //   listed: false
+      // });
+      window.alert(error.message);
+      console.error(error);
+    }
   }
 
   const canceCreatelListing = () => {
@@ -237,7 +238,7 @@ function CreateListing() {
       <div className={classes.root}>
         <div className={classes.createListingHeader}>
           <CreateSwap available={available} selected={selected} setSelected={setSelected} unAvailable={unAvailable} bnplListings={bnplListings} interestedToSwap={interestedToSwap}
-          // content={<SwapOptions selected={selected} setSelected={setSelected} completeListing={completeListing} bnplListings={bnplListings} setBnplListings={setBnplListings} interestedToSwap={interestedToSwap} setInterestedToSwap={setInterestedToSwap} canceCreatelListing={canceCreatelListing} />} 
+          content={<SwapOptions selected={selected} setSelected={setSelected} completeListing={completeListing} bnplListings={bnplListings} setBnplListings={setBnplListings} interestedToSwap={interestedToSwap} setInterestedToSwap={setInterestedToSwap} canceCreatelListing={canceCreatelListing} />} 
           />
           {/* <HowToCreateSwap /> */}
         </div>
