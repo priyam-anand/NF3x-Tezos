@@ -5,6 +5,9 @@ import axios from 'axios';
 import { setAccount } from '../redux/web3ConfigSlice';
 import Button from '@mui/material/Button';
 import { getTokenDetails } from '../api/getter';
+import { _getTokenMetadata } from '../api/getterTezos';
+import Contracts from "../contracts/Contracts.json";
+
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 
@@ -37,19 +40,16 @@ const useStyles = makeStyles({
 
 // get token uri, contract name and image.
 
-function InterestedSwap({ addresses, amounts, setOfferNftModal, owner }) {
+function InterestedSwap({ listings, setOfferNftModal, setNftSwapModal, nftSwap, setNftSwap }) {
     const classes = useStyles();
-
-    const { getter, account, web3 } = useSelector((state) => state.web3Config);
-
+    const { account } = useSelector((state) => state.tezosConfig);
     const [data, setData] = useState([{
-        name: "",
-        image: ""
+        symbol: "",
+        thumbnailUri: ""
     }]);
-    const [tokenName, setTokenName] = useState([]);
 
-    const toETH = (amount) => {
-        return web3.utils.fromWei(amount, 'ether');
+    const toTez = (amount) => {
+        return amount / 1000000;
     }
     const getImageURI = (uri) => {
         uri = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
@@ -57,28 +57,30 @@ function InterestedSwap({ addresses, amounts, setOfferNftModal, owner }) {
     }
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        window?.ethereum?.on("accountsChanged", accounts => {
-            dispatch(setAccount({ account: accounts[0] }));
-        });
-    }, [])
+    // useEffect(() => {
+    //     window?.ethereum?.on("accountsChanged", accounts => {
+    //         dispatch(setAccount({ account: accounts[0] }));
+    //     });
+    // }, [])
+
+    const swapClick = (index) => {
+        setNftSwap({ ...nftSwap, paymentToken: Contracts.XTZ, amount: toTez(listings.listing.swapListing.amounts.get(index + "")), index: index });
+        setNftSwapModal(true);
+    }
 
     useEffect(() => {
         const init = async () => {
             const _data = []
-            const _tokenName = [];
-            for (var i = 0; i < addresses.length; i++) {
-                const _tokenDetails = await getTokenDetails({ token_addresses: [addresses[i]], tokenIds: [1] }, getter, account);
-                const data = await axios.get(_tokenDetails[0]);
-
-                _data.push(data.data);
-                _tokenName.push(_tokenDetails[1]);
+            for (var i = 0; i < listings.listing.swapListing.tokens.size; i++) {
+                const metadata = await _getTokenMetadata(listings.listing.swapListing.tokens.get(i + ""), 0);
+                _data[i] = metadata;
             }
+            console.log(_data);
             setData(_data);
-            setTokenName(_tokenName);
         }
         init();
     }, [])
+
 
     return (
         <>{
@@ -87,21 +89,26 @@ function InterestedSwap({ addresses, amounts, setOfferNftModal, owner }) {
                     <div className='outline-border radius-10 flex-justify align-center'>
                         <div className='section-image-block width-100 flex-justify align-center' key={index}>
                             <div className='flex-justify align-center margin-right-20'>
-                                <img src={getImageURI(_data.image)} />
+                                <img src={getImageURI(_data.thumbnailUri)} />
                                 <div className='section-image-desc'>
-                                    <span>{tokenName[index]}</span>
+                                    <span>{_data.symbol}</span>
                                     <span>Any</span>
                                 </div>
                             </div>
                             {
-                                amounts[index] > 0 ? <><span className="interes-plus"> + </span>
+                                listings.listing.swapListing.amounts.get(index + "") > 0 ? <><span className="interes-plus"> + </span>
                                     <span className='flex-justify align-center swap-input margin-right-10'>
                                         <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
-                                        <span style={{ marginRight: "5px" }} className='font-26 t2-text'>{toETH(amounts[index] + "")}</span>
+                                        <span style={{ marginRight: "5px" }} className='font-26 t2-text'>{toTez(listings.listing.swapListing.amounts.get(index + ""))}</span>
                                     </span></> : null
                             }
+
                             {
-                                owner != account ? <Button disableRipple variant='outlined' className={"btn btn-grey make-offer"} onClick={setOfferNftModal}>Make Offer</Button> : null
+                                listings.owner != account ? listings.listing.swapListing.swapAllowed
+                                    ? <>
+                                        <Button disableRipple variant='outlined' className={"btn btn-grey make-offer"} onClick={e => swapClick(index)}>Swap</Button>
+                                        <Button disableRipple variant='outlined' className={"btn btn-grey make-offer"} onClick={setOfferNftModal}>Make Offer</Button>
+                                    </> : <Button disableRipple variant='outlined' className={"btn btn-grey make-offer"} onClick={setOfferNftModal}>Make Offer</Button> : null
                             }
                         </div>
 

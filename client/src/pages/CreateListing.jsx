@@ -140,10 +140,6 @@ function CreateListing() {
     )
   }
 
-  const toWei = (amount) => {
-    // return web3.utils.toWei(amount, 'ether');
-  }
-
   const completeListing = async (e) => {
     e.preventDefault();
     try {

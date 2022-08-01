@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
 import { DoubleArrowIcon } from './DoubleArrowIcon';
+import { getImageURI } from "../api/getterTezos"
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -47,10 +48,9 @@ const PopupReserveSwapLater = ({ deposit, remainingAmount, duration, token, conf
             <div className='margin-tb-10 outline-bottom-border'>
                 <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border popup-flex'>
                     <div className='relative section-image-block width-auto inline-block radius-10 padding-10'>
-                        <img className="radius-10" src={token.image_url} />
+                        <img className="radius-10" src={getImageURI(token.thumbnailUri)} />
                         <div className='section-image-desc width-auto'>
-                            <span className='t2-text font-16 medium-weight margin-tb-10'>{token.asset_contract.name}</span>
-                            <span className='b-grey-text font-14'>{'#' + token.token_id}</span>
+                            <span className='t2-text font-16 medium-weight margin-tb-10'>{token.name}</span>
                         </div>
                     </div>
 
@@ -63,9 +63,9 @@ const PopupReserveSwapLater = ({ deposit, remainingAmount, duration, token, conf
                     </span>
 
                     <div className='flex-justify align-center' style={{ flex: "0 0 36%" }}>
-                        <span className='align-center flex-justify font-bold-24 t2-text' style={{ marginRight: "4px" }}><img src='../img/ethereum.png' className="eth-img"/>{deposit} </span>
+                        <span className='align-center flex-justify font-bold-24 t2-text' style={{ marginRight: "4px" }}><img src='../img/ethereum.png' className="eth-img" />{deposit} </span>
                         <span className='font-16' style={{ marginRight: "4px" }}>+</span>
-                        <span className='align-center flex-justify font-bold-24 t2-text' style={{ marginRight: "4px" }}><img src='../img/ethereum.png' className="eth-img"/>{remainingAmount} </span>
+                        <span className='align-center flex-justify font-bold-24 t2-text' style={{ marginRight: "4px" }}><img src='../img/ethereum.png' className="eth-img" />{remainingAmount} </span>
                         <span className='grey-text font-14'>{'Within ' + (duration / 86400).toFixed(0) + ' days'}</span>
                     </div>
                 </div>

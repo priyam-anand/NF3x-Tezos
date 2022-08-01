@@ -1,7 +1,5 @@
 import Addresses from "../contracts/Contracts.json"
 import { setLoading } from "../redux/popupSlice";
-import { MichelsonMap } from "@taquito/taquito";
-
 
 export const _approveNFT = async (tezos, account, nft, tokenId, dispatch) => {
     return new Promise(async (resolve, reject) => {
@@ -32,6 +30,10 @@ export const _approveNFT = async (tezos, account, nft, tokenId, dispatch) => {
 const toMutez = (value) => {
     const ans = Number(value) * 1000000;
     return ans;
+}
+
+const toTez = (value) => {
+    return Number(value) / 1000000;
 }
 
 export const _completeListing = (tezos, selected, market, account, bnplListings, interestedToSwap, setPopupState, dispatch) => {
@@ -146,6 +148,89 @@ export const _completeListing = (tezos, selected, market, account, bnplListings,
             resolve();
         } catch (error) {
             console.log(error);
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _handleCancelListing = (market, item, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.cancelListing(item.token, item.tokenId.toNumber()).send();
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+        } catch (e) {
+            dispatch(setLoading({ loading: false }));
+            reject(e);
+            return;
+        }
+    })
+}
+
+export const _confirmSwapNow = async (item, market, popupState, setPopupState, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.directSwap(item.token, item.tokenId.toNumber()).send({ amount: toTez(item.listing.directListing.amount) });
+            dispatch(setLoading({ loading: true }));
+            // setPopupState({
+            //     ...popupState,
+            //     swapNow: { open: false, value: '' },
+            //     processing: { open: true, value: toETH(item.listing.directListing.amount) }
+            // })
+            await op.confirmation();
+
+            dispatch(setLoading({ loading: false }));
+        } catch (e) {
+            dispatch(setLoading({ loading: false }));
+            reject(e);
+            return;
+        }
+        dispatch(setLoading({ loading: false }));
+        resolve();
+    })
+}
+
+export const _confirmPayLater = async (item, listing, market, popupState, setPopupState, index, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            var amount = toTez(listing.deposit);
+            const op = await market.methods.reserve(index, item.token, item.tokenId.toNumber()).send({ amount: amount });
+            dispatch(setLoading({ loading: true }));
+            // setPopupState({
+            //     ...popupState,
+            //     reserverNow: {
+            //         ...popupState.reserverNow,
+            //         open: false
+            //     },
+            //     processing: {
+            //         open: true,
+            //         value: toETH(item.bnplListings[index].deposit)
+            //     }
+            // });
+            await op.confirmation();
+            dispatch(setLoading({ loading: true }));
+        } catch (e) {
+            dispatch(setLoading({ loading: false }));
+            reject(e);
+            return;
+        }
+    })
+}
+
+export const _directNftSwap = async (tezos, account, item, nftSwap, swapOffer, market, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try{
+            await _approveNFT(tezos, account, swapOffer.tokenAddress, swapOffer.tokenId, dispatch);
+            console.log(swapOffer);
+            const op = await market.methods.nftSwap(swapOffer.tokenAddress, swapOffer.tokenId, nftSwap.index, item.token, item.tokenId.toNumber()).send({amount : nftSwap.amount});
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        }catch(error){
             dispatch(setLoading({ loading: false }));
             reject(error);
             return;

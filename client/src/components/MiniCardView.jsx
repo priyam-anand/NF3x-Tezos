@@ -6,6 +6,7 @@ import { setMarket, setAccount, setGetter, setWeb3, setNFT } from '../redux/web3
 import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from 'react-redux';
 import axios from "axios";
+import { getImageURI } from '../api/getterTezos';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -39,38 +40,30 @@ function MiniCardView({ token, swapOffer, setSwapOffer }) {
   const handleSelect = () => {
     setSwapOffer({
       ...swapOffer,
-      tokenAddress: token.asset_contract.address,
-      tokenId: token.token_id,
-      name: token.name != null
-        ? token.name
-        : token.asset_contract.name + " #" + token.token_id,
-      image: token.image_url
+      tokenAddress: token.contract.address,
+      tokenId: token.tokenId,
+      name: token.metadata.name,
+      image: getImageURI(token.metadata.thumbnailUri)
     })
   }
 
   const classes = useStyles();
-  if (swapOffer.tokenAddress == token.asset_contract.address && swapOffer.tokenId == token.token_id) {
+  if (swapOffer.tokenAddress == token.contract.address && swapOffer.tokenId == token.tokenId) {
     return (
       <div className={`${classes.root} ${classes.active} section-btn-block card-view`} onClick={handleSelect}>
-        <img className='radius-10' src={token.image_url} />
+        <img className='radius-10' src={getImageURI(token.metadata.thumbnailUri)} />
         <h3>
-          {token.name != null
-            ? token.name
-            : token.asset_contract.name + " #" + token.token_id
-          }
+          {token.metadata.name}
         </h3>
       </div>
     )
   }
   return (
     <div className={`${classes.root} section-btn-block card-view`} onClick={handleSelect}>
-      <img className='radius-10' src={token.image_url} />
-      <h3>
-        {token.name != null
-          ? token.name
-          : token.asset_contract.name + " #" + token.token_id
-        }
-      </h3>
+       <img className='radius-10' src={getImageURI(token.metadata.thumbnailUri)} />
+        <h3>
+          {token.metadata.name}
+        </h3>
     </div>
   );
 }

@@ -33,8 +33,10 @@ export const _getTokens = async (account) => {
 export const _getTokenMetadata = async (collection, tokenId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const asset = (await axios.get(`https://api.ghostnet.tzkt.io/v1/tokens?contract=${collection}&tokenId=${tokenId}`)).data[0].metadata;
-            resolve(asset);
+            const asset = (await axios.get(`https://api.ghostnet.tzkt.io/v1/tokens?contract=${collection}&tokenId=${tokenId}`)).data;
+            const metadata = asset[0].metadata;
+            console.log("metadata", asset[0]);
+            resolve(metadata);
         } catch (e) {
             console.log(e);
             reject(e);

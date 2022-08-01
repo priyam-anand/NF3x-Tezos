@@ -33,12 +33,14 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as Search } from '../SVG/Search.svg';
 import Util from '../common/Util';
 import { fetchAccount, fetchGetter, fetchWeb3, fetchMarket, setNetwork, fetchNFTs } from '../api/web3';
-import { getItemWIthId, getUnavailableItems, getTime, _getTokens, _getToken } from '../api/getter';
-import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _confirmPayLater, _confirmReserveOffer, _confirmSwapNow, _confirmSwapNowOffer, _confirmSwapOffer, _handleCancelListing } from '../api/market';
+import { getItemWIthId, getUnavailableItems, getTime } from '../api/getter';
+import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _confirmReserveOffer, _confirmSwapNowOffer, _confirmSwapOffer } from '../api/market';
+import { _confirmSwapNow, _handleCancelListing, _confirmPayLater, _directNftSwap } from '../api/marketTezos';
 import { useNavigate } from 'react-router-dom';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos"
-import { _getItem, _getTokenMetadata, getImageURI } from '../api/getterTezos';
+import { _getItem, _getTokenMetadata, getImageURI, _getTokens } from '../api/getterTezos';
 import { MichelsonMap } from "@taquito/taquito";
+import DirectNFTSwapModal from '../components/DirectNFTSwapModal';
 
 const useStyles = makeStyles({
   root: {
@@ -431,11 +433,13 @@ function ListDetailPage() {
   const [swapOfferModal, setSwapOfferModal] = useState(false);
   const [reservePayLater, setReservePayLater] = useState(false);
   const [offerNftModal, setOfferNftModal] = useState(false);
+  const [nftSwapModal, setNftSwapModal] = useState(false);
   const [offerNftSearch, setOfferNftSearch] = useState('');
 
   const [token, setToken] = useState({
     name: '',
     displayUri: '',
+    thumbnailUri: '',
     attributes: []
   });
   const [item, setItem] = useState({
@@ -449,10 +453,9 @@ function ListDetailPage() {
     }
   });
   const [reserveListing, setReserveListing] = useState([{ deposit: '', remaining: '', duration: '' }]);
-  const [swapListing, setSwapListing] = useState([{ token: '', paymentToken: '', amount: '' }])
+  const [swapListing, setSwapListing] = useState({ listings: [{ token: '', paymentToken: '', amount: '' }], directAllowed: false })
 
   const [available, setAvailable] = useState([]);
-  const [unAvailable, setUnAvailable] = useState([]);
   const [swapNowOffer, setSwapNowOffer] = useState({
     amount: '',
     time_period: 1
@@ -470,7 +473,12 @@ function ListDetailPage() {
     name: '',
     image: '',
     time_period: 1
-  })
+  });
+  const [nftSwap, setNFTSwap] = useState({
+    paymentToken: '',
+    amount: '',
+    index: ''
+  });
   const [swapOffers, setSwapOffers] = useState([]);
   const [directSaleOffers, setDirectSaleOffers] = useState([]);
   const [reserveOffers, setReserveOffers] = useState([]);
@@ -511,6 +519,7 @@ function ListDetailPage() {
   const navigate = useNavigate();
 
   const handleClose = () => {
+    setNftSwapModal(false);
     setOfferNftModal(false)
     setReservePayLater(false)
     setSwapOfferModal(false)
@@ -564,7 +573,10 @@ function ListDetailPage() {
           amount: item.listing.swapListing.amounts.get((i + "")),
         }
       }
-      setSwapListing(listings);
+      setSwapListing({
+        listings: listings,
+        directAllowed: item.listing.swapListing.swapAllowed
+      });
 
     } catch (err) {
       window.alert(err.message);
@@ -657,73 +669,71 @@ function ListDetailPage() {
   // }
 
   const handleBuyNow = async () => {
-    // setPopupState({
-    //   ...popupState, swapNow: {
-    //     open: true,
-    //     value: toTez(item.directListing.amounts[0])
-    //   }
-    // })
+    setPopupState({
+      ...popupState, swapNow: {
+        open: true,
+        value: toTez(item.listing.directListing.amount.toNumber())
+      }
+    })
   }
 
-  // const confirmSwapNow = async () => {
-  //   try {
-  //     await _confirmSwapNow(item, market, account, popupState, setPopupState, toTez, toWei, dispatch);
-  //     resetPopupState();
-  //   } catch (error) {
-  //     resetPopupState();
-  //     window.alert(error.message);
-  //     console.error(error);
-  //   }
-  // }
+  const confirmSwapNow = async () => {
+    try {
+      await _confirmSwapNow(item, market, popupState, setPopupState, dispatch);
+      resetPopupState();
+    } catch (error) {
+      resetPopupState();
+      window.alert(error.message);
+      console.error(error);
+    }
+  }
 
   const handlePayLater = async (index) => {
-    // setPopupState({
-    //   ...popupState,
-    //   reserverNow: {
-    //     open: true,
-    //     deposit: toTez(item.bnplListings[index].deposit),
-    //     remainingAmount: toTez(item.bnplListings[index].remaining_amount),
-    //     duration: item.bnplListings[index].duration,
-    //     index: index
-    //   }
-    // });
+    setPopupState({
+      ...popupState,
+      reserverNow: {
+        open: true,
+        deposit: toTez(reserveListing[index].deposit),
+        remainingAmount: toTez(reserveListing[index].remaining),
+        duration: reserveListing[index].duration,
+        index: index
+      }
+    });
   }
 
-  // const confirmPayLater = async (index) => {
-  //   try {
-  //     await _confirmPayLater(item, market, account, popupState, setPopupState, toTez, toWei, index, dispatch);
-  //     resetPopupState();
-  //   } catch (error) {
-  //     resetPopupState();
-  //     window.alert(error.message);
-  //     console.error(error);
-  //   }
-  // }
+  const confirmPayLater = async (index) => {
+    try {
+      await _confirmPayLater(item, reserveListing[index], market, popupState, setPopupState, index, dispatch);
+      resetPopupState();
+    } catch (error) {
+      resetPopupState();
+      window.alert(error.message);
+      console.error(error);
+    }
+  }
 
-  // const getTokens = async () => {
-  //   try {
-  //     await _getTokens(account, setAvailable);
-  //     const _unAvailable = await getUnavailableItems(getter, account);
-  //     setUnAvailable(_unAvailable);
-  //   } catch (err) {
-  //     if (err.response.status == 429) {
-  //       setTimeout(() => {
-  //         getTokens();
-  //       }, 500);
-  //     } else {
-  //       window.alert("an error occured");
-  //       navigate('/listing');
-  //     }
-  //   }
-  // }
+  const directNftSwap = async () => {
+    try {
 
-  // const isAvailable = (token) => {
-  //   for (let i = 0; i < unAvailable.length; i++) {
-  //     if (unAvailable[i].token.toLowerCase() == token.asset_contract.address && unAvailable[i].tokenId == token.token_id)
-  //       return false;
-  //   }
-  //   return true;
-  // }
+      await _directNftSwap(tezos, account, item, nftSwap, swapOffer, market, dispatch);
+      resetPopupState();
+
+    } catch (error) {
+      window.alert(error.message);
+      console.error(error);
+    }
+  }
+
+  const getTokens = async () => {
+    try {
+      const _tokens = await _getTokens(account);
+      setAvailable(_tokens);
+    } catch (err) {
+      window.alert("an error occured");
+      navigate('/listing');
+    }
+  }
+
 
   // const makeSwapNowOffer = () => {
   //   const { amount, time_period } = swapNowOffer;
@@ -746,13 +756,13 @@ function ListDetailPage() {
   // }
 
   // const confirmSwapNowOffer = async () => {
-  //   try {
-  //     await _confirmSwapNowOffer(item, market, account, toWei, swapNowOffer, popupState, setPopupState, dispatch);
-  //   } catch (error) {
-  //     resetPopupState();
-  //     window.alert(error.message);
-  //     console.log(error);
-  //   }
+  // try {
+  //   await _confirmSwapNowOffer(item, market, account, toWei, swapNowOffer, popupState, setPopupState, dispatch);
+  // } catch (error) {
+  //   resetPopupState();
+  //   window.alert(error.message);
+  //   console.log(error);
+  // }
   // }
 
   // const makeReserveOffer = () => {
@@ -792,28 +802,28 @@ function ListDetailPage() {
   //   }
   // }
 
-  // const makeSwapOffer = () => {
-  //   const { tokenAddress, tokenId, amount, name, image, time_period } = swapOffer;
-  //   var _amount = amount == undefined || amount == '' ? 0 : amount;
-  //   const timePeriod = time_period * 86400;
+  const makeSwapOffer = () => {
+    // const { tokenAddress, tokenId, amount, name, image, time_period } = swapOffer;
+    // var _amount = amount == undefined || amount == '' ? 0 : amount;
+    // const timePeriod = time_period * 86400;
 
-  //   if (tokenAddress == '' || timePeriod == 0) {
-  //     window.alert("Invalid Parameters");
-  //     return;
-  //   }
+    // if (tokenAddress == '' || timePeriod == 0) {
+    //   window.alert("Invalid Parameters");
+    //   return;
+    // }
 
-  //   setPopupState({
-  //     ...popupState,
-  //     offer: {
-  //       open: 1,
-  //       token: {
-  //         tokenAddress: tokenAddress,
-  //         tokenId: tokenId
-  //       },
-  //       amount: _amount
-  //     }
-  //   });
-  // }
+    // setPopupState({
+    //   ...popupState,
+    //   offer: {
+    //     open: 1,
+    //     token: {
+    //       tokenAddress: tokenAddress,
+    //       tokenId: tokenId
+    //     },
+    //     amount: _amount
+    //   }
+    // });
+  }
 
   // const confirmSwapOffer = async () => {
   //   try {
@@ -872,14 +882,14 @@ function ListDetailPage() {
   // }
 
   const handleCancelListing = async () => {
-    // try {
-    //   await _handleCancelListing(item, market, account, dispatch);
-    //   resetPopupState();
-    // } catch (err) {
-    //   window.alert(err);
-    //   console.log(err);
-    //   resetPopupState();
-    // }
+    try {
+      await _handleCancelListing(market, item, dispatch);
+      resetPopupState();
+    } catch (err) {
+      window.alert(err);
+      console.log(err);
+      resetPopupState();
+    }
   }
 
   // const isFiltered = (item) => {
@@ -916,10 +926,10 @@ function ListDetailPage() {
   //     getContracts();
   // }, [web3]);
 
-  // useEffect(() => {
-  //   if (nfts[0] != undefined && getter != undefined)
-  //     getTokens();
-  // }, [nfts[0], getter]);
+  useEffect(() => {
+    if (account != undefined)
+      getTokens();
+  }, [account]);
 
   // useEffect(() => {
   //   if (item.owner != '') {
@@ -951,12 +961,15 @@ function ListDetailPage() {
 
   return (
     <div className={classes.root}>
-      {/* <PopupContainer isOpen={popupState.swapNow.open} popupTitle={"Confirm Swap Now"} setState={e => setPopupState({ ...popupState, swapNow: { ...popupState.swapNow, open: false } })}>
+      <PopupContainer isOpen={popupState.swapNow.open} popupTitle={"Confirm Swap Now"} setState={e => setPopupState({ ...popupState, swapNow: { ...popupState.swapNow, open: false } })}>
         <PopupConfirmSwapNow value={popupState.swapNow.value} token={token} confirmSwapNow={confirmSwapNow} />
       </PopupContainer>
+
       <PopupContainer isOpen={popupState.reserverNow.open} popupTitle={"Reserve Now & Swap Later"} setState={e => setPopupState({ ...popupState, reserverNow: { ...popupState.reserverNow, open: false } })}>
         <PopupReserveSwapLater deposit={popupState.reserverNow.deposit} remainingAmount={popupState.reserverNow.remainingAmount} duration={popupState.reserverNow.duration} token={token} index={popupState.reserverNow.index} confirmPayLater={confirmPayLater} />
       </PopupContainer>
+      {/*
+      here needs to be a modal to make direct swap....
       <PopupContainer isOpen={popupState.offer.open == 1} popupTitle={"Confirm Swap Offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
         <PopupConfirmSwapOffer swapOffer={swapOffer} reserveOffer={reserveOffer} swapNowOffer={swapNowOffer} confirmSwapNowOffer={confirmSwapNowOffer} confirmReserveOffer={confirmReserveOffer} confirmSwapOffer={confirmSwapOffer} token={token} />
       </PopupContainer>
@@ -1106,16 +1119,16 @@ function ListDetailPage() {
                 </div>
             }
             {
-              item.swapListing.amounts.length == 0 ? <></>
+              !item.listing.listingType.get('2') ? <></>
                 : <div className={`section-block`}>
                   <div className={"neutral2-text font-22 medium-weight margin-top-40 margin-bottom-10 options-block"}>Interested in Swaps For</div>
-                  <InterestedSwap addresses={item.swapListing.token_addresses} amounts={item.swapListing.amounts} setOfferNftModal={setOfferNftModal} owner={item.owner} />
+                  <InterestedSwap listings={item} setOfferNftModal={setOfferNftModal} setNftSwapModal={setNftSwapModal} nftSwap={nftSwap} setNftSwap={setNFTSwap} />
                 </div>
             }
-            {/* {
+            {
               item.owner != account ?
                 <div className={`section-block ${classes.makeOffer}`}>
-                  <Modal
+                  {/* <Modal
                     keepMounted
                     open={swapOfferModal}
                     onClose={() => handleClose()}
@@ -1191,8 +1204,8 @@ function ListDetailPage() {
                         </div>
                       </div>
                     </Box>
-                  </Modal>
-                  <Modal
+                  </Modal> */}
+                  {/* <Modal
                     keepMounted
                     open={reservePayLater}
                     onClose={() => handleClose()}
@@ -1316,10 +1329,11 @@ function ListDetailPage() {
                         </div>
                       </div>
                     </Box>
-                  </Modal>
+                  </Modal> */}
 
                   <div className={`section-block margin-tb-10`}>
-                    <Modal
+                    <DirectNFTSwapModal offerNftModal={nftSwapModal} handleClose={handleClose} classes={classes} directNftSwap={directNftSwap} available={available} swapOffer={swapOffer} setSwapOffer={setSwapOffer} nftSwap={nftSwap} />
+                    {/* <Modal
                       keepMounted
                       open={offerNftModal}
                       onClose={() => handleClose()}
@@ -1368,12 +1382,12 @@ function ListDetailPage() {
                         </div>
                         <div className={`${classes.offerList}`}>
                           {
-                            available.map((token, index) => {
-                              if (isAvailable(token) && isFiltered(token))
-                                return <div className={`${classes.offerListItem}`} key={index}>
-                                  <MiniCardView token={token} swapOffer={swapOffer} setSwapOffer={setSwapOffer} />
-                                </div>
-                            })
+                            // available.map((token, index) => {
+                            //   if (isAvailable(token) && isFiltered(token))
+                            //     return <div className={`${classes.offerListItem}`} key={index}>
+                            //       <MiniCardView token={token} swapOffer={swapOffer} setSwapOffer={setSwapOffer} />
+                            //     </div>
+                            // })
                           }
                         </div>
                         <div className={"section-title font-16 margin-top-15"}>Add Token</div>
@@ -1437,10 +1451,11 @@ function ListDetailPage() {
                           </div>
                         </div>
                       </Box>
-                    </Modal>
+                    </Modal> */}
                   </div>
-                </div> : <></>} */}
-
+                </div> : <></>
+            }
+            {/*  here here */}
           </div>
 
           {/* <div className={`section-block ${classes.offersReceived} `}>

@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
 import { DoubleArrowIcon } from './DoubleArrowIcon';
+import { getImageURI } from "../api/getterTezos"
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -46,10 +47,9 @@ const PopupConfirmSwapNow = ({ value, token, confirmSwapNow }) => {
             <div className='margin-tb-10'>
                 <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border popup-flex'>
                     <div className='relative section-image-block width-auto inline-block radius-10 padding-10'>
-                        <img className="radius-10" src={token.image_url} />
+                        <img className="radius-10" src={getImageURI(token.thumbnailUri)} />
                         <div className='section-image-desc width-auto'>
-                            <span className='t2-text font-16 medium-weight margin-tb-10'>{token.asset_contract.name}</span>
-                            <span className='b-grey-text font-14'>{"#" + token.token_id}</span>
+                            <span className='t2-text font-16 medium-weight margin-tb-10'>{token.name}</span>
                         </div>
                     </div>
 
@@ -62,7 +62,7 @@ const PopupConfirmSwapNow = ({ value, token, confirmSwapNow }) => {
                     </span>
 
                     <div>
-                        <span className='align-center flex-justify font-bold-24 t2-text'><img src='../img/ethereum.png' className="eth-img"/>{value}</span>
+                        <span className='align-center flex-justify font-bold-24 t2-text'><img src='../img/ethereum.png' className="eth-img" />{value}</span>
                     </div>
                 </div>
             </div>
