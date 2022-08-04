@@ -227,21 +227,6 @@ class Swap(sp.Contract):
         self._sendNFTs(offerAssets.tokens, offerAssets.tokenIds, to)
         self._sendFTs(offerAssets.paymentTokens, offerAssets.amounts, to)
 
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _transferAssets(self,params):
-        sp.set_type(params, sp.TRecord(
-            tokens = sp.TMap(sp.TNat, sp.TAddress),
-            tokenIds = sp.TMap(sp.TNat, sp.TNat),
-            paymentTokens = sp.TMap(sp.TNat, sp.TAddress),
-            amounts = sp.TMap(sp.TNat, sp.TNat),
-            to = sp.TAddress
-        ))
-        self._receiveNFTs(params.tokens, params.tokenIds)
-        self._receiveFTs(params.paymentTokens, params.amounts)
-
-        self._sendNFTs(params.tokens, params.tokenIds, params.to)
-        self._sendFTs(params.paymentTokens, params.amounts, params.to)
-
     @sp.private_lambda(with_storage="read-only")
     def _offerExist(self, params):
         sp.set_type(params, sp.TRecord(
@@ -279,13 +264,10 @@ class Swap(sp.Contract):
             sp.map({0:item.value.listing.directListing.amount}),
             params.value
         )
-        self._transferAssets(sp.record(
-            tokens = sp.map({}),
-            tokenIds = sp.map({}),
-            paymentTokens = sp.map({0:item.value.listing.directListing.paymentToken}),
-            amounts = sp.map({0:item.value.listing.directListing.amount}),
-            to = item.value.owner
-        ))     
+
+        self._receiveFTs(sp.map({0:item.value.listing.directListing.paymentToken}), sp.map({0:item.value.listing.directListing.amount}))
+        self._sendFTs(sp.map({0:item.value.listing.directListing.paymentToken}), sp.map({0:item.value.listing.directListing.amount}), item.value.owner)
+
         self._setRejectedOffer(
             params.token,
             params.tokenId
@@ -325,13 +307,11 @@ class Swap(sp.Contract):
             params.value
         )
 
-        self._transferAssets(sp.record(
-            tokens = sp.map({0:params.offerToken}), 
-            tokenIds = sp.map({0:params.offerTokenId}), 
-            paymentTokens = sp.map({0:item.value.listing.swapListing.paymentTokens[params.swapId]}), 
-            amounts = sp.map({0:item.value.listing.swapListing.amounts[params.swapId]}),
-            to = item.value.owner
-        ))
+        self._receiveNFTs(sp.map({0:params.offerToken}), sp.map({0:params.offerTokenId}))
+        self._receiveFTs(sp.map({0:item.value.listing.swapListing.paymentTokens[params.swapId]}), sp.map({0:item.value.listing.swapListing.amounts[params.swapId]}))
+
+        self._sendNFTs(sp.map({0:params.offerToken}), sp.map({0:params.offerTokenId}), item.value.owner)
+        self._sendFTs(sp.map({0:item.value.listing.swapListing.paymentTokens[params.swapId]}), sp.map({0:item.value.listing.swapListing.amounts[params.swapId]}), item.value.owner)
 
         self._setRejectedOffer(
             params.token,
@@ -452,3 +432,4 @@ class Swap(sp.Contract):
             sp.mutez(0),
             c
         )
+
