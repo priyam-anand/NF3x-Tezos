@@ -13,6 +13,7 @@ Getters = sp.io.import_stored_contract('getters')
 OfferStorage = sp.io.import_stored_contract('offerStorage')
 PositionToken = sp.io.import_stored_contract('positionToken')
 Reserve = sp.io.import_stored_contract('reserve')
+ReserveUtils = sp.io.import_stored_contract('reserve_utils')
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 PLATFORM_FEES = 500000
@@ -72,6 +73,8 @@ def test():
     offerStorage = OfferStorage.OfferStorage()
     scenario += offerStorage
     reserve = Reserve.Reserve()
+    reserveUtils = ReserveUtils.ReserveUtils()
+    scenario += reserveUtils
     scenario += reserve
     positionToken = PositionToken.PositionToken(
             config = PositionToken.FA2_config(non_fungible = True),
@@ -88,11 +91,13 @@ def test():
     detailStorage.setSwap(swap.address)
     detailStorage.setReserve(reserve.address)
     detailStorage.setOfferStorage(offerStorage.address)
+    detailStorage.setReserveUtils(reserveUtils.address)
 
     itemStorage.setListing(listing.address)
     itemStorage.setDetailStorage(detailStorage.address)
     itemStorage.setSwap(swap.address)
     itemStorage.setReserve(reserve.address)
+    itemStorage.setReserveUtils(reserveUtils.address)
 
     listing.setItemStorage(itemStorage.address)
     listing.setDetailStorage(detailStorage.address)
@@ -109,6 +114,7 @@ def test():
     vault.setMarket(market.address)
     vault.setSwap(swap.address)
     vault.setReserve(reserve.address)
+    vault.setReserveUtils(reserveUtils.address)
 
     whitelist.setDetailStorage(detailStorage.address)
     whitelist.setMarket(market.address)
@@ -134,6 +140,12 @@ def test():
     reserve.setPositionToken(positionToken.address)
     reserve.setDetailStorage(detailStorage.address)
     reserve.setOfferStorage(offerStorage.address)
+    reserve.setReserveUtils(reserveUtils.address)
+
+    reserveUtils.setReserve(reserve.address)
+    reserveUtils.setItemStorage(itemStorage.address)
+    reserveUtils.setVault(vault.address)
+    reserveUtils.setDetailStorage(detailStorage.address)
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec
@@ -256,7 +268,7 @@ def test():
     # it should reserve the nft, transfer deposit to the seller and mint position token with the required params
     market.reserve(sp.record(
         token = nft1.address, tokenId = 1, reservationId = 0
-    )).run(sender = user1, amount = sp.mutez(1500))
+    )).run(sender = user1, amount = sp.mutez(1000))
     item = getters.getItem(sp.record(token = nft1.address, tokenId = 1))
     scenario.verify(item.listing.reserveListing.accepted == True)
     scenario.verify(item.listing.reserveListing.positionToken == 0)
@@ -265,7 +277,7 @@ def test():
     # it should not reserve if item is already reserved
     market.reserve(sp.record(
         token = nft1.address, tokenId = 1, reservationId = 0
-    )).run(sender = user2, amount = sp.mutez(1500), valid = False) 
+    )).run(sender = user2, amount = sp.mutez(1000), valid = False) 
 
     # ----------------- New Reserve Offer ----------------
 
@@ -382,20 +394,23 @@ def test():
         duration = sp.int(10000), timePeriod = sp.int(100000)
     )).run(sender = user2, amount = sp.mutez(10000))
 
-    # --------------- Cancel Reserve Offer ----------------
+    # # --------------- Cancel Reserve Offer ----------------
 
     # it should not cancel offer if it does not exist
     market.cancelReserveOffer(sp.record(
         token = nft1.address, tokenId = 2, offerId = 10
     )).run(sender = user2, valid = False)
 
+    scenario.show(vault.balance)
+
     # it should cancel offer, return the locked assets and remove this entry from the mapping
     market.cancelReserveOffer(sp.record(
         token = nft1.address, tokenId = 2, offerId = 2
     )).run(sender = user2)
 
+    scenario.show(vault.balance)
 
-    # --------------- Accept Reserve Offer -----------------
+    # # # --------------- Accept Reserve Offer -----------------
 
     # it should accept reserve offer, transfer deposit to the seller and mint position token with the required params
     market.acceptReserveOffer(sp.record(
@@ -406,7 +421,7 @@ def test():
     item = getters.getItem(sp.record(token = nft1.address, tokenId = 2))
     scenario.show(item)
 
-    # ----------------- Pay Remaining -------------------
+    # # # ----------------- Pay Remaining -------------------
 
     # it should not pay remainig if not yet reserved
     market.payRemaining(sp.record(

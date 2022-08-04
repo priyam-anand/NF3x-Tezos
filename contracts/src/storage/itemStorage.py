@@ -11,6 +11,7 @@ class ItemStorage(sp.Contract):
             listing = NULL_ADDRESS,
             swap = NULL_ADDRESS,
             reserve = NULL_ADDRESS,
+            reserveUtils = NULL_ADDRESS,
             _items = sp.big_map(tkey = sp.TAddress,
                 tvalue = sp.TMap(
                     sp.TNat,self.structures.getItemType()
@@ -39,9 +40,14 @@ class ItemStorage(sp.Contract):
         sp.set_type(_reserve, sp.TAddress)
         self.data.reserve = _reserve
 
+    @sp.entry_point
+    def setReserveUtils(self, _reserveUtils):
+        sp.set_type(_reserveUtils, sp.TAddress)
+        self.data.reserveUtils = _reserveUtils
+
     # INTERNAL FUNCTIONS
     def _onlyApproved(self):
-        ok = (self.data.detailStorage == sp.sender) | (self.data.listing == sp.sender) | (self.data.swap == sp.sender) | (self.data.reserve == sp.sender)
+        ok = (sp.sender == self.data.reserveUtils) | (self.data.detailStorage == sp.sender) | (self.data.listing == sp.sender) | (self.data.swap == sp.sender) | (self.data.reserve == sp.sender)
         sp.verify(ok, "ItemStorage : Only Approved Contract")
 
     def _resetItem(self, token, tokenId):

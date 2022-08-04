@@ -12,7 +12,8 @@ class Reserve(sp.Contract):
             vault = NULL_ADDRESS,
             positionToken = NULL_ADDRESS,
             detailStorage = NULL_ADDRESS,
-            offerStorage = NULL_ADDRESS
+            offerStorage = NULL_ADDRESS,
+            reserveUtils = NULL_ADDRESS
         )
 
     # Access Setter Functions
@@ -20,6 +21,11 @@ class Reserve(sp.Contract):
     def setMarket(self, _market):
         sp.set_type(_market, sp.TAddress)
         self.data.market = _market
+
+    @sp.entry_point
+    def setReserveUtils(self, _reserveUtils):
+        sp.set_type(_reserveUtils, sp.TAddress)
+        self.data.reserveUtils = _reserveUtils
 
     @sp.entry_point
     def setItemStorage(self, _itemStorage):
@@ -62,186 +68,21 @@ class Reserve(sp.Contract):
         sp.set_type(params, sp.TUnit) 
         sp.verify(self.data.market == sp.sender, "Reserve : Only Approved Contract")
 
-    @sp.private_lambda(with_storage='read-only')
-    def _getTotal(self, params):
-        sp.set_type(params, sp.TRecord(
-            token = sp.TMap(sp.TNat, sp.TAddress), 
-            amount = sp.TMap(sp.TNat,sp.TNat),
-            _value = sp.TMutez  
-        ))
-        total = sp.local('total',sp.nat(0))
-        sp.for i in params.token.keys():
-            sp.if params.token[i] == NULL_ADDRESS:
-                total.value += params.amount[i]
-        sp.result(total.value)
-
-    def _checkPayment(self, params):
-        sp.set_type(params, sp.TRecord(
-            token = sp.TMap(sp.TNat, sp.TAddress), 
-            amount = sp.TMap(sp.TNat,sp.TNat),
-            _value = sp.TMutez  
-        ))
-        ttl = self._getTotal(params)
-        sp.verify(ttl <= sp.utils.mutez_to_nat(params._value), "Reserve : Insufficient Funds")
-
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _itemReset(self, params):
-        sp.set_type(params, sp.TRecord(
-            tokens = sp.TMap(sp.TNat, sp.TAddress),
-            tokenIds = sp.TMap(sp.TNat, sp.TNat),
-            owner = sp.TAddress
-        ))
-        c1 = sp.contract(
-            sp.TRecord(tokens=sp.TMap(sp.TNat,sp.TAddress), tokenIds=sp.TMap(sp.TNat,sp.TNat)),
-            self.data.itemStorage,
-            entry_point = "resetItems"
+    def _transferAssets(self, paymentToken, amount, to):
+        c = sp.contract(
+            sp.TRecord(
+                paymentToken = sp.TAddress, 
+                amount = sp.TNat, 
+                to = sp.TAddress
+            ),self.data.reserveUtils,
+            entry_point = 'transferAssets'
         ).open_some()
         sp.transfer(
-            sp.record(tokens=params.tokens, tokenIds=params.tokenIds),
-            sp.mutez(0),
-            c1
-        )
-        c2 = sp.contract(
-            sp.TRecord(tokens=sp.TMap(sp.TNat,sp.TAddress), tokenIds=sp.TMap(sp.TNat,sp.TNat), owner = sp.TAddress),
-            self.data.itemStorage,
-            entry_point = 'setItemOwners'
-        ).open_some()
-        sp.transfer(sp.record(tokens=params.tokens, tokenIds=params.tokenIds, owner = params.owner),sp.mutez(0),c2)
-
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _receiveNFTs(self, params):
-        sp.set_type(params, sp.TRecord(
-            tokens = sp.TMap(sp.TNat, sp.TAddress), 
-            tokenIds = sp.TMap(sp.TNat, sp.TNat)
-        )) 
-        c = sp.contract(
-                sp.TRecord(token = sp.TAddress, from_ = sp.TAddress, tokenId = sp.TNat),
-                self.data.vault,
-                entry_point = 'recieveFA2'
-            ).open_some()
-        sp.for i in sp.range(0, sp.len(params.tokens)):
-            sp.transfer(
-                sp.record(token = params.tokens[i], from_ = sp.source, tokenId = params.tokenIds[i]),
-                sp.mutez(0),
-                c
-            )
-        self._itemReset(sp.record(
-            tokens = params.tokens, 
-            tokenIds = params.tokenIds, 
-            owner = sp.source
-        
-        ))
-        c = sp.contract(
-                sp.TRecord(
-                    tokens = sp.TMap(sp.TNat, sp.TAddress),
-                    tokenIds = sp.TMap(sp.TNat, sp.TNat),
-                    status = sp.TNat
-                ),
-                self.data.itemStorage,
-                entry_point = 'setItemStatus'
-        ).open_some()
-        sp.transfer(sp.record(
-            tokens = params.tokens, 
-            tokenIds = params.tokenIds, 
-            status = 2
-        ), sp.mutez(0), c)
-
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _sendNFTs(self, params):
-        sp.set_type(params, sp.TRecord(
-            tokens = sp.TMap(sp.TNat, sp.TAddress),
-            tokenIds = sp.TMap(sp.TNat, sp.TNat),
-            to = sp.TAddress
-        ))
-        c = sp.contract(
-                sp.TRecord(token = sp.TAddress, to_ = sp.TAddress, tokenId = sp.TNat),
-                self.data.vault,
-                entry_point = 'sendFA2'
-            ).open_some()
-        sp.for i in sp.range(0, sp.len(params.tokens)):
-            sp.transfer(
-                sp.record(token = params.tokens[i], to_ = params.to, tokenId = params.tokenIds[i]),
-                sp.mutez(0),
-                c
-            )
-        self._itemReset(sp.record(
-            tokens = params.tokens,    
-            tokenIds = params.tokenIds, 
-            owner = NULL_ADDRESS
-        ))
-
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _receiveFTs(self, params):
-        sp.set_type(params, sp.TRecord(
-            tokens = sp.TMap(sp.TNat, sp.TAddress),
-            amounts = sp.TMap(sp.TNat, sp.TNat)
-        )) 
-        c1 = sp.contract(
-                sp.TRecord(token = sp.TAddress, _from= sp.TAddress, amount = sp.TNat),
-                self.data.vault,
-                entry_point = 'recieveFA12'
-        ).open_some()
-        sp.for i in params.tokens.keys():
-            sp.if ~(params.tokens[i] == NULL_ADDRESS) : 
-                sp.transfer(
-                    sp.record(token = params.tokens[i], _from = sp.source, amount = params.amounts[i]),
-                    sp.mutez(0),
-                    c1
-                )
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _sendTez(self, params):
-        sp.set_type(params, sp.TRecord(
-            amount = sp.TNat,
-            to = sp.TAddress
-        ))
-        c = sp.contract(
-            sp.TRecord(to = sp.TAddress, amount = sp.TMutez),
-            self.data.vault,
-            entry_point = 'sendTez'
-        ).open_some()
-        sp.transfer(
-            sp.record(to = params.to, amount = sp.utils.nat_to_mutez(params.amount)),
+            sp.record(paymentToken = paymentToken, amount = amount, to = to),
             sp.mutez(0),
             c
         )
-
-    @sp.private_lambda(with_storage='read-write',with_operations=True)
-    def _sendFTs(self, params): 
-        sp.set_type(params, sp.TRecord(
-            tokens = sp.TMap(sp.TNat, sp.TAddress),
-            amounts = sp.TMap(sp.TNat, sp.TNat),
-            to_ = sp.TAddress
-        ))
-        c2 = sp.contract(
-                sp.TRecord(token = sp.TAddress, to=sp.TAddress, amount = sp.TNat),
-                self.data.vault,
-                entry_point = 'sendFA12'
-        ).open_some()
-        sp.for i in params.tokens.keys():
-            sp.if ~(params.tokens[i] == NULL_ADDRESS) :
-                sp.transfer(
-                    sp.record(token = params.tokens[i], to = params.to_, amount = params.amounts[i]),
-                    sp.mutez(0),
-                    c2
-                )
-            sp.else : 
-                self._sendTez(sp.record(
-                    amount = params.amounts[i], 
-                    to = params.to_
-                ))
-
-    def _transferAssets(self, paymentToken, amount, to):
-        sp.if ~(paymentToken == NULL_ADDRESS):
-            self._receiveFTs(sp.record(
-                tokens = sp.map({0:paymentToken}), 
-                amounts = sp.map({0:amount})
-            ))
-        self._sendFTs(sp.record(
-            tokens = sp.map({0:paymentToken}), 
-            amounts = sp.map({0:amount}),
-            to_ = to
-        ))
-
+        
     def _setRejectedOffer(self, token, tokenId):
         c = sp.contract(
             sp.TRecord(token=sp.TAddress, tokenId=sp.TNat),
@@ -266,69 +107,78 @@ class Reserve(sp.Contract):
             c
         )
 
-    def _assetSupported(self, offerAssets):
-        sp.for i in offerAssets.tokens.keys():
-            sp.verify(sp.view(
-                'isNFTSupported',
-                self.data.detailStorage,
-                offerAssets.tokens[i],
-                t = sp.TBool
-            ).open_some(),"Reserve : Not Supported")
-        sp.for i in offerAssets.paymentTokens.keys():
-            sp.verify(sp.view(
-                'isFTSupported',
-                self.data.detailStorage,
-                offerAssets.paymentTokens[i],
-                t = sp.TBool
-            ).open_some(),"Reserve : Not Supported")
-
-    def _checkEmptyAssets(self, offerAssets):
-        sp.verify((sp.len(offerAssets.tokens.keys()) > 0) | (sp.len(offerAssets.paymentTokens.keys()) > 0), "Reserve : Empty Asset")
-        sp.if sp.len(offerAssets.tokens.keys()) == 0:
-            ttl = sp.local('value', sp.nat(0))
-            sp.for i in offerAssets.paymentTokens.keys():
-                ttl.value += offerAssets.amounts[i]
-            sp.verify(ttl.value > 0, "Reserve : Empty Asset")
-
-    def _checkReserveOfferRequirements(self, item, timePeriod, deposit, remaining, duration, value):
-        self._notItemOwner(sp.record(add1 = sp.source,add2 = item.owner))
-        sp.verify(timePeriod > 0,"Reserve : Invalid Time Period")
-        self._assetSupported(deposit)
-        self._assetSupported(remaining)
-
-        self._checkEmptyAssets(deposit)
-        self._checkEmptyAssets(remaining)
-
-        sp.verify(duration > 0,"Reserve : Invalid Params")
-
-        self._checkPayment(sp.record(
-            token = deposit.paymentTokens, 
-            amount = deposit.amounts, 
-            _value = value
-        ))
+    def _itemReset(self, params):
+        sp.set_type(
+            params, sp.TRecord(
+                tokens = sp.TMap(sp.TNat, sp.TAddress),
+                tokenIds = sp.TMap(sp.TNat, sp.TNat),
+                owner = sp.TAddress
+            ))
+        c = sp.contract(
+                sp.TRecord(
+                    tokens = sp.TMap(sp.TNat, sp.TAddress),
+                    tokenIds = sp.TMap(sp.TNat, sp.TNat),
+                    owner = sp.TAddress
+                ), self.data.reserveUtils,
+                entry_point = 'itemReset' 
+        ).open_some()
+        sp.transfer(
+            params,
+            sp.mutez(0),
+            c
+        )
 
     def _receiveAssets(self, offerAssets):
-        self._receiveNFTs(sp.record(
-            tokens = offerAssets.tokens,
-            tokenIds = offerAssets.tokenIds
-        ))
-        self._receiveFTs(sp.record(
-            tokens = offerAssets.paymentTokens, 
-            amounts = offerAssets.amounts
-        ))
+        c = sp.contract(
+            self.structures.getAssetsType(),
+            self.data.reserveUtils,
+            entry_point = 'receiveAssets'
+        ).open_some()
+        sp.transfer(
+            offerAssets,
+            sp.mutez(0),
+            c
+        )
 
     def _sendAssets(self, offerAssets, to):
-        self._sendNFTs(sp.record(
-            tokens = offerAssets.tokens, 
-            tokenIds = offerAssets.tokenIds,
-            to = to
-        ))
-        self._sendFTs(sp.record(
-            tokens = offerAssets.paymentTokens, 
-            amounts = offerAssets.amounts, 
-            to_ = to
-        ))
+        c = sp.contract(
+            sp.TRecord(
+                offerAssets = self.structures.getAssetsType(),
+                to = sp.TAddress
+            ), self.data.reserveUtils,
+            entry_point = 'sendAssets'
+        ).open_some()
+        sp.transfer(
+            sp.record(
+                offerAssets = offerAssets,
+                to = to
+            ), sp.mutez(0),
+            c
+        )
 
+    def _sendNFTs(self, params):
+        sp.set_type(params, sp.TRecord(
+            tokens = sp.TMap(sp.TNat, sp.TAddress),
+            tokenIds = sp.TMap(sp.TNat, sp.TNat),
+            to = sp.TAddress
+        ))
+        c = sp.contract(
+                sp.TRecord(token = sp.TAddress, to_ = sp.TAddress, tokenId = sp.TNat),
+                self.data.vault,
+                entry_point = 'sendFA2'
+            ).open_some()
+        sp.for i in sp.range(0, sp.len(params.tokens)):
+            sp.transfer(
+                sp.record(token = params.tokens[i], to_ = params.to, tokenId = params.tokenIds[i]),
+                sp.mutez(0),
+                c
+            )
+        self._itemReset(sp.record(
+            tokens = params.tokens,    
+            tokenIds = params.tokenIds, 
+            owner = NULL_ADDRESS
+        ))
+        
     def _removeReserveOffer(self, token, tokenId, offerId):
         c = sp.contract(
             sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, offerId = sp.TNat),
@@ -394,11 +244,13 @@ class Reserve(sp.Contract):
         sp.verify(item.value.listing.listingType[1] == True,"Reserve : Item Now listed for reservation")
         sp.verify(item.value.listing.reserveListing.deposit.contains(params.reservationId),"Reserve : Offer does not exist")
 
-        self._checkPayment(sp.record(
-            token = sp.map({0:item.value.listing.reserveListing.reserveToken[params.reservationId]}),
-            amount = sp.map({0:item.value.listing.reserveListing.deposit[params.reservationId]}),
-            _value = params.value
-        ))
+        sp.verify(sp.view(
+            'checkPayment', self.data.reserveUtils, sp.record(
+                    token = sp.map({sp.nat(0):item.value.listing.reserveListing.reserveToken[params.reservationId]}),
+                    amount = sp.map({sp.nat(0):item.value.listing.reserveListing.deposit[params.reservationId]}),
+                    _value = params.value
+                ), t = sp.TBool
+            ).open_some() == True, "Reserve : Insufficient Funds")
 
         self._transferAssets(
             item.value.listing.reserveListing.reserveToken[params.reservationId],
@@ -412,7 +264,7 @@ class Reserve(sp.Contract):
 
         positionTokenId = sp.local('positionTokenId', 
             sp.view(
-                'count_tokens',
+                'getTotalTokens',
                 self.data.positionToken,
                 sp.unit, t = sp.TNat
             ).open_some()
@@ -447,7 +299,21 @@ class Reserve(sp.Contract):
             'getItemByAddress', self.data.itemStorage, sp.record(token = params.token, tokenId = params.tokenId), t = self.structures.getItemType() 
         ).open_some())
 
-        self._checkReserveOfferRequirements(item.value, params.timePeriod, params.deposit, params.remaining, params.duration, params.value)
+        sp.verify(
+            sp.view(
+                'checkReserveOfferRequirements', self.data.reserveUtils ,
+                sp.record(
+                    item = item.value,
+                    timePeriod = params.timePeriod,
+                    deposit = params.deposit, 
+                    remaining = params.remaining, 
+                    duration = params.duration, 
+                    value = params.value
+                ), t = sp.TBool
+            ).open_some() == True
+            ,"Reserve : Invalid Offer"
+        )
+
         self._receiveAssets(params.deposit)
         c = sp.contract(
             sp.TRecord(token = sp.TAddress, tokenId = sp.TNat, deposit = self.structures.getAssetsType(), remaining = self.structures.getAssetsType(), duration = sp.TInt, timePeriod = sp.TInt),
@@ -509,7 +375,7 @@ class Reserve(sp.Contract):
 
         positionTokenId = sp.local('positionTokenId', 
             sp.view(
-                'count_tokens',
+                'getTotalTokens',
                 self.data.positionToken,
                 sp.unit, t = sp.TNat
             ).open_some()
@@ -552,11 +418,14 @@ class Reserve(sp.Contract):
         ).open_some()
 
         self._itemNotExpired(details.dueDate)
-        self._checkPayment(sp.record(
-            token = details.remaining.paymentTokens,
-            amount = details.remaining.amounts,
-            _value = params.value
-        ))
+        sp.verify(sp.view(
+            'checkPayment', self.data.reserveUtils, sp.record(
+                    token = details.remaining.paymentTokens,
+                    amount = details.remaining.amounts,
+                    _value = params.value
+                ), t = sp.TBool
+            ).open_some() == True, "Reserve : Insufficient Funds")
+
         self._receiveAssets(details.remaining)
         self._sendAssets(details.remaining, item.value.owner)
 
@@ -620,4 +489,3 @@ class Reserve(sp.Contract):
             sp.mutez(0),
             c
         )
-

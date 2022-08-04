@@ -475,6 +475,10 @@ class PositionToken(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_admin
     def getReservationDetails(self, _id):
         sp.result(self.data.reservationDetails[_id])
 
+    @sp.onchain_view()
+    def getTotalTokens(self):
+        sp.result(self.token_id_set.cardinal(self.data.all_tokens))
+
     @sp.offchain_view(pure = True)
     def count_tokens(self):
         sp.result(self.token_id_set.cardinal(self.data.all_tokens))

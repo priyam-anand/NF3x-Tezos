@@ -9,7 +9,8 @@ class Vault(sp.Contract):
             reserve = NULL_ADDRESS,
             listing = NULL_ADDRESS,
             swap = NULL_ADDRESS,
-            collectionOffer = NULL_ADDRESS
+            collectionOffer = NULL_ADDRESS,
+            reserveUtils = NULL_ADDRESS
         )
 
     # Access setter
@@ -37,9 +38,14 @@ class Vault(sp.Contract):
         # verify that the function caller is the admin
         self.data.reserve = _reserve
 
+    @sp.entry_point
+    def setReserveUtils(self, _reserveUtils):
+        sp.set_type(_reserveUtils, sp.TAddress)
+        self.data.reserveUtils = _reserveUtils
+
     # Utility Functions
     def _onlyApproved(self):
-        ok = (sp.sender == self.data.market) | (sp.sender == self.data.reserve) | (sp.sender == self.data.listing) | (sp.sender == self.data.swap) | (sp.sender == self.data.collectionOffer)
+        ok = (sp.sender == self.data.reserveUtils) | (sp.sender == self.data.market) | (sp.sender == self.data.reserve) | (sp.sender == self.data.listing) | (sp.sender == self.data.swap) | (sp.sender == self.data.collectionOffer)
         sp.verify(ok, "Vault : only approved contracts")
 
     @sp.entry_point
