@@ -79,8 +79,7 @@ export const getMarket = async (Tezos, _market, dispatch) => {
             dispatch(setMarket({ market: market }));
             resolve(market);
         } catch (e) {
-            console.log(e);
-            reject(e);
+
         }
     })
 }

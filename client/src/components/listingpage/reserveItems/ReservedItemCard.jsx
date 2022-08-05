@@ -6,7 +6,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import WalletViewCard from '../WalletViewCard';
 import { _payRemainingAmount } from "../../../api/market";
 import { _getToken } from '../../../api/getter';
-
+import { _getTokenMetadata } from '../../../api/getterTezos';
+import { getReservationData } from '../../../api/getterTezos';
 const useStyles = makeStyles({
     root: {
         display: "flex",
@@ -68,28 +69,31 @@ const useStyles = makeStyles({
 //  3. to_pay - when current user need to pay
 function ReservedItemCard({ cardType = 'to_pay', item }) {
     const classes = useStyles();
-    const { web3, market, account } = useSelector((state) => state.web3Config);
+    const { tezos, market, account } = useSelector((state) => state.tezosConfig);
     const dispatch = useDispatch();
     const [token, setToken] = useState({
-        image_url: '',
-        name: '',
-        token_id: '',
-        asset_contract: { name: '' }
+        metadata: {
+            name: '',
+            displayUri: ''
+        }
     });
-    const toETH = (amount) => {
-        return web3.utils.fromWei(amount, 'ether');
+    const [reservation, setReservation] = useState({
+        deposit: '', remaining: '', time: ''
+    });
+
+    const toTez = (amount) => {
+        return amount / 1000000;
     }
 
     const totalAmount = () => {
-        var _deposit = toETH(item.bnplListings[0].deposit);
-        var remainingAmount = toETH(item.bnplListings[0].remaining_amount);
+        var _deposit = toTez(reservation.deposit);
+        var remainingAmount = toTez(reservation.remaining);
         return Number(_deposit) + Number(remainingAmount);
     }
 
-    const getTime = () => {
-        const _expires = Number(item.bnplListings[0].nextPaymentDate);
-        const curr = Math.floor(Date.now() / 1000);
-        var diff = _expires - curr;
+    const getTime = (_expires) => {
+        const curr = Date.now();
+        var diff = Math.floor((_expires - curr) / 1000);
         const day = Math.floor(diff / 86400);
         diff = diff % 86400;
         const hour = Math.floor(diff / 3600);
@@ -98,28 +102,29 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
     }
 
     const payRemainingAmount = async () => {
-        try {
-            await _payRemainingAmount(item, market, account, dispatch);
-            window.location.reload();
-        } catch (error) {
-            window.alert(error.message);
-            console.error(error);
-        }
+        // try {
+        //     await _payRemainingAmount(item, market, account, dispatch);
+        //     window.location.reload();
+        // } catch (error) {
+        //     window.alert(error.message);
+        //     console.error(error);
+        // }
     }
 
     const getToken = async () => {
         try {
-            const _tokenDetails = await _getToken(item.token, item.tokenId);
-            setToken(_tokenDetails)
+            const metadata = await _getTokenMetadata(item.token, item.tokenId.toNumber());
+            const reservationData = await getReservationData(tezos, item.listing.reserveListing.positionToken.toNumber());
+
+            setReservation({
+                deposit: reservationData.deposit.amounts.get('0').toNumber(),
+                remaining: reservationData.remaining.amounts.get('0').toNumber(),
+                time: (new Date(reservationData.dueDate)).getTime()
+            })
+            setToken({ metadata: metadata })
         } catch (err) {
-            if (err.response.status == 429) {
-                setTimeout(() => {
-                    getToken();
-                }, 500);
-            } else {
-                window.alert(err.message);
-                console.error(err);
-            }
+            window.alert(err.message);
+            console.error(err);
         }
     }
 
@@ -140,13 +145,13 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                             Total Amount Agreed
                         </div>
                         <div className="section-title font-16">
-                            {totalAmount() + "E"}
+                            {totalAmount() + "XTZ"}
                         </div>
                         <div className="b-grey-text medium-title mt-30">
                             Amount Due
                         </div>
                         <div className="section-title primary-text font-16">
-                            {toETH(item.bnplListings[0].remaining_amount) + "E"}
+                            {toTez(reservation.remaining) + "XTZ"}
                         </div>
                     </div>
                     <div className="ml-36">
@@ -154,13 +159,13 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                             Paid To Seller
                         </div>
                         <div className="section-title font-16">
-                            {toETH(item.bnplListings[0].deposit) + "E"}
+                            {toTez(reservation.deposit) + "XTZ"}
                         </div>
                         <div className="b-grey-text medium-title mt-30">
                             Remaining Time
                         </div>
                         <div className="section-title primary-text font-16">
-                            {getTime()}
+                            {getTime(reservation.time)}
                         </div>
                         <div className="btn-ctn">
                             {cardType === 'to_pay' && <Button disableRipple className="btn-pay fix-bottom" onClick={payRemainingAmount}>Pay</Button>}
@@ -168,33 +173,33 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                         </div>
                     </div>
                 </React.Fragment>}
-                {cardType === 'received' && <React.Fragment>
-                    <div>
-                        <div className="b-grey-text medium-title">
-                            Total Amount
-                        </div>
-                        <div className="section-title font-16">
-                            14E
-                        </div>
-                        <div className="b-grey-text medium-title mt-30">
-                            Payment Received
-                        </div>
-                        <div className="section-title font-16">
-                            14E
-                        </div>
-                        <div className="btn-ctn">
-                            <div className="success medium-weight fix-bottom">Payment Recieved
-                                <div className="link-icon">
-                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M9.03986 10.9602C10.4067 12.327 12.6228 12.327 13.9896 10.9602L17.5251 7.42462C18.892 6.05779 18.892 3.84171 17.5251 2.47487C16.1583 1.10804 13.9422 1.10804 12.5754 2.47487L10.8076 4.24264" stroke="#45B26B" stroke-width="1.5" stroke-linecap="round" />
-                                        <path d="M11.8683 8.13164C10.5015 6.76481 8.28538 6.76481 6.91854 8.13164L3.38301 11.6672C2.01617 13.034 2.01617 15.2501 3.38301 16.6169C4.74984 17.9838 6.96592 17.9838 8.33275 16.6169L10.1005 14.8492" stroke="#45B26B" stroke-width="1.5" stroke-linecap="round" />
-                                    </svg>
-                                </div>
-
+                {/* {cardType === 'received' && <React.Fragment>
+                <div>
+                    <div className="b-grey-text medium-title">
+                        Total Amount
+                    </div>
+                    <div className="section-title font-16">
+                        14E
+                    </div>
+                    <div className="b-grey-text medium-title mt-30">
+                        Payment Received
+                    </div>
+                    <div className="section-title font-16">
+                        14E
+                    </div>
+                    <div className="btn-ctn">
+                        <div className="success medium-weight fix-bottom">Payment Recieved
+                            <div className="link-icon">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M9.03986 10.9602C10.4067 12.327 12.6228 12.327 13.9896 10.9602L17.5251 7.42462C18.892 6.05779 18.892 3.84171 17.5251 2.47487C16.1583 1.10804 13.9422 1.10804 12.5754 2.47487L10.8076 4.24264" stroke="#45B26B" stroke-width="1.5" stroke-linecap="round" />
+                                    <path d="M11.8683 8.13164C10.5015 6.76481 8.28538 6.76481 6.91854 8.13164L3.38301 11.6672C2.01617 13.034 2.01617 15.2501 3.38301 16.6169C4.74984 17.9838 6.96592 17.9838 8.33275 16.6169L10.1005 14.8492" stroke="#45B26B" stroke-width="1.5" stroke-linecap="round" />
+                                </svg>
                             </div>
+
                         </div>
                     </div>
-                </React.Fragment>}
+                </div>
+            </React.Fragment>} */}
             </div>
         </div>)
 }

@@ -254,8 +254,8 @@ function DashboardPage() {
 
           {categories[0].isSelected && <WalletView available={available} />}
           {categories[1].isSelected && <MyListingView listedItems={listedItems} filters={categories[1].filters[0].list} onFilterChange={onFilterChange} />}
-          {/* {categories[2].isSelected && <OffersContainerView listedItems={listedItems} modules={categories[2].filters} updateOfferCategory={updateOfferCategory} />}
-          {categories[3].isSelected && <ReservedItemsContainerView onButtonChange={onReservedItemsButtonChange} />} */}
+          {/* {categories[2].isSelected && <OffersContainerView listedItems={listedItems} modules={categories[2].filters} updateOfferCategory={updateOfferCategory} />} */}
+          {categories[3].isSelected && <ReservedItemsContainerView onButtonChange={onReservedItemsButtonChange} />}
           {/* {categories[4].isSelected && <ActivityView />} */}
         </div>
 

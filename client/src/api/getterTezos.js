@@ -81,3 +81,27 @@ export const getImageURI = (uri) => {
     uri = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
     return uri;
 }
+
+export const getReserved = (getters) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const items = await getters.views.getReservedItems([['unit']]).read();
+            resolve(items);
+        } catch (error) {
+            reject(error)
+        }
+    })
+}
+
+export const getReservationData = async (Tezos, tokenId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const posToken = await Tezos.wallet.at(Addresses.PositionToken);
+            const data = await posToken.views.getReservationDetailsOffchain(tokenId).read();
+            resolve(data);
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    })
+}

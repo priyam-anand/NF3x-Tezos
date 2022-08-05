@@ -4,8 +4,7 @@ import { Button } from '@mui/material';
 import PendingPayments from './PendingPayments';
 import PaymentsToReceive from './PaymentsToReceive';
 import { useSelector } from 'react-redux';
-import { getActiveBuyNowPayLaterItems_Buyer, getActiveBuyNowPayLaterItems_Seller } from '../../../api/getter';
-
+import { getReserved } from "../../../api/getterTezos"
 
 const useStyles = makeStyles({
   root: {
@@ -22,18 +21,25 @@ function ReservedItemsContainerView({
   const [itemsSeller, setItemsSeller] = useState([]);
   const [itemsBuyer, setItemsBuyer] = useState([]);
 
-  const { web3, getter, market, account } = useSelector((state) => state.web3Config);
+  const { getters, account } = useSelector((state) => state.tezosConfig);
 
   const init = async () => {
-    const _itemsSeller = await getActiveBuyNowPayLaterItems_Seller(getter, account);
-    const _itemsBuyer = await getActiveBuyNowPayLaterItems_Buyer(getter, account);
+    const reservedItems = await getReserved(getters);
+    var arr = [];
 
-    setItemsBuyer(_itemsBuyer);
-    setItemsSeller(_itemsSeller);
+    for (var i = 0; i < reservedItems.length; i++) {
+      if (reservedItems[i].owner == account) {
+        arr.push(reservedItems[i]);
+      }
+    }
+    setItemsSeller(arr);
+
+    // const _itemsSeller = await getActiveBuyNowPayLaterItems_Seller(getter, account);
+    // const _itemsBuyer = await getActiveBuyNowPayLaterItems_Buyer(getter, account);
+
+    // setItemsBuyer(_itemsBuyer);
+
   }
-
-  console.log("itemSeller", itemsSeller);
-  console.log("itemBuyer", itemsBuyer);
 
   useEffect(() => {
     init();
