@@ -11,10 +11,11 @@ import MyListingView from '../components/listingpage/MyListingView';
 import WalletView from '../components/listingpage/WalletView';
 import OffersContainerView from '../components/listingpage/OffersContainerView';
 import ReservedItemsContainerView from '../components/listingpage/reserveItems/ReservedItemsContainerView';
-import ActivityView from '../components/listingpage/ActivityView';
-import { fetchAccount, fetchGetter, fetchMarket, fetchNFTs, fetchWeb3, setNetwork } from '../api/web3';
-import { getItemWithOwer, getListedItems, getMyListedItems, _getTokens } from "../api/getter";
+// import { fetchAccount, fetchGetter, fetchMarket, fetchNFTs, fetchWeb3, setNetwork } from '../api/web3';
+// import { getItemWithOwer, getListedItems, getMyListedItems, _getTokens } from "../api/getter";
 import { useNavigate } from 'react-router-dom';
+import { init, getAccount, getGetters, getMarket } from "../api/tezos"
+import { getListedItems, _getTokens } from '../api/getterTezos';
 
 const useStyles = makeStyles({
   root: {
@@ -62,39 +63,40 @@ const useStyles = makeStyles({
 });
 
 function DashboardPage() {
-  
+
   const classes = useStyles();
   const [showReservedFilters, setShowReservedFilters] = useState(false);
   const [categories, setCategories] = useState([
     { name: 'Wallet', isSelected: true },
-    { name: 'Listings', isSelected: false, filters: [{ name: "Item Store", list: [{ name: "Active", isSelected: true }, { name: "Inactive", isSelected: false }] }] }, 
-    { name: 'Offers', isSelected: false, filters: [{moduleName: "Offers Received", isSelected: true, filters: [{ name: "See Offers", list: [{ name: "Swap Now", isSelected: true }, { name: "Reserve and swap", isSelected: true }, { name: "NFT Swap", isSelected: true }] }]}, {moduleName: "Offers Made", isSelected: false, filters: [{ name: "Expired Offers", list: [{ name: "Expired Offers", isSelected: false }] }, { name: "See Offers", list: [{ name: "Swap Now", isSelected: true }, { name: "Reserve and swap", isSelected: true }, { name: "NFT Swap", isSelected: true }] }]}] },
+    { name: 'Listings', isSelected: false, filters: [{ name: "Item Store", list: [{ name: "Active", isSelected: true }, { name: "Inactive", isSelected: false }] }] },
+    { name: 'Offers', isSelected: false, filters: [{ moduleName: "Offers Received", isSelected: true, filters: [{ name: "See Offers", list: [{ name: "Swap Now", isSelected: true }, { name: "Reserve and swap", isSelected: true }, { name: "NFT Swap", isSelected: true }] }] }, { moduleName: "Offers Made", isSelected: false, filters: [{ name: "Expired Offers", list: [{ name: "Expired Offers", isSelected: false }] }, { name: "See Offers", list: [{ name: "Swap Now", isSelected: true }, { name: "Reserve and swap", isSelected: true }, { name: "NFT Swap", isSelected: true }] }] }] },
     { name: 'Reserved Items', isSelected: false, filters: [{ name: 'Payments', list: [{ name: "Pending", isSelected: true }, { name: "Received", isSelected: true }], showFilters: showReservedFilters }] }]);
 
   const [menuselection, setmenuselection] = useState('');
 
-  const { account, nfts, web3, getter, market } = useSelector((state) => state.web3Config);
+  const { tezos, wallet, account, market, getters } = useSelector((state) => state.tezosConfig);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const [listedItems, setListedItems] = useState([]);
-  const [myListedItems, setMyListedItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [sidebarstate, setsidebarstate] = useState(true);
   const [available, setAvailable] = useState([]);
   const [toggleFilter, setToggleFilter] = useState(false);
   const [selectedCategoryIndex, setCategoryIndex] = useState(0);
 
-  const init = async () => {
+  const _init = async () => {
     try {
-      var _web3 = await fetchWeb3(web3, dispatch);
-      await fetchAccount(_web3, account, dispatch);
-      await setNetwork(_web3);
-      await fetchGetter(_web3, getter, dispatch);
-      await fetchMarket(_web3, market, dispatch);
+      const { _tezos, _wallet } = await init(tezos, wallet, dispatch);
+      await getAccount(_tezos, _wallet, account, dispatch);
+
+      await getGetters(_tezos, getters, dispatch);
+      await getMarket(_tezos, market, dispatch);
+
     } catch (error) {
-      console.log(error);
-      window.alert("An error occured");
+      console.error(error);
+      window.alert("An error ocurred");
+      navigate('/');
     }
   }
 
@@ -121,65 +123,34 @@ function DashboardPage() {
 
 
   const _getListedItems = async () => {
-    var items = await getListedItems(getter, account);
-    items = await getItemWithOwer(items, nfts);
-    const myItems = await getMyListedItems(getter, account);
+    var items = await getListedItems(getters);
     setListedItems(items);
-    setMyListedItems(myItems);
     setLoading(false);
   }
 
   const getTokens = async () => {
     try {
-      await _getTokens(account, setAvailable);
+      const tokens = await _getTokens(account);
+      setAvailable(tokens)
     } catch (error) {
-      if (error.response.status == 429) {
-        setTimeout(() => {
-          getTokens();
-        }, 500);
-      } else {
-        window.alert("an error occured");
-        navigate('/listing');
-      }
-    }
-  }
-
-  const getContracts = async () => {
-    try {
-      await fetchNFTs(web3, dispatch);
-    } catch (error) {
-      console.error(error);
-      window.alert("An error ocurred");
+      window.alert("an error occured");
+      navigate('/');
     }
   }
 
   useEffect(() => {
-    init();
+    _init();
   }, []);
 
-  useEffect(() => {
-    if (web3 != undefined) {
-      web3._provider.on('chainChanged', () => {
-        window.location.reload();
-      })
-      web3._provider.on('accountsChanged', () => {
-        window.location.reload();
-      })
-    }
-  }, [web3]);
+
 
   useEffect(() => {
-    if (web3 != undefined)
-      getContracts();
-  }, [web3]);
-
-  useEffect(() => {
-    if (account != undefined && getter != undefined && nfts[Addresses.ERC721.length - 1] != undefined) {
+    if (account != undefined && getters != undefined) {
       getTokens();
       _getListedItems();
     }
 
-  }, [nfts[Addresses.ERC721.length - 1], account, getter]);
+  }, [account, getters]);
 
   const filterstatus = (status) => {
     setsidebarstate(status);
@@ -215,17 +186,17 @@ function DashboardPage() {
         return filter;
       });
       if (!isOneSelected) currentCateList[currentCatIndex].filters[parentIndex].list[0].isSelected = true;
-    }else if (currentMenu === "Offers") {
+    } else if (currentMenu === "Offers") {
       currentCateList[currentCatIndex].filters = currentCateList[currentCatIndex].filters.map(module => {
-          if(module.isSelected){
-            module.filters[parentIndex].list.map( (filter, i) => {
-                if (i === index) filter.isSelected = e.target.checked;
-                // if (!isOneSelected && filter.isSelected) isOneSelected = true;
-                return filter;
-            });
-          }
-          return module;
-        });
+        if (module.isSelected) {
+          module.filters[parentIndex].list.map((filter, i) => {
+            if (i === index) filter.isSelected = e.target.checked;
+            // if (!isOneSelected && filter.isSelected) isOneSelected = true;
+            return filter;
+          });
+        }
+        return module;
+      });
     }
 
 
@@ -237,8 +208,10 @@ function DashboardPage() {
     categories[3].showFilters = val;
   }
 
-  if (web3 == undefined)
+  if (tezos == undefined || account == undefined || getters == undefined)
     return <></>
+
+  // console.log(available)
 
   return (
     <Fragment>
@@ -280,9 +253,9 @@ function DashboardPage() {
           </div>
 
           {categories[0].isSelected && <WalletView available={available} />}
-          {categories[1].isSelected && <MyListingView listedItems={myListedItems} filters={categories[1].filters[0].list} onFilterChange={onFilterChange} />}
-          {categories[2].isSelected && <OffersContainerView listedItems={listedItems} modules= {categories[2].filters} updateOfferCategory={updateOfferCategory} />}
-          {categories[3].isSelected && <ReservedItemsContainerView onButtonChange={onReservedItemsButtonChange} />}
+          {categories[1].isSelected && <MyListingView listedItems={listedItems} filters={categories[1].filters[0].list} onFilterChange={onFilterChange} />}
+          {/* {categories[2].isSelected && <OffersContainerView listedItems={listedItems} modules={categories[2].filters} updateOfferCategory={updateOfferCategory} />}
+          {categories[3].isSelected && <ReservedItemsContainerView onButtonChange={onReservedItemsButtonChange} />} */}
           {/* {categories[4].isSelected && <ActivityView />} */}
         </div>
 

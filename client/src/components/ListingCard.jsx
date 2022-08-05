@@ -17,6 +17,7 @@ import { getImageURI, getTokenDetails, _getToken } from "../api/getter"
 import { _claimBackNFT } from '../api/market';
 import Contracts from "../contracts/Contracts.json";
 import { _getTokenMetadata } from '../api/getterTezos';
+import { _handleCancelListing } from '../api/marketTezos';
 
 const useStyles = makeStyles({
 
@@ -26,7 +27,7 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
     const navigate = useNavigate();
     const classes = useStyles();
     const cardImg = useRef({});
-    // const { market, getter, account, web3 } = useSelector((state) => state.web3Config);
+    const { market } = useSelector((state) => state.tezosConfig);
     const [data, setData] = useState({
         name: "",
         thumbnailUri: ""
@@ -62,16 +63,16 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
         return amount / 1000000;
     }
 
-    // const claimBackNFT = async (e) => {
-    //     e.stopPropagation();
-    //     try {
-    //         await _claimBackNFT(item, market, account, dispatch);
-    //         window.location.reload();
-    //     } catch (error) {
-    //         console.error(error);
-    //         window.alert(error.message);
-    //     }
-    // }
+    const claimBackNFT = async (e) => {
+        e.stopPropagation();
+        try {
+            await _handleCancelListing(market, item, dispatch);
+            window.location.reload();
+        } catch (error) {
+            console.error(error);
+            window.alert(error.message);
+        }
+    }
 
     useEffect(() => {
         getData();
@@ -156,8 +157,8 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
                         </div>
                     </div>
                     {/* {isEditable && <Button disableRipple onClick={(e) => onHandleSelectedItem(e, item, itemIndex)} startIcon={<EditOutlinedIcon className='font-14' />}
-                        className={"btn btn-edit font-14 absolute"} variant="contained">edit</Button>}
-                    {isCustomLabel && <Button disableRipple onClick={(e) => claimBackNFT(e)} className={"btn btn-edit font-14 absolute padding-zero"} variant="contained">claim back</Button>} */}
+                        className={"btn btn-edit font-14 absolute"} variant="contained">edit</Button>} */}
+                    {isCustomLabel && <Button disableRipple onClick={(e) => claimBackNFT(e)} className={"btn btn-edit font-14 absolute padding-zero"} variant="contained">claim back</Button>}
                 </div>
             </Card>
         </div>

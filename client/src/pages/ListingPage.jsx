@@ -11,6 +11,7 @@ import { ReactComponent as FilterStroke } from "../SVG/filter-stroke.svg";
 // import { getListedItems } from '../api/getter';
 import { init, getAccount, getGetters } from "../api/tezos";
 import { getListedItems } from '../api/getterTezos';
+import { useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -101,6 +102,7 @@ function ListingPage() {
   const [wantedOfferFilter, setWantedOfferFilter] = useState([]);
   const [count, setCount] = useState(0);
   const [searchResult, setSearchResult] = useState(null);
+  const navigate = useNavigate();
 
   const updateSize = () => {
     let isMobile = window.innerWidth > 600;
@@ -130,6 +132,7 @@ function ListingPage() {
     } catch (error) {
       console.log(error);
       window.alert("An error occured");
+      navigate('/');
     }
   }
 

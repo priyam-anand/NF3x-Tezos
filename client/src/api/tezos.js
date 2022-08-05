@@ -9,7 +9,8 @@ export const init = async (Tezos, wallet, dispatch) => {
     }
     return new Promise(async (resolve, reject) => {
         try {
-            const Tezos = new TezosToolkit('https://ghostnet.smartpy.io/');
+            const Tezos = new TezosToolkit("https://rpc.ghostnet.teztnets.xyz/");
+            // const Tezos = new TezosToolkit('https://ghostnet.smartpy.io/');
             const wallet = new BeaconWallet({
                 name: 'NF3x',
                 preferredNetwork: 'ghostnet',

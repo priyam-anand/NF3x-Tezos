@@ -19,7 +19,7 @@ export const _getTokens = async (account) => {
             const assets = (await axios.get(url)).data;
             const tokens = [];
             for (var i = 0; i < assets.length; i++) {
-                if (isWhitelised(assets[i].token.contract.address))
+                if (isWhitelised(assets[i].token.contract.address) && assets[i].balance > 0)
                     tokens.push(assets[i].token);
             }
             resolve(tokens);

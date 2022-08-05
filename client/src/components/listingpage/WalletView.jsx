@@ -24,10 +24,10 @@ function WalletView({
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const [popupToken, setPopupToken] = useState({
-    image_url: '',
-    asset_contract: { address: '' },
-    token_id: '',
-    traits: []
+    metadata: { displayUri: '', attributes: [{ name: '', value: '' }] },
+    contract: { address: '' },
+    tokenId: '',
+    name: ''
   });
   const [filter, setFilter] = useState('');
   const collections = [
@@ -66,9 +66,11 @@ function WalletView({
         <Paper
           component="form"
           className={"search-input input-text no-shadow"}
-          sx={{ p: '2px 4px', display: 'flex', height: "45px", alignItems: 'center', width: 400,"@media (max-width: 900px)":{
-            width: "100%"
-          } }}
+          sx={{
+            p: '2px 4px', display: 'flex', height: "45px", alignItems: 'center', width: 400, "@media (max-width: 900px)": {
+              width: "100%"
+            }
+          }}
         >
           <Autocomplete
             sx={{ ml: 1, flex: 1, color: "#B0B7C3" }}
@@ -104,8 +106,8 @@ function WalletView({
       <div className={`list-main-cards`}>
         {
           available.map((item) => {
-            if (filtered(item))
-              return <WalletViewCard onClickView={setOpen} token={item} setPopupToken={setPopupToken} />
+            // if (filtered(item))
+            return <WalletViewCard onClickView={setOpen} token={item} setPopupToken={setPopupToken} />
           })
         }
       </div>

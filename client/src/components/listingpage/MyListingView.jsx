@@ -50,7 +50,7 @@ function MyListingView({
 }) {
   const classes = useStyles();
 
-  const { web3, market, account } = useSelector((state) => state.web3Config);
+  const { tezos, market, account } = useSelector((state) => state.tezosConfig);
   const dispatch = useDispatch();
   // const [acitveListingCount, setActiveListingCount] = useState(0);
   // const [inacitveListingCount, setInactiveListingCount] = useState(0);
@@ -79,63 +79,63 @@ function MyListingView({
   }]);
   const [filter, setFilter] = useState('');
 
-  const toETH = (amount) => {
-    return web3.utils.fromWei(amount, 'ether');
-  }
+  // const toETH = (amount) => {
+  //   return web3.utils.fromWei(amount, 'ether');
+  // }
 
-  const toWei = (amount) => {
-    return web3.utils.toWei(amount, 'ether');
-  }
+  // const toWei = (amount) => {
+  //   return web3.utils.toWei(amount, 'ether');
+  // }
 
   const onHandleSelectedItem = (e, data) => {
-    e.stopPropagation();
-    let currentSelectedItem = { ...selectedItem, data };
-    var _bnplListings = [];
-    var _interestedToSwap = [];
-    for (let i = 0; i < data.bnplListings.length; i++) {
-      const _listing = data.bnplListings[i];
-      const _currListing = {
-        deposit: toETH(_listing.deposit),
-        remainingAmt: toETH(_listing.remaining_amount),
-        duration: _listing.duration / 86400
-      };
-      _bnplListings.push(_currListing);
-    }
+    // e.stopPropagation();
+    // let currentSelectedItem = { ...selectedItem, data };
+    // var _bnplListings = [];
+    // var _interestedToSwap = [];
+    // for (let i = 0; i < data.bnplListings.length; i++) {
+    //   const _listing = data.bnplListings[i];
+    //   const _currListing = {
+    //     deposit: toETH(_listing.deposit),
+    //     remainingAmt: toETH(_listing.remaining_amount),
+    //     duration: _listing.duration / 86400
+    //   };
+    //   _bnplListings.push(_currListing);
+    // }
 
-    for (let i = 0; i < data.swapListing.amounts.length; i++) {
-      const _currListing = {
-        swapAmount: toETH(data.swapListing.amounts[i]),
-        swapToken: Addresses.addressToName[data.swapListing.token_addresses[i].toLowerCase()]
-      };
-      _interestedToSwap.push(_currListing);
-    }
+    // for (let i = 0; i < data.swapListing.amounts.length; i++) {
+    //   const _currListing = {
+    //     swapAmount: toETH(data.swapListing.amounts[i]),
+    //     swapToken: Addresses.addressToName[data.swapListing.token_addresses[i].toLowerCase()]
+    //   };
+    //   _interestedToSwap.push(_currListing);
+    // }
 
-    setSelected({
-      token: data.token,
-      tokenId: data.tokenId,
-      sale: data.listingType[0],
-      bnpl: data.listingType[1],
-      swap: data.listingType[2],
-      directSalePrice: data.listingType[0] ? toETH(data.directListing.amounts[0]) : '',
-      offerToken: data.listingType[2] ? Addresses.addressToName[data.swapListing.token_addresses[0].toLowerCase()] : Addresses.addressToName['0x91d0c5784804bd8d27a30be96b3da4037f095251'],
-      offerAmt: data.listingType[2] ? toETH(data.swapListing.amounts[0]) : '',
-      timePeriod: 3
-    });
-    setInterestedToSwap(_interestedToSwap);
-    setBnplListings(_bnplListings);
-    setSelectedItem(currentSelectedItem);
+    // setSelected({
+    //   token: data.token,
+    //   tokenId: data.tokenId,
+    //   sale: data.listingType[0],
+    //   bnpl: data.listingType[1],
+    //   swap: data.listingType[2],
+    //   directSalePrice: data.listingType[0] ? toETH(data.directListing.amounts[0]) : '',
+    //   offerToken: data.listingType[2] ? Addresses.addressToName[data.swapListing.token_addresses[0].toLowerCase()] : Addresses.addressToName['0x91d0c5784804bd8d27a30be96b3da4037f095251'],
+    //   offerAmt: data.listingType[2] ? toETH(data.swapListing.amounts[0]) : '',
+    //   timePeriod: 3
+    // });
+    // setInterestedToSwap(_interestedToSwap);
+    // setBnplListings(_bnplListings);
+    // setSelectedItem(currentSelectedItem);
   }
 
   const completeEditListing = async (e) => {
-    e.preventDefault();
+    // e.preventDefault();
 
-    try {
-      await _completeEditListing(market, account, selected, toWei, bnplListings, interestedToSwap, dispatch);
-      window.location.reload();
-    } catch (error) {
-      window.alert(error.message);
-      console.log(error);
-    }
+    // try {
+    //   await _completeEditListing(market, account, selected, toWei, bnplListings, interestedToSwap, dispatch);
+    //   window.location.reload();
+    // } catch (error) {
+    //   window.alert(error.message);
+    //   console.log(error);
+    // }
   }
 
   const filtered = (token) => {
@@ -169,8 +169,10 @@ function MyListingView({
     var _inactiveListing = [];
 
     for (let i = 0; i < listedItems.length; i++) {
-      const expires = Number(listedItems[i].time_period);
-      const curr = Math.floor(Date.now() / 1000);
+      if (listedItems[i].owner != account)
+        continue;
+      const expires = (new Date(listedItems[i].listing.timePeriod)).getTime();
+      const curr = Math.floor(Date.now());
       if (expires > curr)
         _activeListing.push(listedItems[i]);
       else
@@ -200,7 +202,7 @@ function MyListingView({
         {!selectedItem.data && <div className={`${(selectedItem.data && "width-50 list-item") ?? "width-100"} inline-block`}>
           {filters[0].isSelected && <div>
             <div className={`action-block flex-wrap row-reverse-direction`}>
-              
+
               <Paper
                 component="form"
                 className={"search-input input-text no-shadow float-right margin-bottom-10"}
@@ -243,9 +245,7 @@ function MyListingView({
 
             <div className={`list-main-cards width-100`}>
               {activeListing.map((item, index) => {
-                if (filtered(item)) {
-                  return <ListingCard isEditable={true} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
-                }
+                return <ListingCard isEditable={false} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
               })}
             </div>
           </div>}
@@ -293,9 +293,9 @@ function MyListingView({
 
             <div className={`list-main-cards width-100`}>
               {inactiveListing.map((item, index) => {
-                if (filtered(item)) {
-                  return <ListingCard isEditable={false} isCustomLabel={true} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
-                }
+                // if (filtered(item)) {
+                return <ListingCard isEditable={false} isCustomLabel={true} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
+                // }
               })}
             </div>
           </div>}
