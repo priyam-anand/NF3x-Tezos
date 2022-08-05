@@ -4,7 +4,8 @@ import { useSelector } from 'react-redux';
 import { Button } from '@mui/material';
 import axios from "axios";
 import { makeStyles } from '@mui/styles';
-import { getImageURI, getTokenDetails, getTime } from '../api/getter';
+import { getTokenDetails, getTime } from '../api/getter';
+import { _getTokenMetadata, getImageURI } from '../api/getterTezos';
 
 const useStyles = makeStyles({
     swapOfferCtn: {
@@ -18,16 +19,21 @@ const useStyles = makeStyles({
 })
 
 const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
-    const { web3, account, getter } = useSelector((state) => state.web3Config);
-    const [data, setData] = useState({ name: '', image: '' });
-    const [tokenName, setTokenName] = useState();
-    const swap = offer.token_addresses != undefined;
+    const [metadata, setMetadata] = useState({
+        thumbnailUri: '',
+        name: ''
+    });
+    const swap = offer.token != undefined;
+
+    const toTez = (value) => {
+        return Number(value) / 1000000;
+    }
+
+    const { account } = useSelector((state) => state.tezosConfig);
 
     const init = async () => {
-        const _tokenDetails = await getTokenDetails(offer, getter, account);
-        const data = await axios.get(_tokenDetails[0]);
-        setData(data.data);
-        setTokenName(_tokenDetails[1]);
+        const metadata = await _getTokenMetadata(offer.token, offer.tokenId);
+        setMetadata(metadata);
     }
     useEffect(() => {
         if (swap)
@@ -39,25 +45,22 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
     const handleAcceptOffer = () => {
         if (offer.deposit != undefined) {
             acceptReserveOffer(
-                getImageURI(data.image),
-                data.name == undefined ? tokenName + " #" + item.tokenId : data.name,
-                toETH(offer.deposit),
-                toETH(offer.remaining_amount),
+                getImageURI(metadata.thumbnailUri),
+                metadata.name,
+                toTez(offer.deposit),
+                toTez(offer.remainingAmount),
                 offer.duration / 86400,
-                index
+                offer.index
             )
         } else {
             acceptOffer(
-                getImageURI(data.image),
-                data.name == undefined ? tokenName + " #" + item.tokenId : data.name,
-                toETH(offer.amounts[0] == undefined ? '0' : offer.amounts[0]),
-                index,
-                swap)
+                getImageURI(metadata.thumbnailUri),
+                metadata.name,
+                toTez(offer.amount),
+                offer.index,
+                swap
+            )
         }
-    }
-
-    const toETH = (amount) => {
-        return web3.utils.fromWei(amount, 'ether');
     }
 
     const getAddress = (acc) => {
@@ -66,17 +69,17 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
         return acc;
     }
 
-    if (offer.time_period < Math.floor(Date.now() / 1000))
-        return <></>
+    // if (offer.timePeriod < Math.floor(Date.now() / 1000))
+    //     return <></>
 
     return (
         <div className={`flex-justify align-center padding-15 ${classes.swapOfferCtn}`} key={index}>
             <div style={{ flex: "1 1 30%" }}>
                 {
                     offer.deposit != undefined ? <div className='display-flex align-center border'>
-                        <div className='crypto-value'> <img src='../img/ethereum.png' className="eth-img" />{toETH(offer.deposit)} </div>
+                        <div className='crypto-value'> <img src='../img/ethereum.png' className="eth-img" />{toTez(offer.deposit)} </div>
                         <div className="font-16 plus" style={{ margin: '0 15px' }}>+</div>
-                        <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toETH(offer.remaining_amount)} </div>
+                        <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toTez(offer.remainingAmount)} </div>
                         <div className='expire-text' style={{ marginLeft: '10px' }}>{`within ${offer.duration / 86400} days`}</div>
                     </div>
                         : null
@@ -84,32 +87,31 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
                 {
                     swap == true ? <div className='display-flex align-center border'>
                         <div className='section-image-block margin-zero'>
-                            <img src={swap ? getImageURI(data.image) : "../img/ethereum.png"} className="eth-img" alt="ethLogo" />
+                            <img src={swap ? getImageURI(metadata.thumbnailUri) : "../img/ethereum.png"} className="eth-img" alt="ethLogo" />
                             <div className='section-image-desc'>
                                 <span>{
-                                    data.name == undefined ? tokenName + " #" + item.tokenId : data.name
+                                    metadata.name
                                 }</span>
                             </div>
                         </div>
                         {
-                            swap && offer.amounts[0] > 0 ? <><div className="font-16 plus" style={{ margin: '0 15px' }}>+</div>
-                                <div className='crypto-value display-flex align-center'><img src='../img/ethereum.png' className="eth-img" />{toETH(offer.amounts[0])} </div>
+                            swap && offer.amount > 0 ? <><div className="font-16 plus" style={{ margin: '0 15px' }}>+</div>
+                                <div className='crypto-value display-flex align-center'><img src='../img/ethereum.png' className="eth-img" />{toTez(offer.amount)} </div>
                             </> : null
                         }
                     </div>
                         : null
                 }
                 {
-                    !swap && offer.amounts != undefined
-                        ? <div className='display-flex align-center border'><div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toETH(offer.amounts[0])} </div></div>
-                        : null
+                    !swap && offer.amount > 0 ? <>
+                        <div className='crypto-value display-flex align-center'><img src='../img/ethereum.png' className="eth-img" />{toTez(offer.amount)} </div>
+                    </> : null
                 }
 
             </div>
             <div className="primary-text font-16 center" style={{ flex: "1 1 20%" }}>{getAddress(offer.owner)}</div>
-            <div style={{ flex: "1 1 20%" }} className="center font-16 t1-text">{getTime(offer.time_period)}</div>
+            <div style={{ flex: "1 1 20%" }} className="center font-16 t1-text">{getTime(offer.timePeriod)}</div>
             <div style={{ flex: "0 0 30%" }} className="center">
-                <Button disableRipple variant='outlined' className={"btn bg-white primary-text primary-border margin-top-5"}>View</Button>
                 {
                     item.owner == account ? <Button disableRipple variant='contained' className={"btn margin-top-5"} onClick={handleAcceptOffer}>
                         Accept

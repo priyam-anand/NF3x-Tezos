@@ -13,8 +13,7 @@ import FormControl from '@mui/material/FormControl';
 import { ReactComponent as Search } from '../SVG/Search.svg';
 import MiniCardView from '../components/MiniCardView';
 
-const DirectNFTSwapModal = ({ offerNftModal, handleClose, classes, directNftSwap, available, swapOffer, setSwapOffer, nftSwap}) => {
-    console.log("nftSwap",nftSwap);
+const DirectNFTSwapModal = ({ offerNftModal, handleClose, classes, directNftSwap, available, swapOffer, setSwapOffer, nftSwap }) => {
     return (
         <Modal
             keepMounted
@@ -32,7 +31,7 @@ const DirectNFTSwapModal = ({ offerNftModal, handleClose, classes, directNftSwap
                     {
                         available.map((token, index) => {
                             return <div className={`${classes.offerListItem}`} key={index}>
-                              <MiniCardView token={token} swapOffer={swapOffer} setSwapOffer={setSwapOffer} />
+                                <MiniCardView token={token} swapOffer={swapOffer} setSwapOffer={setSwapOffer} />
                             </div>
                         })
                     }

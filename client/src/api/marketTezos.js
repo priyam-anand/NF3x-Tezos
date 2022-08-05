@@ -211,7 +211,7 @@ export const _confirmPayLater = async (item, listing, market, popupState, setPop
             //     }
             // });
             await op.confirmation();
-            dispatch(setLoading({ loading: true }));
+            dispatch(setLoading({ loading: false }));
         } catch (e) {
             dispatch(setLoading({ loading: false }));
             reject(e);
@@ -222,15 +222,137 @@ export const _confirmPayLater = async (item, listing, market, popupState, setPop
 
 export const _directNftSwap = async (tezos, account, item, nftSwap, swapOffer, market, dispatch) => {
     return new Promise(async (resolve, reject) => {
-        try{
+        try {
             await _approveNFT(tezos, account, swapOffer.tokenAddress, swapOffer.tokenId, dispatch);
             console.log(swapOffer);
-            const op = await market.methods.nftSwap(swapOffer.tokenAddress, swapOffer.tokenId, nftSwap.index, item.token, item.tokenId.toNumber()).send({amount : nftSwap.amount});
+            const op = await market.methods.nftSwap(swapOffer.tokenAddress, swapOffer.tokenId, nftSwap.index, item.token, item.tokenId.toNumber()).send({ amount: nftSwap.amount });
             dispatch(setLoading({ loading: true }));
             await op.confirmation();
             dispatch(setLoading({ loading: false }));
             resolve();
-        }catch(error){
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _confirmSwapNowOffer = async (item, market, swapNowOffer, popupState, setPopupState, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log("swapNowOffer", swapNowOffer)
+            const op = await market.methods.newSwapOffer(
+                { 0: toMutez(swapNowOffer.amount) },
+                { 0: Addresses.XTZ },
+                {},
+                {},
+                swapNowOffer.time_period * 86400,
+                item.token,
+                item.tokenId.toNumber()
+            ).send({ amount: swapNowOffer.amount })
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _confirmReserveOffer = async (item, market, reserveOffer, popupState, setPopupState, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            console.log("reserveOffer ", reserveOffer);
+            const op = await market.methods.newReserveOffer(
+
+                { 0: toMutez(reserveOffer.deposit) },
+                { 0: Addresses.XTZ },
+                {},
+                {},
+                reserveOffer.duration * 86400,
+                { 0: toMutez(reserveOffer.remainingAmount) },
+                { 0: Addresses.XTZ },
+                {},
+                {},
+                reserveOffer.time_period * 86400,
+                item.token,
+                item.tokenId.toNumber()
+            ).send({ amount: reserveOffer.deposit });
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _confirmSwapOffer = async (tezos, account, item, market, swapOffer, popupState, setPopupState, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            await _approveNFT(tezos, account, swapOffer.tokenAddress, swapOffer.tokenId, dispatch);
+
+            const op = await market.methods.newSwapOffer(
+                { 0: toMutez(swapOffer.amount) },
+                { 0: Addresses.XTZ },
+                { 0: swapOffer.tokenId },
+                { 0: swapOffer.tokenAddress },
+                swapOffer.time_period * 86400,
+                item.token,
+                item.tokenId.toNumber()
+            ).send({ amount: swapOffer.amount })
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _confirmAcceptOffer = async (item, market, offerId, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.acceptSwapOffer(
+                offerId,
+                item.token,
+                item.tokenId.toNumber()
+            ).send();
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _confirmAcceptReserveOffer = async (item, market, offerId, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.acceptReserveOffer(
+                offerId,
+                item.token,
+                item.tokenId.toNumber()
+            ).send();
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
             dispatch(setLoading({ loading: false }));
             reject(error);
             return;

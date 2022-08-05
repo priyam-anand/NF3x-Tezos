@@ -34,11 +34,10 @@ import { ReactComponent as Search } from '../SVG/Search.svg';
 import Util from '../common/Util';
 import { fetchAccount, fetchGetter, fetchWeb3, fetchMarket, setNetwork, fetchNFTs } from '../api/web3';
 import { getItemWIthId, getUnavailableItems, getTime } from '../api/getter';
-import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _confirmReserveOffer, _confirmSwapNowOffer, _confirmSwapOffer } from '../api/market';
-import { _confirmSwapNow, _handleCancelListing, _confirmPayLater, _directNftSwap } from '../api/marketTezos';
+import { _confirmSwapNow, _handleCancelListing, _confirmPayLater, _directNftSwap, _confirmSwapNowOffer, _confirmReserveOffer, _confirmSwapOffer, _confirmAcceptOffer, _confirmAcceptReserveOffer } from '../api/marketTezos';
 import { useNavigate } from 'react-router-dom';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos"
-import { _getItem, _getTokenMetadata, getImageURI, _getTokens } from '../api/getterTezos';
+import { _getItem, _getTokenMetadata, getImageURI, _getTokens, _getOffers } from '../api/getterTezos';
 import { MichelsonMap } from "@taquito/taquito";
 import DirectNFTSwapModal from '../components/DirectNFTSwapModal';
 
@@ -592,6 +591,7 @@ function ListDetailPage() {
 
       await getGetters(_tezos, getters, dispatch);
       await getMarket(_tezos, market, dispatch);
+
       // var _web3 = await fetchWeb3(web3, dispatch);
       // await fetchAccount(_web3, account, dispatch);
       // await setNetwork(_web3);
@@ -603,15 +603,40 @@ function ListDetailPage() {
     }
   }
 
-  // const getContracts = async () => {
-  //   try {
-  //     await fetchNFTs(web3, dispatch);
-  //   } catch (error) {
-  //     console.error(error);
-  //     window.alert("An error ocurred");
-  //   }
-  // }
+  const getOffers = async () => {
+    try {
+      const _offers = await _getOffers(getters, collection, tokenId);
 
+      var offer = [];
+      for (var i = 0; i < _offers.reserveOffers.size; i++) {
+        offer[i] = {
+          deposit: _offers.reserveOffers.get(0 + "").deposit.amounts.get("0").toNumber(),
+          remainingAmount: _offers.reserveOffers.get(0 + "").remaining.amounts.get("0").toNumber(),
+          owner: _offers.reserveOffers.get(i + "").owner,
+          timePeriod: _offers.reserveOffers.get(i + "").timePeriod,
+          index: i
+        }
+      }
+      setReserveOffers(offer);
+
+      offer = [];
+      for (var i = 0; i < _offers.swapOffers.size; i++) {
+        offer[i] = {
+          token: _offers.swapOffers.get(i + "").assets.tokens.get("0"),
+          tokenId: _offers.swapOffers.get(i + "").assets.tokenIds.get("0")?.toNumber(),
+          amount: _offers.swapOffers.get(i + "").assets.amounts.get("0").toNumber(),
+          paymentToken: _offers.swapOffers.get(i + "").assets.paymentTokens.get("0"),
+          owner: _offers.swapOffers.get(i + "").owner,
+          timePeriod: _offers.swapOffers.get(i + "").timePeriod,
+          index: i
+        }
+      }
+      setSwapOffers(offer)
+    } catch (error) {
+      console.error(error);
+      window.alert("An error ocurred");
+    }
+  }
   const resetPopupState = () => {
     setPopupState({
       swapNow: {
@@ -663,10 +688,6 @@ function ListDetailPage() {
   const toTez = (amount) => {
     return amount / 1000000;
   }
-
-  // const toWei = (amount) => {
-  //   return web3.utils.toWei(amount, 'ether');
-  // }
 
   const handleBuyNow = async () => {
     setPopupState({
@@ -735,151 +756,154 @@ function ListDetailPage() {
   }
 
 
-  // const makeSwapNowOffer = () => {
-  //   const { amount, time_period } = swapNowOffer;
-  //   var _amount = amount == undefined || amount == '' ? 0 : amount;
-  //   if (_amount == 0 || time_period == 0) {
-  //     window.alert("Invalid Parameters");
-  //     return;
-  //   }
-  //   setPopupState({
-  //     ...popupState,
-  //     offer: {
-  //       open: 1,
-  //       token: {
-  //         tokenAddress: '',
-  //         tokenId: ''
-  //       },
-  //       amount: _amount
-  //     }
-  //   });
-  // }
-
-  // const confirmSwapNowOffer = async () => {
-  // try {
-  //   await _confirmSwapNowOffer(item, market, account, toWei, swapNowOffer, popupState, setPopupState, dispatch);
-  // } catch (error) {
-  //   resetPopupState();
-  //   window.alert(error.message);
-  //   console.log(error);
-  // }
-  // }
-
-  // const makeReserveOffer = () => {
-  //   const { deposit, remainingAmount, duration, time_period } = reserveOffer;
-  //   const _deposit = deposit == undefined || deposit == '' ? 0 : deposit;
-  //   const _remainingAmt = remainingAmount == undefined || remainingAmount == '' ? 0 : remainingAmount;
-  //   const _duration = duration == undefined || duration == '' ? 0 : duration;
-  //   const _timePeriod = time_period == undefined || time_period == '' ? 0 : time_period;
-
-  //   if (_deposit == 0 || _remainingAmt == 0 || _duration == 0 || _timePeriod == 0) {
-  //     window.alert("Invalid Parameters");
-  //     return;
-  //   }
-  //   setPopupState({
-  //     ...popupState,
-  //     offer: {
-  //       open: 1,
-  //       token: {
-  //         tokenAddress: '',
-  //         tokenId: ''
-  //       },
-  //       deposit: _deposit,
-  //       remainingAmount: _remainingAmt,
-  //       duration: _duration
-  //     }
-  //   });
-  // }
-
-  // const confirmReserveOffer = async () => {
-  //   try {
-  //     await _confirmReserveOffer(item, market, account, toWei, reserveOffer, popupState, setPopupState, dispatch);
-  //     // resetPopupState();
-  //   } catch (error) {
-  //     resetPopupState();
-  //     window.alert(error.message);
-  //     console.log(error);
-  //   }
-  // }
-
-  const makeSwapOffer = () => {
-    // const { tokenAddress, tokenId, amount, name, image, time_period } = swapOffer;
-    // var _amount = amount == undefined || amount == '' ? 0 : amount;
-    // const timePeriod = time_period * 86400;
-
-    // if (tokenAddress == '' || timePeriod == 0) {
-    //   window.alert("Invalid Parameters");
-    //   return;
-    // }
-
-    // setPopupState({
-    //   ...popupState,
-    //   offer: {
-    //     open: 1,
-    //     token: {
-    //       tokenAddress: tokenAddress,
-    //       tokenId: tokenId
-    //     },
-    //     amount: _amount
-    //   }
-    // });
+  const makeSwapNowOffer = () => {
+    const { amount, time_period } = swapNowOffer;
+    var _amount = amount == undefined || amount == '' ? 0 : amount;
+    console.log(amount, time_period);
+    if (_amount == 0 || time_period == 0) {
+      window.alert("Invalid Parameters");
+      return;
+    }
+    setPopupState({
+      ...popupState,
+      offer: {
+        open: 1,
+        token: {
+          tokenAddress: '',
+          tokenId: ''
+        },
+        amount: _amount
+      }
+    });
   }
 
-  // const confirmSwapOffer = async () => {
-  //   try {
-  //     await _confirmSwapOffer(item, market, account, nfts, toWei, swapOffer, popupState, setPopupState, dispatch);
-  //   } catch (error) {
-  //     resetPopupState();
-  //     window.alert(error.message);
-  //     console.log(error);
-  //   }
-  // }
+  const confirmSwapNowOffer = async () => {
+    try {
+      await _confirmSwapNowOffer(item, market, swapNowOffer, popupState, setPopupState, dispatch);
+    } catch (error) {
+      resetPopupState();
+      window.alert(error.message);
+      console.log(error);
+    }
+  }
 
-  // const acceptOffer = (image, name, value, index, swap) => {
-  //   setOfferPopup({
-  //     open: true,
-  //     image: image,
-  //     name: name,
-  //     value: value == undefined || value == '' ? 0 : value,
-  //     swap: swap,
-  //     index: index
-  //   })
-  // }
+  const makeReserveOffer = () => {
+    const { deposit, remainingAmount, duration, time_period } = reserveOffer;
+    const _deposit = deposit == undefined || deposit == '' ? 0 : deposit;
+    const _remainingAmt = remainingAmount == undefined || remainingAmount == '' ? 0 : remainingAmount;
+    const _duration = duration == undefined || duration == '' ? 0 : duration;
+    const _timePeriod = time_period == undefined || time_period == '' ? 0 : time_period;
 
-  // const confirmAcceptOffer = async () => {
-  //   try {
-  //     await _confirmAcceptOffer(item, market, account, offerPopup, dispatch);
-  //     resetOfferPopup();
-  //   } catch (err) {
-  //     window.alert(err.message);
-  //     resetOfferPopup();
-  //     console.log(err);
-  //   }
-  // }
+    if (_deposit == 0 || _remainingAmt == 0 || _duration == 0 || _timePeriod == 0) {
+      window.alert("Invalid Parameters");
+      return;
+    }
+    setPopupState({
+      ...popupState,
+      offer: {
+        open: 1,
+        token: {
+          tokenAddress: '',
+          tokenId: ''
+        },
+        deposit: _deposit,
+        remainingAmount: _remainingAmt,
+        duration: _duration
+      }
+    });
+    console.log("offer here", popupState.offer);
+  }
 
-  // const acceptReserveOffer = (image, name, deposit, remainingAmount, duration, index) => {
-  //   setOfferPopup({
-  //     open: true,
-  //     image: image,
-  //     name: name,
-  //     deposit: deposit,
-  //     remainingAmount: remainingAmount,
-  //     duration: duration,
-  //     index: index,
-  //     reserve: true
-  //   })
-  // }
+  const confirmReserveOffer = async () => {
+    try {
+      await _confirmReserveOffer(item, market, reserveOffer, popupState, setPopupState, dispatch);
+    } catch (error) {
+      resetPopupState();
+      window.alert(error.message);
+      console.log(error);
+    }
+  }
 
-  // const confirmAcceptReserveOffer = async () => {
-  //   try {
-  //     await _confirmAcceptReserveOffer(item, market, account, offerPopup, dispatch);
-  //     resetOfferPopup();
-  //   } catch (err) {
-  //     window.alert(err.message);
-  //     resetOfferPopup();
-  //     console.log(err);
-  //   }
-  // }
+  const makeSwapOffer = () => {
+    const { tokenAddress, tokenId, amount, name, image, time_period } = swapOffer;
+    var _amount = amount == undefined || amount == '' ? 0 : amount;
+    const timePeriod = time_period * 86400;
+
+    if (tokenAddress == '' || timePeriod == 0) {
+      window.alert("Invalid Parameters");
+      return;
+    }
+
+    setPopupState({
+      ...popupState,
+      offer: {
+        open: 1,
+        token: {
+          tokenAddress: tokenAddress,
+          tokenId: tokenId
+        },
+        amount: _amount
+      }
+    });
+  }
+
+  const confirmSwapOffer = async () => {
+    console.log("confirm swap offer")
+    try {
+      await _confirmSwapOffer(tezos, account, item, market, swapOffer, popupState, setPopupState, dispatch);
+    } catch (error) {
+      resetPopupState();
+      window.alert(error.message);
+      console.log(error);
+    }
+  }
+
+  const acceptOffer = (image, name, value, index, swap) => {
+    console.log("accept offer");
+    setOfferPopup({
+      open: true,
+      image: image,
+      name: name,
+      value: value == undefined || value == '' ? 0 : value,
+      swap: swap,
+      index: index
+    })
+  }
+
+  const confirmAcceptOffer = async () => {
+    try {
+      await _confirmAcceptOffer(item, market, offerPopup.index, dispatch);
+      resetOfferPopup();
+    } catch (err) {
+      window.alert(err.message);
+      resetOfferPopup();
+      console.log(err);
+    }
+  }
+
+  const acceptReserveOffer = (image, name, deposit, remainingAmount, duration, index) => {
+    setOfferPopup({
+      open: true,
+      image: image,
+      name: name,
+      deposit: deposit,
+      remainingAmount: remainingAmount,
+      duration: duration,
+      index: index,
+      reserve: true
+    })
+  }
+
+  const confirmAcceptReserveOffer = async () => {
+    try {
+      await _confirmAcceptReserveOffer(item, market, offerPopup.index, dispatch);
+      resetOfferPopup();
+    } catch (err) {
+      window.alert(err.message);
+      resetOfferPopup();
+      console.log(err);
+    }
+  }
 
   const handleCancelListing = async () => {
     try {
@@ -892,32 +916,14 @@ function ListDetailPage() {
     }
   }
 
-  // const isFiltered = (item) => {
-  //   if (filtered == '')
-  //     return true;
-  //   if (Addresses.nameToAddress[filtered] == item.asset_contract.address)
-  //     return true;
-  //   return false;
-  // }
-
   useEffect(() => {
     _init();
   }, [])
 
-  // useEffect(() => {
-  //   if (web3 != undefined) {
-  //     web3._provider.on('chainChanged', () => {
-  //       window.location.reload();
-  //     })
-  //     web3._provider.on('accountsChanged', () => {
-  //       window.location.reload();
-  //     })
-  //   }
-  // }, [web3]);
-
   useEffect(() => {
     if (getters != undefined) {
       getItem();
+      getOffers();
     }
   }, [getters]);
 
@@ -930,14 +936,6 @@ function ListDetailPage() {
     if (account != undefined)
       getTokens();
   }, [account]);
-
-  // useEffect(() => {
-  //   if (item.owner != '') {
-  //     setSwapOffers(item.swapOffers);
-  //     setDirectSaleOffers(item.directSaleOffers);
-  //     setReserveOffers(item.bnplOffers);
-  //   }
-  // }, [item])
 
   const classes = useStyles();
 
@@ -968,11 +966,12 @@ function ListDetailPage() {
       <PopupContainer isOpen={popupState.reserverNow.open} popupTitle={"Reserve Now & Swap Later"} setState={e => setPopupState({ ...popupState, reserverNow: { ...popupState.reserverNow, open: false } })}>
         <PopupReserveSwapLater deposit={popupState.reserverNow.deposit} remainingAmount={popupState.reserverNow.remainingAmount} duration={popupState.reserverNow.duration} token={token} index={popupState.reserverNow.index} confirmPayLater={confirmPayLater} />
       </PopupContainer>
-      {/*
-      here needs to be a modal to make direct swap....
+
+      {/* here needs to be a modal to make direct swap.... */}
       <PopupContainer isOpen={popupState.offer.open == 1} popupTitle={"Confirm Swap Offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
         <PopupConfirmSwapOffer swapOffer={swapOffer} reserveOffer={reserveOffer} swapNowOffer={swapNowOffer} confirmSwapNowOffer={confirmSwapNowOffer} confirmReserveOffer={confirmReserveOffer} confirmSwapOffer={confirmSwapOffer} token={token} />
       </PopupContainer>
+      {/*
       <PopupContainer isOpen={popupState.offer.open >= 2 && popupState.offer.open <= 3} popupTitle={"Complete your offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
         <PopupCompleteOffer popupState={popupState} token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} />
       </PopupContainer>
@@ -982,10 +981,10 @@ function ListDetailPage() {
       <PopupContainer isOpen={popupState.processing.open} popupTitle={"Transaction in progress"} setState={e => setPopupState({ ...popupState, processing: { ...popupState.processing, open: false } })}>
         <PopupTransactionInProgress token={token} deposit={popupState.reserverNow.deposit} value={popupState.processing.value} />
       </PopupContainer>
-
+      */}
       <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"} setState={e => setOfferPopup({ ...offerPopup, open: false })}>
         <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmAcceptReserveOffer} />
-      </PopupContainer> */}
+      </PopupContainer>
 
       <ComponentHeader />
       <div className={classes.detailContainer}>
@@ -1128,7 +1127,7 @@ function ListDetailPage() {
             {
               item.owner != account ?
                 <div className={`section-block ${classes.makeOffer}`}>
-                  {/* <Modal
+                  <Modal
                     keepMounted
                     open={swapOfferModal}
                     onClose={() => handleClose()}
@@ -1204,8 +1203,9 @@ function ListDetailPage() {
                         </div>
                       </div>
                     </Box>
-                  </Modal> */}
-                  {/* <Modal
+                  </Modal>
+                  {/* From here */}
+                  <Modal
                     keepMounted
                     open={reservePayLater}
                     onClose={() => handleClose()}
@@ -1329,11 +1329,11 @@ function ListDetailPage() {
                         </div>
                       </div>
                     </Box>
-                  </Modal> */}
+                  </Modal>
 
                   <div className={`section-block margin-tb-10`}>
                     <DirectNFTSwapModal offerNftModal={nftSwapModal} handleClose={handleClose} classes={classes} directNftSwap={directNftSwap} available={available} swapOffer={swapOffer} setSwapOffer={setSwapOffer} nftSwap={nftSwap} />
-                    {/* <Modal
+                    <Modal
                       keepMounted
                       open={offerNftModal}
                       onClose={() => handleClose()}
@@ -1382,12 +1382,11 @@ function ListDetailPage() {
                         </div>
                         <div className={`${classes.offerList}`}>
                           {
-                            // available.map((token, index) => {
-                            //   if (isAvailable(token) && isFiltered(token))
-                            //     return <div className={`${classes.offerListItem}`} key={index}>
-                            //       <MiniCardView token={token} swapOffer={swapOffer} setSwapOffer={setSwapOffer} />
-                            //     </div>
-                            // })
+                            available.map((token, index) => {
+                              return <div className={`${classes.offerListItem}`} key={index}>
+                                <MiniCardView token={token} swapOffer={swapOffer} setSwapOffer={setSwapOffer} />
+                              </div>
+                            })
                           }
                         </div>
                         <div className={"section-title font-16 margin-top-15"}>Add Token</div>
@@ -1451,14 +1450,14 @@ function ListDetailPage() {
                           </div>
                         </div>
                       </Box>
-                    </Modal> */}
+                    </Modal>
                   </div>
                 </div> : <></>
             }
             {/*  here here */}
           </div>
 
-          {/* <div className={`section-block ${classes.offersReceived} `}>
+          <div className={`section-block ${classes.offersReceived} `}>
             <div className="outline-border radius-tlr-14">
               <div>
                 <div className='outline-border radius-tlr-14 flex-justify align-center padding-15 center'>
@@ -1473,11 +1472,11 @@ function ListDetailPage() {
                     return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} />
                   })
                 }
-                {
+                {/* {
                   directSaleOffers.map((offer, idx) => {
                     return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} />
                   })
-                }
+                } */}
                 {
                   reserveOffers.map((offer, idx) => {
                     return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} acceptReserveOffer={acceptReserveOffer} />
@@ -1485,7 +1484,7 @@ function ListDetailPage() {
                 }
               </div>
             </div>
-          </div> */}
+          </div>
         </div>
       </div>
     </div >);

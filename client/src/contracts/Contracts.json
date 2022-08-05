@@ -8,11 +8,11 @@
         "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb",
         "KT1SnnJqRCGYSgpXQAwWBN6XJxRu84Lh9PF6"
     ],
-    "Getters": "KT1TsvfDMUvK2PFFcwsuHYafRYYz4e8RADNN",
-    "Market": "KT1CmNQSLsu8GpzN7kSmA1DoJy7f1L3pR3yJ",
-    "Vault": "KT1Xu6hVPyMkxZTWzLdBmYb7vmYqRTtc1f3a",
+    "Getters": "KT1P6PGonCgfhFfXKkVijLLKK7eJfkyyrMnM",
+    "Market": "KT1Jeemr4QcVncWzAtTMDjD1SipU5c2tN4pw",
+    "Vault": "KT1HUdXZWxJ4RmoF2HyoFKKxegjpHjGTDnby",
     "XTZ": "tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU",
-    "PositionToken": "KT1SnnJqRCGYSgpXQAwWBN6XJxRu84Lh9PF6",
+    "PositionToken": "KT1SEiC23ku3m2V77Rd1m5WmcUtjiUdskGCr",
     "nameToAddress": {
         "Ottez": "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B",
         "Tezzardz": "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ",
@@ -22,11 +22,11 @@
         "GOGOs": "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb"
     },
     "addressToName": {
-        "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B" : "Ottez",
-        "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ" : "Tezzardz",
-        "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H" : "Neonz",
-        "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk" : "Ziggurats",
-        "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1" : "Prjktneon",
-        "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb" : "GOGOs"
+        "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B": "Ottez",
+        "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ": "Tezzardz",
+        "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H": "Neonz",
+        "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk": "Ziggurats",
+        "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1": "Prjktneon",
+        "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb": "GOGOs"
     }
 }
