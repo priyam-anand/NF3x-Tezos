@@ -1,7 +1,7 @@
 import React from 'react'
 import { Button } from '@mui/material';
 
-const BuyNowPayLaterRow = ({ offerItem, offer, toETH, getAddress, getTime, cancelBnplOffer, acceptBnplOffer, index, claimRejected }) => {
+const BuyNowPayLaterRow = ({ offerItem, offer, getAddress, cancelBnplOffer, acceptBnplOffer, index, claimRejected }) => {
 
     const toTez = (amount) => {
         return amount / 1000000;
@@ -43,7 +43,7 @@ const BuyNowPayLaterRow = ({ offerItem, offer, toETH, getAddress, getTime, cance
                             ? <Button disableRipple className={"btn bg-white green-text bg-green-border font-14 btn-success"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => acceptBnplOffer(offer.id, index)}>
                                 Accept
                             </Button>
-                            : <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14 btn-cancel"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => cancelBnplOffer()}>Cancel</Button>
+                            : <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14 btn-cancel"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => cancelBnplOffer(offer.id)}>Cancel</Button>
                 }
             </div>
         </div>

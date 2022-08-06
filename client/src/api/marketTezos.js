@@ -400,3 +400,38 @@ export const _claimDefaulted = async (item, market, dispatch) => {
     })
 }
 
+export const _cancelSwapOffer = async (market, id, token, tokenId, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.cancelSwapOffer(
+                id, token, tokenId
+            ).send();
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
+export const _cancelBnplOffer = (market, id, token, tokenId, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.cancelReserveOffer(
+                id, token, tokenId
+            ).send();
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}

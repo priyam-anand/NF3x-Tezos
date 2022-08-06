@@ -82,7 +82,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
                     claimRejected != undefined
                         ? <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => claimRejected()}>Claim Back</Button>
                         : made
-                            ? <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => cancelSwapOffer()}>Cancel</Button>
+                            ? <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => cancelSwapOffer(offer.id)}>Cancel</Button>
                             : <Button className={"btn bg-white green-text bg-green-border font-14 btn-success"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => acceptSwapOffer(
                                 offer.assets.tokens[0] != undefined ? getImageURI(metadata.thumbnailUri) : '',
                                 offer.assets.tokens[0] != undefined ? metadata.name : '',

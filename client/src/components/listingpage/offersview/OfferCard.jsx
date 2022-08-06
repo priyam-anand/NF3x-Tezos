@@ -3,13 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import SwapOfferRow from './SwapOfferRow';
 import PopupContainer from '../../PopupContainer';
 import PopupAcceptOffer from '../../PopupAcceptOffer';
-import { _cancelBnplOffer, _cancelDirectSaleOffer, _cancelSwapOffer } from '../../../api/market';
 import { _getToken, getTime } from "../../../api/getter";
 import OfferItem from './OfferItem';
 import BuyNowPayLaterRow from './BuyNowPayLaterRow';
 import DirectSaleRow from './DirectSaleRow';
 import { getImageURI, _getTokenMetadata } from '../../../api/getterTezos';
-import { _confirmAcceptOffer, _confirmAcceptReserveOffer } from '../../../api/marketTezos';
+import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _cancelSwapOffer, _cancelBnplOffer } from '../../../api/marketTezos';
 
 const OfferCard = ({ item, index, made }) => {
 
@@ -108,29 +107,23 @@ const OfferCard = ({ item, index, made }) => {
     }
 
     const cancelSwapOffer = async (index) => {
-        // try {
-        //     await _cancelSwapOffer(item, market, account, index, dispatch);
-        //     window.location.reload();
-        // } catch (error) {
-        //     window.alert(error.message);
-        //     console.error("error", error);
-        // }
+        try {
+            await _cancelSwapOffer(market, index, item.token, item.tokenId, dispatch)
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message);
+            console.error("error", error);
+        }
     }
 
     const cancelBnplOffer = async (index) => {
-        // try {
-        //     await _cancelBnplOffer(item, market, account, index, dispatch);
-        //     window.location.reload();
-        // } catch (error) {
-        //     window.alert(error.message);
-        //     console.error("error", error);
-        //y {
-        //     await _cancelBnplOffer(item, market, account, index, dispatch);
-        //     window.location.reload();
-        // } catch (error) {
-        //     window.alert(error.message);
-        //     console.error("error", error);
-        // } }
+        try {
+            await _cancelBnplOffer(market, index, item.token, item.tokenId, dispatch);
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message);
+            console.error("error", error);
+        }
     }
 
     useEffect(() => {
@@ -147,36 +140,36 @@ const OfferCard = ({ item, index, made }) => {
                     <span className="flex-item-action center medium-weight">&nbsp;</span>
                 </div>
                 {
-                    // made ? item.swapOffers.map((offer, index) => {
-                    //     if (offer.owner() == account)
-                    //         return <SwapOfferRow key={index} offer={offer} index={index} made={true} cancelSwapOffer={cancelSwapOffer} offerItem={<div className='flex-item-item'>
-                    //             <span className='offer-title'>Item</span>
-                    //             <OfferItem item={token} />
-                    //         </div>} />
-                    // })
-                    //     : 
-                    item.swapOffers.map((offer, index) => {
-                        return <SwapOfferRow key={index} offer={offer} index={index} acceptSwapOffer={acceptSwapOffer} offerItem={<div className='flex-item-item'>
-                            <span className='offer-title'>Item</span>
-                            <OfferItem item={token} />
-                        </div>} />
-                    })
+                    made
+                        ? item.swapOffers.map((offer, index) => {
+                            if (offer.owner == account)
+                                return <SwapOfferRow key={index} offer={offer} index={index} made={true} cancelSwapOffer={cancelSwapOffer} offerItem={<div className='flex-item-item'>
+                                    <span className='offer-title'>Item</span>
+                                    <OfferItem item={token} />
+                                </div>} />
+                        })
+                        : item.swapOffers.map((offer, index) => {
+                            return <SwapOfferRow key={index} offer={offer} index={index} acceptSwapOffer={acceptSwapOffer} offerItem={<div className='flex-item-item'>
+                                <span className='offer-title'>Item</span>
+                                <OfferItem item={token} />
+                            </div>} />
+                        })
                 }
                 {
-                    // made ? item.bnplOffers.map((offer, index) => {
-                    //     if (offer.owner.toLowerCase() == account)
-                    //         return <BuyNowPayLaterRow offerItem={<div className='flex-item-item'>
-                    //             <span className='offer-title'>Item</span>
-                    //             <OfferItem item={token} />
-                    //         </div>} offer={offer} toETH={toETH} getAddress={getAddress} getTime={getTime} cancelBnplOffer={cancelBnplOffer} index={index} />
-                    // })
-                    // : 
-                    item.reserveOffers.map((offer, index) => {
-                        return <BuyNowPayLaterRow offerItem={<div className='flex-item-item'>
-                            <span className='offer-title'>Item</span>
-                            <OfferItem item={token} />
-                        </div>} offer={offer} getAddress={getAddress} acceptBnplOffer={acceptBnplOffer} index={index} />
-                    })
+                    made
+                        ? item.reserveOffers.map((offer, index) => {
+                            if (offer.owner == account)
+                                return <BuyNowPayLaterRow offerItem={<div className='flex-item-item'>
+                                    <span className='offer-title'>Item</span>
+                                    <OfferItem item={token} />
+                                </div>} offer={offer} getAddress={getAddress} getTime={getTime} cancelBnplOffer={cancelBnplOffer} index={index} />
+                        })
+                        : item.reserveOffers.map((offer, index) => {
+                            return <BuyNowPayLaterRow offerItem={<div className='flex-item-item'>
+                                <span className='offer-title'>Item</span>
+                                <OfferItem item={token} />
+                            </div>} offer={offer} getAddress={getAddress} acceptBnplOffer={acceptBnplOffer} index={index} />
+                        })
                 }
             </div>
             <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"}>

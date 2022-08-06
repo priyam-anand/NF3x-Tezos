@@ -194,7 +194,7 @@ function OffersContainerView({
           </Paper>
         </div>
         {modules[0].isSelected && <OffersReceivedView listedItems={allOffers} />}
-        {/* {modules[1].isSelected && <OffersMadeView listedItems={listedItems} rejectedOffers={(modules[1].filters[0].list[0].isSelected)?rejectedOffers: []} />} */}
+        {modules[1].isSelected && <OffersMadeView listedItems={allOffers} rejectedOffers={(modules[1].filters[0].list[0].isSelected) ? rejectedOffers : []} />}
       </div>
     </div>
   );
