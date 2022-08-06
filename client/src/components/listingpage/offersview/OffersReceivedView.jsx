@@ -64,16 +64,16 @@ function OffersReceivedView({
   listedItems
 }) {
   const classes = useStyles();
-  
-  const { account } = useSelector((state) => state.web3Config);
 
+  const { account } = useSelector((state) => state.tezosConfig);
+  console.log("offerReceivedview");
   return (
     <div className={classes.root}>
       <div className={`width-100 inline-block`}>
         {
           listedItems.map((item, index) => {
             if (item.owner == account) {
-              if (item.swapOffers.length > 0 || item.directSaleOffers.length > 0 || item.bnplOffers.length > 0)
+              if (item.swapOffers.length > 0 || item.reserveOffers.length > 0)
                 return <OfferCard item={item} index={index} />
             }
           })

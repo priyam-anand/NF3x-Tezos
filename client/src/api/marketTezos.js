@@ -323,10 +323,14 @@ export const _confirmSwapOffer = async (tezos, account, item, market, swapOffer,
 export const _confirmAcceptOffer = async (item, market, offerId, dispatch) => {
     return new Promise(async (resolve, reject) => {
         try {
+            var tokenId = item.tokenId;
+            if (tokenId.toNumber != undefined)
+                tokenId = tokenId.toNumber();
+            console.log("tokenId ", tokenId);
             const op = await market.methods.acceptSwapOffer(
                 offerId,
                 item.token,
-                item.tokenId.toNumber()
+                tokenId
             ).send();
             dispatch(setLoading({ loading: true }));
             await op.confirmation();
@@ -343,10 +347,14 @@ export const _confirmAcceptOffer = async (item, market, offerId, dispatch) => {
 export const _confirmAcceptReserveOffer = async (item, market, offerId, dispatch) => {
     return new Promise(async (resolve, reject) => {
         try {
+            var tokenId = item.tokenId;
+            if (tokenId.toNumber != undefined)
+                tokenId = tokenId.toNumber();
+            console.log("tokenId ", tokenId);
             const op = await market.methods.acceptReserveOffer(
                 offerId,
                 item.token,
-                item.tokenId.toNumber()
+                tokenId
             ).send();
             dispatch(setLoading({ loading: true }));
             await op.confirmation();

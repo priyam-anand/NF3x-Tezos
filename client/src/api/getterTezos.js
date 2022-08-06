@@ -121,3 +121,22 @@ export const getPositionTokens = async (account) => {
         }
     })
 }
+
+export const getOffers = async (token, tokenId) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const offers = (await axios.get(`https://api.jakartanet.tzkt.io/v1/bigmaps/69165/keys/${token}`)).data.value;
+            if (offers == undefined) {
+                resolve(null)
+                return;
+            }
+            var _offers = offers[tokenId];
+            if (_offers == undefined)
+                _offers = null;
+            resolve(_offers);
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    })
+}

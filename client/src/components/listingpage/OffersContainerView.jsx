@@ -6,6 +6,7 @@ import OffersReceivedView from '../listingpage/offersview/OffersReceivedView';
 import OffersMadeView from '../listingpage/offersview/OffersMadeView';
 import { useSelector } from 'react-redux';
 import { _getRejectedBnpl, _getRejectedDirectSale, _getRejectedSwap } from '../../api/getter';
+import { getOffers } from '../../api/getterTezos';
 
 const useStyles = makeStyles({
   root: {
@@ -21,105 +22,116 @@ function OffersContainerView({
   const classes = useStyles();
   const [offerViewToggle, setOfferViewToggle] = useState(true);
   const [received, setReceived] = useState(0);
+  const [allOffers, setAllOffers] = useState([]);
   const [made, setMade] = useState(0);
 
   const [rejectedOffers, setRejectedOffers] = useState([]);
 
-  const { account, getter } = useSelector((state) => state.web3Config);
+  const { account, getters } = useSelector((state) => state.tezosConfig);
 
-  const getRejected = async () => {
-    try {
-      var items = await Promise.all([
-        _getRejectedDirectSale(account, getter),
-        _getRejectedBnpl(account, getter),
-        _getRejectedSwap(account, getter)]
-      );
-      var rejectedItems = new Map();
-      const rejectedOffers = [];
+  // const getRejected = async () => {
+  //   try {
+  //     var items = await Promise.all([
+  //       _getRejectedDirectSale(account, getter),
+  //       _getRejectedBnpl(account, getter),
+  //       _getRejectedSwap(account, getter)]
+  //     );
+  //     var rejectedItems = new Map();
+  //     const rejectedOffers = [];
 
-      for (var i = 0; i < items[0].length; i++) {
-        var obj = rejectedItems.get(items[0][i].itemId)
-        if (!obj) {
-          obj = {
-            id: items[0][i].itemId,
-            swap: [],
-            bnpl: [],
-            direct: []
-          }
-        }
-        obj.direct.push({ ...items[0][i], idx: i });
-        rejectedItems.set(items[0][i].itemId, obj);
-      }
-      for (var i = 0; i < items[1].length; i++) {
-        var obj = rejectedItems.get(items[1][i].itemId)
-        if (!obj) {
-          obj = {
-            id: items[1][i].itemId,
-            swap: [],
-            bnpl: [],
-            direct: []
-          }
-        }
-        obj.bnpl.push({ ...items[1][i], idx: i });
-        rejectedItems.set(items[1][i].itemId, obj);
-      }
-      for (var i = 0; i < items[2].length; i++) {
-        var obj = rejectedItems.get(items[2][i].itemId)
-        if (!obj) {
-          obj = {
-            id: items[2][i].itemId,
-            swap: [],
-            bnpl: [],
-            direct: []
-          }
-        }
-        obj.swap.push({ ...items[2][i], idx: i });
-        rejectedItems.set(items[2][i].itemId, obj);
-      }
-      for (let key of rejectedItems.keys()) {
-        rejectedOffers.push(rejectedItems.get(key));
-      }
-      setRejectedOffers(rejectedOffers);
-    } catch (error) {
-      console.log(error);
-      window.alert(error.message);
-      window.location.reload();
+  //     for (var i = 0; i < items[0].length; i++) {
+  //       var obj = rejectedItems.get(items[0][i].itemId)
+  //       if (!obj) {
+  //         obj = {
+  //           id: items[0][i].itemId,
+  //           swap: [],
+  //           bnpl: [],
+  //           direct: []
+  //         }
+  //       }
+  //       obj.direct.push({ ...items[0][i], idx: i });
+  //       rejectedItems.set(items[0][i].itemId, obj);
+  //     }
+  //     for (var i = 0; i < items[1].length; i++) {
+  //       var obj = rejectedItems.get(items[1][i].itemId)
+  //       if (!obj) {
+  //         obj = {
+  //           id: items[1][i].itemId,
+  //           swap: [],
+  //           bnpl: [],
+  //           direct: []
+  //         }
+  //       }
+  //       obj.bnpl.push({ ...items[1][i], idx: i });
+  //       rejectedItems.set(items[1][i].itemId, obj);
+  //     }
+  //     for (var i = 0; i < items[2].length; i++) {
+  //       var obj = rejectedItems.get(items[2][i].itemId)
+  //       if (!obj) {
+  //         obj = {
+  //           id: items[2][i].itemId,
+  //           swap: [],
+  //           bnpl: [],
+  //           direct: []
+  //         }
+  //       }
+  //       obj.swap.push({ ...items[2][i], idx: i });
+  //       rejectedItems.set(items[2][i].itemId, obj);
+  //     }
+  //     for (let key of rejectedItems.keys()) {
+  //       rejectedOffers.push(rejectedItems.get(key));
+  //     }
+  //     setRejectedOffers(rejectedOffers);
+  //   } catch (error) {
+  //     console.log(error);
+  //     window.alert(error.message);
+  //     window.location.reload();
+  //   }
+  // }
+
+  // useEffect(() => {
+  //   getRejected();
+  // }, []);
+
+
+  const fetchOffers = async () => {
+    var _allOffers = [];
+    for (let i = 0; i < listedItems.length; i++) {
+      const offers = await getOffers(listedItems[i].token, listedItems[i].tokenId.toNumber());
+      if (offers == null)
+        continue;
+      _allOffers.push({ token: listedItems[i].token, tokenId: listedItems[i].tokenId.toNumber(), owner: listedItems[i].owner, reserveOffers: Object.values(offers.reserveOffers), swapOffers: Object.values(offers.swapOffers) });
     }
+    setAllOffers(_allOffers)
+    console.log("allOffers", _allOffers);
   }
 
   useEffect(() => {
-    getRejected();
-  }, []);
+    // var count = 0;
+    // for (let i = 0; i < listedItems.length; i++) {
+    //   const item = listedItems[i];
+    //   if (item.owner.toLowerCase() == account) {
+    //     count += item.swapOffers.length + item.directSaleOffers.length + item.bnplOffers.length;
+    //   }
+    // }
+    // setReceived(count);
 
+    fetchOffers();
 
-  useEffect(() => {
-    var count = 0;
-    for (let i = 0; i < listedItems.length; i++) {
-      const item = listedItems[i];
-      if (item.owner.toLowerCase() == account) {
-        count += item.swapOffers.length + item.directSaleOffers.length + item.bnplOffers.length;
-      }
-    }
-    setReceived(count);
-
-    const timeNow = Math.floor(Date.now() / 1000);
-    count = 0;
-    for (let i = 0; i < listedItems.length; i++) {
-      const item = listedItems[i];
-      for (let i = 0; i < item.swapOffers.length; i++)
-        if (item.swapOffers[i].owner.toLowerCase() == account && item.swapOffers[i].time_period > timeNow) {
-          count++;
-        }
-      for (let i = 0; i < item.bnplOffers.length; i++)
-        if (item.bnplOffers[i].owner.toLowerCase() == account && item.bnplOffers[i].time_period > timeNow) {
-          count++;
-        }
-      for (let i = 0; i < item.directSaleOffers.length; i++)
-        if (item.directSaleOffers[i].owner.toLowerCase() == account && item.directSaleOffers[i].time_period > timeNow) {
-          count++;
-        }
-    }
-    setMade(count);
+    // const timeNow = Math.floor(Date.now() / 1000);
+    // count = 0;
+    // for (let i = 0; i < listedItems.length; i++) {
+    //   const item = listedItems[i];
+    //   for (let i = 0; i < item.swapOffers.length; i++)
+    //     if (item.swapOffers[i].owner.toLowerCase() == account && item.swapOffers[i].time_period > timeNow) {
+    //       count++;
+    //     }
+    //   for (let i = 0; i < item.bnplOffers.length; i++)
+    //     if (item.bnplOffers[i].owner.toLowerCase() == account && item.bnplOffers[i].time_period > timeNow) {
+    //       count++;
+    //     }
+    // }
+    // setMade(count);
 
   }, [listedItems])
 
@@ -135,7 +147,6 @@ function OffersContainerView({
   const flatProps = {
     options: collections.map((option) => option.title),
   };
-console.log(modules);
   return (
     <div className={classes.root}>
       <div className={`width-100 inline-block`}>
@@ -182,8 +193,8 @@ console.log(modules);
             </IconButton>
           </Paper>
         </div>
-        {modules[0].isSelected && <OffersReceivedView listedItems={listedItems} />}
-        {modules[1].isSelected && <OffersMadeView listedItems={listedItems} rejectedOffers={(modules[1].filters[0].list[0].isSelected)?rejectedOffers: []} />}
+        {modules[0].isSelected && <OffersReceivedView listedItems={allOffers} />}
+        {/* {modules[1].isSelected && <OffersMadeView listedItems={listedItems} rejectedOffers={(modules[1].filters[0].list[0].isSelected)?rejectedOffers: []} />} */}
       </div>
     </div>
   );

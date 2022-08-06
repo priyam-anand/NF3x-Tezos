@@ -71,14 +71,14 @@ const PopupAcceptOffer = ({ token, confirmAcceptOffer, offerPopup, resetOfferPop
                     </div>
                     <CompareArrowsIcon className='t2-text font-bold-22' />
                     {
-                        offerPopup.swap ? <div className='inline-flex-row'>
+                        offerPopup.swap && offerPopup.name != '' ? <div className='inline-flex-row'>
                             <span className='b-grey-text font-12'>&nbsp;</span>
                             <img className={`radius-10 ${classes.size}`} src={offerPopup.image} />
                             <span className='b-grey-text font-10'>{offerPopup.name}</span>
                         </div> : null
                     }
                     {
-                        offerPopup.swap && offerPopup.value > 0 ? <span className='t2-text font-bold-20'>+</span>
+                        offerPopup.name != '' && offerPopup.value > 0 ? <span className='t2-text font-bold-20'>+</span>
                             : null
                     }
                     {
