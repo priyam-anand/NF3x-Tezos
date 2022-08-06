@@ -9,11 +9,11 @@ export const init = async (Tezos, wallet, dispatch) => {
     }
     return new Promise(async (resolve, reject) => {
         try {
-            const Tezos = new TezosToolkit("https://rpc.ghostnet.teztnets.xyz/");
+            const Tezos = new TezosToolkit("https://jakartanet.tezos.marigold.dev/");
             // const Tezos = new TezosToolkit('https://ghostnet.smartpy.io/');
             const wallet = new BeaconWallet({
                 name: 'NF3x',
-                preferredNetwork: 'ghostnet',
+                preferredNetwork: 'jakartanet',
             });
             dispatch(setTezos({ tezos: Tezos }));
             dispatch(setWallet({ wallet: wallet }));
@@ -39,9 +39,10 @@ export const getAccount = async (Tezos, wallet, _account, dispatch) => {
         //     return;
         // }
         try {
-            await wallet.requestPermissions({
-                network: { type: 'ghostnet' }
+            await wallet.client.requestPermissions({
+                network: { type: 'jakartanet' }
             });
+            // console.log("got till here");
             Tezos.setWalletProvider(wallet);
             var account = await wallet.client.getActiveAccount();
             dispatch(setTezos({ tezos: Tezos }));
@@ -50,7 +51,7 @@ export const getAccount = async (Tezos, wallet, _account, dispatch) => {
 
             resolve(account.address)
         } catch (err) {
-            reject(null);
+            reject(err);
         }
     })
 }

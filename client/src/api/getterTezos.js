@@ -14,12 +14,11 @@ const isWhitelised = (address) => {
 export const _getTokens = async (account) => {
     return new Promise(async (resolve, reject) => {
         try {
-            var url = `https://api.ghostnet.tzkt.io/v1/tokens/balances?token.standard=fa2&account=${account}`
-
+            var url = `https://api.jakartanet.tzkt.io/v1/tokens/balances?token.standard=fa2&account=${account}`
             const assets = (await axios.get(url)).data;
             const tokens = [];
             for (var i = 0; i < assets.length; i++) {
-                if (isWhitelised(assets[i].token.contract.address) && assets[i].balance > 0)
+                if (isWhitelised(assets[i].token.contract.address) && assets[i].balance > 0 && assets[i].token.metadata != undefined)
                     tokens.push(assets[i].token);
             }
             resolve(tokens);
@@ -33,7 +32,7 @@ export const _getTokens = async (account) => {
 export const _getTokenMetadata = async (collection, tokenId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const asset = (await axios.get(`https://api.ghostnet.tzkt.io/v1/tokens?contract=${collection}&tokenId=${tokenId}`)).data;
+            const asset = (await axios.get(`https://api.jakartanet.tzkt.io/v1/tokens?contract=${collection}&tokenId=${tokenId}`)).data;
             const metadata = asset[0].metadata;
             resolve(metadata);
         } catch (e) {
@@ -93,12 +92,31 @@ export const getReserved = (getters) => {
     })
 }
 
-export const getReservationData = async (Tezos, tokenId) => {
+export const getReservationData = async (tokenId) => {
     return new Promise(async (resolve, reject) => {
         try {
-            const posToken = await Tezos.wallet.at(Addresses.PositionToken);
-            const data = await posToken.views.getReservationDetailsOffchain(tokenId).read();
+            const data = (await axios.get(`https://api.jakartanet.tzkt.io/v1/bigmaps/69159/keys/${tokenId}`)).data.value;
+
+            console.log("data", data);
             resolve(data);
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    })
+}
+
+
+export const getPositionTokens = async (account) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const assets = (await axios.get(`https://api.jakartanet.tzkt.io/v1/tokens/balances?token.contract=${Addresses.PositionToken}&account=${account}`)).data;
+            const tokens = [];
+            for (var i = 0; i < assets.length; i++) {
+                if (assets[i].balance > 0)
+                    tokens.push(assets[i].token);
+            }
+            resolve(tokens);
         } catch (e) {
             console.log(e);
             reject(e);

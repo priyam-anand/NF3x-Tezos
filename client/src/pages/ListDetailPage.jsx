@@ -454,7 +454,7 @@ function ListDetailPage() {
   const [reserveListing, setReserveListing] = useState([{ deposit: '', remaining: '', duration: '' }]);
   const [swapListing, setSwapListing] = useState({ listings: [{ token: '', paymentToken: '', amount: '' }], directAllowed: false })
 
-  const [available, setAvailable] = useState([]);
+  const [available, setAvailable] = useState([{ metadata: { thumbnailUri: '', name: '' }, contract: { address: '' }, tokenId: '' }]);
   const [swapNowOffer, setSwapNowOffer] = useState({
     amount: '',
     time_period: 1

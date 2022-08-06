@@ -110,7 +110,9 @@ function DashboardHeader() {
     try {
       const { _tezos, _wallet } = await init(tezos, wallet, dispatch);
       const _account = await getAccount(_tezos, _wallet, account, dispatch);
+      console.log(_account)
     } catch (error) {
+      console.log("error", error);
       window.alert(error.message);
     }
   }

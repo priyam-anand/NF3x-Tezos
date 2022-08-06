@@ -4,7 +4,7 @@ import { Button } from '@mui/material';
 import PendingPayments from './PendingPayments';
 import PaymentsToReceive from './PaymentsToReceive';
 import { useSelector } from 'react-redux';
-import { getReserved } from "../../../api/getterTezos"
+import { getPositionTokens, getReserved } from "../../../api/getterTezos"
 
 const useStyles = makeStyles({
   root: {
@@ -25,13 +25,18 @@ function ReservedItemsContainerView({
 
   const init = async () => {
     const reservedItems = await getReserved(getters);
+    const myReserved = await getPositionTokens(account);
+
     var arr = [];
 
     for (var i = 0; i < reservedItems.length; i++) {
       if (reservedItems[i].owner == account) {
         arr.push(reservedItems[i]);
       }
+      // if myReserved contains reservedItem.positiontokenId add this item in the itembuyer array
     }
+    console.log("my reserved", arr);
+    console.log("reserved by me", myReserved);
     setItemsSeller(arr);
 
     // const _itemsSeller = await getActiveBuyNowPayLaterItems_Seller(getter, account);

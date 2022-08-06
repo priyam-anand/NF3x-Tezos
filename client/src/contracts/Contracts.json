@@ -1,32 +1,32 @@
 {
     "NFTs": [
-        "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B",
-        "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ",
-        "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H",
-        "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk",
-        "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1",
-        "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb",
-        "KT1SnnJqRCGYSgpXQAwWBN6XJxRu84Lh9PF6"
+        "KT1C65iQ9MMGW51vynEL1rZbBTyY6vJw1dxH",
+        "KT1JuGx7X8bvarK6DVjx6zk3n7G2fjnaB8WX",
+        "KT1Wu3pDzDddW2nnectSiSWjuxoeWaChDR4s",
+        "KT1RD5z5BgQnHirHbW2ic5FM9WwU4t4ivQC2",
+        "KT1C3refgX86Xwu637VvoK9CoezPghoSdQ9s",
+        "KT1JLRYdGwPmRRpKTrjThGxEcTE4DJnpyXWQ",
+        "KT1PjNEzCq2mCUUdify7iCbDFyvNTe6b1sdQ"
     ],
-    "Getters": "KT1P6PGonCgfhFfXKkVijLLKK7eJfkyyrMnM",
-    "Market": "KT1Jeemr4QcVncWzAtTMDjD1SipU5c2tN4pw",
-    "Vault": "KT1HUdXZWxJ4RmoF2HyoFKKxegjpHjGTDnby",
+    "Getters": "KT1Qq4UHLb858CFPF2k9qQQshd91bGYPLwbN",
+    "Market": "KT1KRpubnpGnxJ3iuvDwgkqiK4pAmuYdhR3K",
+    "Vault": "KT1CGX75cgk3VEArBZifakhTzKsynEq2WdaL",
     "XTZ": "tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU",
-    "PositionToken": "KT1VGPmCHy51YLHZNJ5VUdiA7EYwCZpXD2H9",
+    "PositionToken": "KT1PjNEzCq2mCUUdify7iCbDFyvNTe6b1sdQ",
     "nameToAddress": {
-        "Ottez": "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B",
-        "Tezzardz": "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ",
-        "Neonz": "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H",
-        "Ziggurats": "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk",
-        "Prjktneon": "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1",
-        "GOGOs": "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb"
+        "Ottez": "KT1C65iQ9MMGW51vynEL1rZbBTyY6vJw1dxH",
+        "Tezzardz": "KT1JuGx7X8bvarK6DVjx6zk3n7G2fjnaB8WX",
+        "Neonz": "KT1Wu3pDzDddW2nnectSiSWjuxoeWaChDR4s",
+        "Ziggurats": "KT1RD5z5BgQnHirHbW2ic5FM9WwU4t4ivQC2",
+        "Prjktneon": "KT1C3refgX86Xwu637VvoK9CoezPghoSdQ9s",
+        "GOGOs": "KT1JLRYdGwPmRRpKTrjThGxEcTE4DJnpyXWQ"
     },
     "addressToName": {
-        "KT1DaN3ciskqF9vNFMeKm6NbVGzbhxpWTy1B": "Ottez",
-        "KT1D6KGRDgnqAAE65zecS71QSLVn3PGuLnoJ": "Tezzardz",
-        "KT1GFTkP4y8jBvWi9nxosoejDcqLrTBjyx5H": "Neonz",
-        "KT1RpUPNda7CVNfxTDWS9XTHMDpyAvfhhuxk": "Ziggurats",
-        "KT1MUH8xmkVnbNTyoHXR8GcbkoBt9MTuUjQ1": "Prjktneon",
-        "KT1Eqtn32PhybvrFsxMqycii8tCrzTKx2AJb": "GOGOs"
+        "KT1C65iQ9MMGW51vynEL1rZbBTyY6vJw1dxH": "Ottez",
+        "KT1JuGx7X8bvarK6DVjx6zk3n7G2fjnaB8WX": "Tezzardz",
+        "KT1Wu3pDzDddW2nnectSiSWjuxoeWaChDR4s": "Neonz",
+        "KT1RD5z5BgQnHirHbW2ic5FM9WwU4t4ivQC2": "Ziggurats",
+        "KT1C3refgX86Xwu637VvoK9CoezPghoSdQ9s": "Prjktneon",
+        "KT1JLRYdGwPmRRpKTrjThGxEcTE4DJnpyXWQ": "GOGOs"
     }
 }

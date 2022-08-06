@@ -60,10 +60,10 @@ function MiniCardView({ token, swapOffer, setSwapOffer }) {
   }
   return (
     <div className={`${classes.root} section-btn-block card-view`} onClick={handleSelect}>
-       <img className='radius-10' src={getImageURI(token.metadata.thumbnailUri)} />
-        <h3>
-          {token.metadata.name}
-        </h3>
+      <img className='radius-10' src={getImageURI(token.metadata.thumbnailUri)} />
+      <h3>
+        {token.metadata.name}
+      </h3>
     </div>
   );
 }

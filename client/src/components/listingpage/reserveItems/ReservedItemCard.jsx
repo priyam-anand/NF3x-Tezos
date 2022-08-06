@@ -114,11 +114,11 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
     const getToken = async () => {
         try {
             const metadata = await _getTokenMetadata(item.token, item.tokenId.toNumber());
-            const reservationData = await getReservationData(tezos, item.listing.reserveListing.positionToken.toNumber());
+            const reservationData = await getReservationData(item.listing.reserveListing.positionToken.toNumber());
 
             setReservation({
-                deposit: reservationData.deposit.amounts.get('0').toNumber(),
-                remaining: reservationData.remaining.amounts.get('0').toNumber(),
+                deposit: reservationData.deposit.amounts[0],
+                remaining: reservationData.remaining.amounts[0],
                 time: (new Date(reservationData.dueDate)).getTime()
             })
             setToken({ metadata: metadata })
