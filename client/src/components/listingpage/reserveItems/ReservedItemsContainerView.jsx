@@ -23,27 +23,35 @@ function ReservedItemsContainerView({
 
   const { getters, account } = useSelector((state) => state.tezosConfig);
 
+  const contains = (tokens, tokenId) => {
+    for (var i = 0; i < tokens.length; i++) {
+      if (tokens[i].tokenId == tokenId)
+        return true;
+    }
+    return false;
+  }
+
   const init = async () => {
     const reservedItems = await getReserved(getters);
     const myReserved = await getPositionTokens(account);
 
     var arr = [];
+    var arr2 = [];
 
     for (var i = 0; i < reservedItems.length; i++) {
       if (reservedItems[i].owner == account) {
         arr.push(reservedItems[i]);
       }
-      // if myReserved contains reservedItem.positiontokenId add this item in the itembuyer array
+      if (contains(myReserved, reservedItems[i].listing.reserveListing.positionToken.toNumber())) {
+        arr2.push(reservedItems[i]);
+      }
+
     }
     console.log("my reserved", arr);
     console.log("reserved by me", myReserved);
+    console.log("arr2", arr2);
     setItemsSeller(arr);
-
-    // const _itemsSeller = await getActiveBuyNowPayLaterItems_Seller(getter, account);
-    // const _itemsBuyer = await getActiveBuyNowPayLaterItems_Buyer(getter, account);
-
-    // setItemsBuyer(_itemsBuyer);
-
+    setItemsBuyer(arr2);
   }
 
   useEffect(() => {

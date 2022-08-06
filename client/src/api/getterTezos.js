@@ -96,8 +96,6 @@ export const getReservationData = async (tokenId) => {
     return new Promise(async (resolve, reject) => {
         try {
             const data = (await axios.get(`https://api.jakartanet.tzkt.io/v1/bigmaps/69159/keys/${tokenId}`)).data.value;
-
-            console.log("data", data);
             resolve(data);
         } catch (e) {
             console.log(e);

@@ -360,3 +360,18 @@ export const _confirmAcceptReserveOffer = async (item, market, offerId, dispatch
     })
 }
 
+export const _payRemaining = async (item, remaining, market, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.payRemaining(item.token, item.tokenId.toNumber()).send({ amount: toTez(remaining) });
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}

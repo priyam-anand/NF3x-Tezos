@@ -4,10 +4,10 @@ import { makeStyles } from '@mui/styles';
 import { Button } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import WalletViewCard from '../WalletViewCard';
-import { _payRemainingAmount } from "../../../api/market";
 import { _getToken } from '../../../api/getter';
 import { _getTokenMetadata } from '../../../api/getterTezos';
 import { getReservationData } from '../../../api/getterTezos';
+import { _payRemaining } from '../../../api/marketTezos';
 const useStyles = makeStyles({
     root: {
         display: "flex",
@@ -35,7 +35,11 @@ const useStyles = makeStyles({
         },
         "& .fix-bottom": {
             "position": "absolute",
-            "bottom": "20px"
+            "bottom": "-30px"
+        },
+        "& .fix-bottom1": {
+            "position": "absolute",
+            "bottom": "40px"
         },
         "& .btn-ctn": {
             position: "relative",
@@ -102,13 +106,13 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
     }
 
     const payRemainingAmount = async () => {
-        // try {
-        //     await _payRemainingAmount(item, market, account, dispatch);
-        //     window.location.reload();
-        // } catch (error) {
-        //     window.alert(error.message);
-        //     console.error(error);
-        // }
+        try {
+            await _payRemaining(item, reservation.remaining, market, dispatch);
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message);
+            console.error(error);
+        }
     }
 
     const getToken = async () => {
@@ -168,7 +172,11 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                             {getTime(reservation.time)}
                         </div>
                         <div className="btn-ctn">
-                            {cardType === 'to_pay' && <Button disableRipple className="btn-pay fix-bottom" onClick={payRemainingAmount}>Pay</Button>}
+                            {cardType === 'to_pay' ? <>
+                                <Button disableRipple className="btn-pay fix-bottom1" onClick={payRemainingAmount}>Pay</Button>
+
+                                <Button disableRipple className="btn-pay fix-bottom">List Position</Button>
+                            </> : null}
                             {cardType === 'recieve_pending' && <span className="danger medium-weight fix-bottom">Payment Pending</span>}
                         </div>
                     </div>
