@@ -7,7 +7,7 @@ import WalletViewCard from '../WalletViewCard';
 import { _getToken } from '../../../api/getter';
 import { _getTokenMetadata } from '../../../api/getterTezos';
 import { getReservationData } from '../../../api/getterTezos';
-import { _payRemaining } from '../../../api/marketTezos';
+import { _claimDefaulted, _payRemaining } from '../../../api/marketTezos';
 const useStyles = makeStyles({
     root: {
         display: "flex",
@@ -105,9 +105,25 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
         return ret;
     }
 
+    const hasExpired = (_expires) => {
+        const curr = Date.now();
+        var diff = Math.floor((_expires - curr) / 1000);
+        return !(diff > 0);
+    }
+
     const payRemainingAmount = async () => {
         try {
             await _payRemaining(item, reservation.remaining, market, dispatch);
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message);
+            console.error(error);
+        }
+    }
+
+    const claimDefaulted = async () => {
+        try {
+            await _claimDefaulted(item, market, dispatch);
             window.location.reload();
         } catch (error) {
             window.alert(error.message);
@@ -172,12 +188,13 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                             {getTime(reservation.time)}
                         </div>
                         <div className="btn-ctn">
-                            {cardType === 'to_pay' ? <>
+                            {cardType === 'to_pay' ? hasExpired(reservation.time) ? <span className="danger medium-weight fix-bottom">Payment has been defaulted !</span> : <>
                                 <Button disableRipple className="btn-pay fix-bottom1" onClick={payRemainingAmount}>Pay</Button>
-
                                 <Button disableRipple className="btn-pay fix-bottom">List Position</Button>
                             </> : null}
-                            {cardType === 'recieve_pending' && <span className="danger medium-weight fix-bottom">Payment Pending</span>}
+                            {cardType === 'recieve_pending' ? !hasExpired(reservation.time) ? <span className="danger medium-weight fix-bottom">Payment Pending</span>
+                                : <Button disableRipple className="btn-pay fix-bottom" onClick={claimDefaulted}>Claim Defaulted Payment</Button>
+                                : null}
                         </div>
                     </div>
                 </React.Fragment>}

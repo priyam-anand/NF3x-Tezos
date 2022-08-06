@@ -453,7 +453,7 @@ function ListDetailPage() {
   });
   const [reserveListing, setReserveListing] = useState([{ deposit: '', remaining: '', duration: '' }]);
   const [swapListing, setSwapListing] = useState({ listings: [{ token: '', paymentToken: '', amount: '' }], directAllowed: false })
-
+  const [reserved, setReserved] = useState(false);
   const [available, setAvailable] = useState([{ metadata: { thumbnailUri: '', name: '' }, contract: { address: '' }, tokenId: '' }]);
   const [swapNowOffer, setSwapNowOffer] = useState({
     amount: '',
@@ -553,6 +553,8 @@ function ListDetailPage() {
 
       setItem(item);
       setToken(metadata);
+
+      setReserved(item.listing.reserveListing.accepted);
 
       var listings = [];
       for (var i = 0; i < item.listing.reserveListing.deposit.size; i++) {
@@ -927,11 +929,6 @@ function ListDetailPage() {
     }
   }, [getters]);
 
-  // useEffect(() => {
-  //   if (web3 != undefined)
-  //     getContracts();
-  // }, [web3]);
-
   useEffect(() => {
     if (account != undefined)
       getTokens();
@@ -1079,6 +1076,11 @@ function ListDetailPage() {
               </span>
               <span className='font-16 old2-text font-16'>Expires in {item.listing.timePeriod}</span>
             </div>
+
+            {
+              reserved ? <span className={`flex-justify align-center`}><span className='old1-text font-26 swap-options'>This Item has been RESERVED. If you own this reservation, please go to your dashboard to complete the payment</span> </span> : null
+            }
+
             {
               !item.listing.listingType.get('0') ? <></>
                 : <div className={`section-block swap-now`}>

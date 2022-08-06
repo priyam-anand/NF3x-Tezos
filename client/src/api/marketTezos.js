@@ -375,3 +375,20 @@ export const _payRemaining = async (item, remaining, market, dispatch) => {
         }
     })
 }
+
+export const _claimDefaulted = async (item, market, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const op = await market.methods.claimDefaultedPayment(item.token, item.tokenId.toNumber()).send();
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+        } catch (error) {
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+

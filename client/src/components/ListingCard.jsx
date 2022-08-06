@@ -30,7 +30,7 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
     const { market } = useSelector((state) => state.tezosConfig);
     const [data, setData] = useState({
         name: "",
-        thumbnailUri: ""
+        displayUri: ""
     });
     const dispatch = useDispatch();
 
@@ -129,7 +129,7 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
             <Card className={`no-shadow padding-10 width-100`}>
                 <div style={{ display: "flex", flexDirection: "column" }} className={`generic-card medium-card radius-20 pointer relative overflow-hidden ${(isActive && "active-box") ?? ""}`} onClick={() => navigate(`/listdetail/${item.token}/${item.tokenId.toNumber()}`)}>
                     {/* <div style={{height: "100%"}}> */}
-                    <img ref={cardImg} className='radius-20' src={getImageURI(data.thumbnailUri)} alt='img' onLoadedDataCapture={(e) => console.log(e)} />
+                    <img ref={cardImg} className='radius-20' src={getImageURI(data.displayUri)} alt='img' onLoadedDataCapture={(e) => console.log(e)} />
                     {/* </div> */}
                     <div className='card-footer'>
                         <div className='flex-justify'>
