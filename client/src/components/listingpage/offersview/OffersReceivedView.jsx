@@ -66,7 +66,6 @@ function OffersReceivedView({
   const classes = useStyles();
 
   const { account } = useSelector((state) => state.tezosConfig);
-  console.log("offerReceivedview");
   return (
     <div className={classes.root}>
       <div className={`width-100 inline-block`}>

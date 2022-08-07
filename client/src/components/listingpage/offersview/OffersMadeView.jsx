@@ -3,6 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { useSelector } from "react-redux"
 import OfferCard from './OfferCard';
 import RejectedOfferCard from './RejectedOfferCard';
+import { getTimeStamp } from '../../../api/getterTezos';
 
 const useStyles = makeStyles({
   root: {
@@ -69,7 +70,8 @@ function OffersMadeView({
   const { account } = useSelector((state) => state.tezosConfig);
 
   const notExpired = (timePeriod) => {
-    return true
+    var _timestamp = getTimeStamp(timePeriod);
+    return _timestamp > Date.now() / 1000;
   }
 
   return (
@@ -95,7 +97,7 @@ function OffersMadeView({
         }
 
         {/*  Everything below this needs to be shown only when expired offer toggle is 'ON' */}
-        {/* <span>
+        <span>
           Expired Offers
         </span>
 
@@ -103,17 +105,12 @@ function OffersMadeView({
           listedItems.map((item, index) => {
             var isValid = false;
             for (let i = 0; i < item.swapOffers.length; i++)
-              if (item.swapOffers[i].owner.toLowerCase() == account && item.swapOffers[i].time_period < timeNow) {
+              if (item.swapOffers[i].owner == account && !notExpired(item.swapOffers[i].timePeriod)) {
                 isValid = true;
                 break;
               }
-            for (let i = 0; i < item.bnplOffers.length; i++)
-              if (item.bnplOffers[i].owner.toLowerCase() == account && item.bnplOffers[i].time_period < timeNow) {
-                isValid = true;
-                break;
-              }
-            for (let i = 0; i < item.directSaleOffers.length; i++)
-              if (item.directSaleOffers[i].owner.toLowerCase() == account && item.directSaleOffers[i].time_period < timeNow) {
+            for (let i = 0; i < item.reserveOffers.length; i++)
+              if (item.reserveOffers[i].owner == account && !notExpired(item.reserveOffers[i].timePeriod)) {
                 isValid = true;
                 break;
               }
@@ -123,11 +120,17 @@ function OffersMadeView({
           })
         }
 
+
         {
-          rejectedOffers.map((item, index) => {
-            return <RejectedOfferCard item={item} index={index} />
+          rejectedOffers.reserve.map((item, index) => {
+            return < RejectedOfferCard item={item} index={index} reserve={true} />
           })
-        } */}
+        }
+        {
+          rejectedOffers.swap.map((item, index) => {
+            return <RejectedOfferCard item={item} index={index} swap={true} />
+          })
+        }
       </div>
     </div>
   );

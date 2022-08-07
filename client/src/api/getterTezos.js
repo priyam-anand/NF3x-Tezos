@@ -140,3 +140,33 @@ export const getOffers = async (token, tokenId) => {
         }
     })
 }
+
+export const getTimeStamp = (time) => {
+    var timeStamp = (new Date(time)).getTime()
+    timeStamp /= 1000;
+    return timeStamp;
+}
+
+export const _getRejectedSwapOffers = async (getters, account) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const offers = await getters.views.getRejectedSwapOffers(account).read();
+            resolve(offers)
+        } catch (e) {
+            console.log(e);
+            reject(e);
+        }
+    })
+}
+
+export const _getRejectedReserveOffers = async (getters, account) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const offers = await getters.views.getRejectedReserveOffers(account).read();
+            resolve(offers);
+        } catch (error) {
+            console.log(error);
+            reject(error);
+        }
+    })
+}

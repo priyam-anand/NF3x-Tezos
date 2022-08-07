@@ -1,44 +1,33 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from "react-redux"
-import { getItemWIthId, _getToken, getTime } from "../../../api/getter";
+import { getItemWIthId, getTime } from "../../../api/getter";
 import OfferItem from './OfferItem';
 import SwapOfferRow from './SwapOfferRow';
 import BuyNowPayLaterRow from './BuyNowPayLaterRow';
 import DirectSaleRow from './DirectSaleRow';
-import { _claimRejectedBuyNowPayLater, _claimRejectedDirectSaleOffer, _claimRejectedSwapOffer } from '../../../api/market';
-
-const RejectedOfferCard = ({ item, index }) => {
+import { _getTokenMetadata, _getToken } from '../../../api/getterTezos';
+import { _claimRejectedReserveOffer, _claimRejectedSwapOffer } from '../../../api/marketTezos';
+const RejectedOfferCard = ({ item, index, swap, reserve }) => {
     const [token, setToken] = useState({
         name: '',
-        image_url: '',
-        token_id: '',
-        asset_contract: { name: '' }
+        thumbnailUri: '',
     })
-    const { getter, account, web3, market } = useSelector(state => state.web3Config);
+    const { market, account } = useSelector((state) => state.tezosConfig);
 
     const dispatch = useDispatch();
 
     const getToken = async () => {
         try {
-            const token = await getItemWIthId(item.id, getter, account);
-            const data = await _getToken(token.token, token.tokenId);
-
-            setToken(data);
-        } catch (error) {
-            if (error.response.status == 429) {
-                setTimeout(() => {
-                    getToken();
-                }, 500);
-            } else {
-                console.log(error);
-                window.alert(error.message);
-                window.location.reload();
-            }
+            const token = await _getTokenMetadata(item.token, item.tokenId.toNumber());
+            setToken(token);
+        } catch (err) {
+            window.alert(err.message);
+            console.error(err);
         }
     }
 
-    const toETH = (amount) => {
-        return web3.utils.fromWei(amount, 'ether');
+    const toTez = (amount) => {
+        return amount / 1000000;
     }
 
     const getAddress = (account) => {
@@ -47,19 +36,9 @@ const RejectedOfferCard = ({ item, index }) => {
         return acc;
     }
 
-    const claimRejectedDirectSale = async (index) => {
-        try {
-            await _claimRejectedDirectSaleOffer(market, account, index, dispatch);
-            window.location.reload();
-        } catch (error) {
-            console.log(error);
-            window.alert(error.message)
-        }
-    }
-
     const claimRejectedBuyNowPayLater = async (index) => {
         try {
-            await _claimRejectedBuyNowPayLater(market, account, index, dispatch);
+            await _claimRejectedReserveOffer(market, index, dispatch)
             window.location.reload();
         } catch (error) {
             console.log(error);
@@ -69,7 +48,7 @@ const RejectedOfferCard = ({ item, index }) => {
 
     const claimRejectedSwap = async (index) => {
         try {
-            await _claimRejectedSwapOffer(market, account, index, dispatch);
+            await _claimRejectedSwapOffer(market, index, dispatch)
             window.location.reload();
         } catch (error) {
             console.log(error);
@@ -93,29 +72,21 @@ const RejectedOfferCard = ({ item, index }) => {
                 </div>
 
                 {
-                    item.swap.map((offer, index) => {
-                        return <SwapOfferRow key={index} offer={offer} index={index} made={true} claimRejected={claimRejectedSwap} offerItem={<div className='flex-item-item'>
-                        <span className='offer-title'>Item</span>
-                        <OfferItem item={token} />
-                    </div>} />
-                    })
+                    swap
+                        ? <SwapOfferRow key={index} offer={item} index={index} made={true} claimRejected={claimRejectedSwap} offerItem={<div className='flex-item-item'>
+                            <span className='offer-title'>Item</span>
+                            <OfferItem item={token} /></div>} />
+                        : null
                 }
                 {
-                    item.direct.map((offer, index) => {
-                        return <DirectSaleRow offerItem={<div className='flex-item-item'>
-                        <span className='offer-title'>Item</span>
-                        <OfferItem item={token} />
-                    </div>} offer={offer} toETH={toETH} getAddress={getAddress} getTime={getTime} claimRejected={claimRejectedDirectSale} index={index} />
-                    })
+                    reserve
+                        ? <BuyNowPayLaterRow offerItem={<div className='flex-item-item'>
+                            <span className='offer-title'>Item</span>
+                            <OfferItem item={token} />
+                        </div>} offer={item} getAddress={getAddress} claimRejected={claimRejectedBuyNowPayLater} index={index} />
+                        : null
                 }
-                {
-                    item.bnpl.map((offer, index) => {
-                        return <BuyNowPayLaterRow offerItem={<div className='flex-item-item'>
-                        <span className='offer-title'>Item</span>
-                        <OfferItem item={token} />
-                    </div>} offer={offer} toETH={toETH} getAddress={getAddress} getTime={getTime} claimRejected={claimRejectedBuyNowPayLater} index={index} />
-                    })
-                }
+
             </div>
         </div>
     )

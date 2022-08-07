@@ -7,7 +7,6 @@ import { getTokenDetails, getImageURI, getTime, _getToken } from '../../../api/g
 import { _getTokenMetadata } from "../../../api/getterTezos";
 
 const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem, claimRejected }) => {
-
     const [metadata, setMetadata] = useState({
         name: "",
         thumbnailUri: "",
@@ -23,9 +22,9 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
         return amount / 1000000;
     }
 
-    const getData = async () => {
+    const getData = async (token, tokenId) => {
         try {
-            const _metadata = await _getTokenMetadata(offer.assets.tokens[0], offer.assets.tokenIds[0]);
+            const _metadata = await _getTokenMetadata(token, tokenId);
             setMetadata(_metadata)
         } catch (err) {
             window.alert(err.message);
@@ -34,8 +33,10 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
     }
 
     useEffect(() => {
+        if (claimRejected && offer.assets.tokens.get(0) != undefined)
+            getData(offer.assets.tokens.get(0), offer.assets.tokenIds.get(0))
         if (offer.assets.tokens[0] != undefined)
-            getData();
+            getData(offer.assets.tokens[0], offer.assets.tokenIds[0]);
     }, [])
 
     return (
@@ -45,25 +46,53 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
                 <span className='offer-title'>Offer</span>
                 <div className='outline-border radius-10 padding-10 flex-justify-start align-center flex-wrap'>
                     {
-                        offer.assets.tokens[0] != undefined
+                        claimRejected != undefined
                             ? <>
-                                <img className="small-card-img radius-5 margin-right-5" src={getImageURI(metadata.thumbnailUri)} />
-                                <div className='flex-justify-start column-direction'>
-                                    <span className='t2-text font-14 ellipsis'>{metadata.name}</span>
-                                </div>
+                                {
+                                    offer.assets.tokens.get('0') != undefined
+                                        ? <>
+                                            <img className="small-card-img radius-5 margin-right-5" src={getImageURI(metadata.thumbnailUri)} />
+                                            <div className='flex-justify-start column-direction'>
+                                                <span className='t2-text font-14 ellipsis'>{metadata.name}</span>
+                                            </div>
+                                        </>
+                                        : null
+                                }
+                                {
+                                    offer.assets.tokens.get('0') != undefined && offer.assets.amounts.get('0') != undefined && offer.assets.amounts.get('0').toNumber() != 0 ? <span className='t2-text font-16 plus'>+</span> : null
+                                }
+                                {
+                                    offer.assets.amounts.get('0') != undefined && offer.assets.amounts.get('0').toNumber() != 0
+                                        ? <div className="display-flex align-center">
+                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
+                                            <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts.get('0').toNumber())}`}</span>
+                                        </div>
+                                        : null
+                                }
                             </>
-                            : null
-                    }
-                    {
-                        offer.assets.tokens[0] != undefined && offer.assets.amounts[0] != undefined && offer.assets.amounts[0] != 0 ? <span className='t2-text font-16 plus'>+</span> : null
-                    }
-                    {
-                        offer.assets.amounts[0] != undefined && offer.assets.amounts[0] != 0
-                            ? <div className="display-flex align-center">
-                                <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
-                                <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts[0])}`}</span>
-                            </div>
-                            : null
+                            : <>
+                                {
+                                    offer.assets.tokens[0] != undefined
+                                        ? <>
+                                            <img className="small-card-img radius-5 margin-right-5" src={getImageURI(metadata.thumbnailUri)} />
+                                            <div className='flex-justify-start column-direction'>
+                                                <span className='t2-text font-14 ellipsis'>{metadata.name}</span>
+                                            </div>
+                                        </>
+                                        : null
+                                }
+                                {
+                                    offer.assets.tokens[0] != undefined && offer.assets.amounts[0] != undefined && offer.assets.amounts[0] != 0 ? <span className='t2-text font-16 plus'>+</span> : null
+                                }
+                                {
+                                    offer.assets.amounts[0] != undefined && offer.assets.amounts[0] != 0
+                                        ? <div className="display-flex align-center">
+                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
+                                            <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts[0])}`}</span>
+                                        </div>
+                                        : null
+                                }
+                            </>
                     }
                 </div>
             </div>
@@ -80,7 +109,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
             <div className='flex-item-action'>
                 {
                     claimRejected != undefined
-                        ? <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => claimRejected()}>Claim Back</Button>
+                        ? <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => claimRejected(offer.id.toNumber())}>Claim Back</Button>
                         : made
                             ? <Button disableRipple className={"btn bg-white t2-text bg-t2-border font-14"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => cancelSwapOffer(offer.id)}>Cancel</Button>
                             : <Button className={"btn bg-white green-text bg-green-border font-14 btn-success"} sx={{ borderRadius: "10px !important" }} variant="contained" onClick={e => acceptSwapOffer(

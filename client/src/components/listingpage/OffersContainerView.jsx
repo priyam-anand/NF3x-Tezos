@@ -5,8 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import OffersReceivedView from '../listingpage/offersview/OffersReceivedView';
 import OffersMadeView from '../listingpage/offersview/OffersMadeView';
 import { useSelector } from 'react-redux';
-import { _getRejectedBnpl, _getRejectedDirectSale, _getRejectedSwap } from '../../api/getter';
-import { getOffers } from '../../api/getterTezos';
+import { getOffers, _getRejectedReserveOffers, _getRejectedSwapOffers } from '../../api/getterTezos';
 
 const useStyles = makeStyles({
   root: {
@@ -25,73 +24,39 @@ function OffersContainerView({
   const [allOffers, setAllOffers] = useState([]);
   const [made, setMade] = useState(0);
 
-  const [rejectedOffers, setRejectedOffers] = useState([]);
+  const [rejectedOffers, setRejectedOffers] = useState({ swap: [], reserve: [] });
 
   const { account, getters } = useSelector((state) => state.tezosConfig);
 
-  // const getRejected = async () => {
-  //   try {
-  //     var items = await Promise.all([
-  //       _getRejectedDirectSale(account, getter),
-  //       _getRejectedBnpl(account, getter),
-  //       _getRejectedSwap(account, getter)]
-  //     );
-  //     var rejectedItems = new Map();
-  //     const rejectedOffers = [];
+  const getRejected = async () => {
+    try {
+      var rejectedSwapOffers = await _getRejectedSwapOffers(getters, account);
+      var rejectedReserveOffers = await _getRejectedReserveOffers(getters, account);
 
-  //     for (var i = 0; i < items[0].length; i++) {
-  //       var obj = rejectedItems.get(items[0][i].itemId)
-  //       if (!obj) {
-  //         obj = {
-  //           id: items[0][i].itemId,
-  //           swap: [],
-  //           bnpl: [],
-  //           direct: []
-  //         }
-  //       }
-  //       obj.direct.push({ ...items[0][i], idx: i });
-  //       rejectedItems.set(items[0][i].itemId, obj);
-  //     }
-  //     for (var i = 0; i < items[1].length; i++) {
-  //       var obj = rejectedItems.get(items[1][i].itemId)
-  //       if (!obj) {
-  //         obj = {
-  //           id: items[1][i].itemId,
-  //           swap: [],
-  //           bnpl: [],
-  //           direct: []
-  //         }
-  //       }
-  //       obj.bnpl.push({ ...items[1][i], idx: i });
-  //       rejectedItems.set(items[1][i].itemId, obj);
-  //     }
-  //     for (var i = 0; i < items[2].length; i++) {
-  //       var obj = rejectedItems.get(items[2][i].itemId)
-  //       if (!obj) {
-  //         obj = {
-  //           id: items[2][i].itemId,
-  //           swap: [],
-  //           bnpl: [],
-  //           direct: []
-  //         }
-  //       }
-  //       obj.swap.push({ ...items[2][i], idx: i });
-  //       rejectedItems.set(items[2][i].itemId, obj);
-  //     }
-  //     for (let key of rejectedItems.keys()) {
-  //       rejectedOffers.push(rejectedItems.get(key));
-  //     }
-  //     setRejectedOffers(rejectedOffers);
-  //   } catch (error) {
-  //     console.log(error);
-  //     window.alert(error.message);
-  //     window.location.reload();
-  //   }
-  // }
+      var swap = [];
+      var reserve = [];
 
-  // useEffect(() => {
-  //   getRejected();
-  // }, []);
+      rejectedSwapOffers.forEach((val, item) => {
+        swap.push({ ...val, id: item });
+      })
+
+      rejectedReserveOffers.forEach((val, item) => {
+        reserve.push({ ...val, id: item })
+      })
+      setRejectedOffers({
+        swap: swap,
+        reserve: reserve
+      });
+    } catch (error) {
+      console.log(error);
+      window.alert(error.message);
+      window.location.reload();
+    }
+  }
+
+  useEffect(() => {
+    getRejected();
+  }, []);
 
 
   const fetchOffers = async () => {
@@ -194,7 +159,7 @@ function OffersContainerView({
           </Paper>
         </div>
         {modules[0].isSelected && <OffersReceivedView listedItems={allOffers} />}
-        {modules[1].isSelected && <OffersMadeView listedItems={allOffers} rejectedOffers={(modules[1].filters[0].list[0].isSelected) ? rejectedOffers : []} />}
+        {modules[1].isSelected && <OffersMadeView listedItems={allOffers} rejectedOffers={(modules[1].filters[0].list[0].isSelected) ? rejectedOffers : { swap: [], reserve: [] }} />}
       </div>
     </div>
   );
