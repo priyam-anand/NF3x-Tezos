@@ -182,7 +182,7 @@ const OfferCard = ({ item, index, made }) => {
                 }
             </div>
             <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"}>
-                <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmBnplOffer} />
+                <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmBnplOffer} isPosToken={item.token == Addresses.PositionToken} />
             </PopupContainer>
         </div>
     )

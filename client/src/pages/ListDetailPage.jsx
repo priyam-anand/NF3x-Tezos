@@ -1000,7 +1000,7 @@ function ListDetailPage() {
       </PopupContainer>
       */}
       <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"} setState={e => setOfferPopup({ ...offerPopup, open: false })}>
-        <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmAcceptReserveOffer} />
+        <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmAcceptReserveOffer} isPosToken={isPosToken} />
       </PopupContainer>
 
       <ComponentHeader />
