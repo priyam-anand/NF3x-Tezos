@@ -1,10 +1,11 @@
 import { getImageURI } from '../../../api/getterTezos';
 import { ReactComponent as SwapIcon } from '../../../SVG/swap.svg';
+import { getPositionImage } from '../../../utils';
 
-const OfferItem = ({ item }) => {
+const OfferItem = ({ item, posToken }) => {
     return <div className="display-flex align-center">
         <div className='relative display-flex outline-border radius-10 padding-10'>
-            <img className="small-card-img radius-5 margin-right-5" src={getImageURI(item.thumbnailUri)} />
+            <img className="small-card-img radius-5 margin-right-5" src={posToken ? getPositionImage() : getImageURI(item.thumbnailUri)} />
             <div className='flex-justify-start column-direction'>
                 <span className='t2-text font-14 left'>{item.name}</span>
             </div>

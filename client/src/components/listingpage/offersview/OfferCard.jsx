@@ -6,11 +6,14 @@ import PopupAcceptOffer from '../../PopupAcceptOffer';
 import { _getToken, getTime } from "../../../api/getter";
 import OfferItem from './OfferItem';
 import BuyNowPayLaterRow from './BuyNowPayLaterRow';
-import DirectSaleRow from './DirectSaleRow';
-import { getImageURI, _getTokenMetadata } from '../../../api/getterTezos';
+import Addresses from "../../../contracts/Contracts.json"
+import { getImageURI, _getTokenMetadata, getReservationData } from '../../../api/getterTezos';
 import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _cancelSwapOffer, _cancelBnplOffer } from '../../../api/marketTezos';
 
 const OfferCard = ({ item, index, made }) => {
+
+    // if item.token == positiontoken
+    // set data of other kind
 
     const [token, setToken] = useState({
         name: '',
@@ -41,8 +44,14 @@ const OfferCard = ({ item, index, made }) => {
 
     const getToken = async () => {
         try {
-            const token = await _getTokenMetadata(item.token, item.tokenId);
-            setToken(token);
+            if (item.token == Addresses.PositionToken) {
+                const reservationData = await getReservationData(item.tokenId);
+                const metadata = await _getTokenMetadata(reservationData.token, reservationData.tokenId);
+                setToken({ name: "Reservation for " + metadata.name })
+            } else {
+                const token = await _getTokenMetadata(item.token, item.tokenId);
+                setToken(token);
+            }
         } catch (err) {
             window.alert(err.message);
             console.error(err);
@@ -145,13 +154,13 @@ const OfferCard = ({ item, index, made }) => {
                             if (offer.owner == account)
                                 return <SwapOfferRow key={index} offer={offer} index={index} made={true} cancelSwapOffer={cancelSwapOffer} offerItem={<div className='flex-item-item'>
                                     <span className='offer-title'>Item</span>
-                                    <OfferItem item={token} />
+                                    <OfferItem item={token} posToken={item.token == Addresses.PositionToken} />
                                 </div>} />
                         })
                         : item.swapOffers.map((offer, index) => {
                             return <SwapOfferRow key={index} offer={offer} index={index} acceptSwapOffer={acceptSwapOffer} offerItem={<div className='flex-item-item'>
                                 <span className='offer-title'>Item</span>
-                                <OfferItem item={token} />
+                                <OfferItem item={token} posToken={item.token == Addresses.PositionToken} />
                             </div>} />
                         })
                 }

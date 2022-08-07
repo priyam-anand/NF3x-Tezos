@@ -176,7 +176,7 @@ export const _listPositionToken = async (tezos, market, account, tokenId, amount
             const swapOfferPaymentToken = {};
 
             saleTokenMap[0] = Addresses.XTZ;
-            salePrice[0] = amount;
+            salePrice[0] = toMutez(amount);
 
             const op = await market.methods.createListing(
                 _deposit, salePrice, saleTokenMap, _duration, _remainingAmt, bnplPaymentTokens, false, _offerAmt, swapOfferPaymentToken, _offerToken, timePeriod * 86400, Addresses.PositionToken, tokenId

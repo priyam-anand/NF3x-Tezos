@@ -18,7 +18,7 @@ import { _claimBackNFT } from '../api/market';
 import Contracts from "../contracts/Contracts.json";
 import { _getTokenMetadata, getReservationData } from '../api/getterTezos';
 import { _handleCancelListing } from '../api/marketTezos';
-import { getPositionImage } from "../utils"
+import { getPositionImage, getTezLogo } from "../utils"
 
 const useStyles = makeStyles({
 
@@ -93,7 +93,8 @@ const PositionListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex
                         <div className='flex-justify-start column-direction card-chip-block'>
                             {
                                 item.listing.listingType.get('0') ? <div className='green-block flex-justify-start'>
-                                    <span className='font-11 light-grey-text chip-title'>Swap Now : </span>{<Chip className='chip-block chip' label={<span><EthGreen /> {toTez(item.listing.directListing.amount.toNumber())} </span>} variant="outlined" />}
+                                    <span className='font-11 light-grey-text chip-title'>Swap Now : </span>{<Chip className='chip-block chip' label={<span>                    <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
+                                        {toTez(item.listing.directListing.amount.toNumber())} </span>} variant="outlined" />}
                                 </div> : null
                             }
                         </div>

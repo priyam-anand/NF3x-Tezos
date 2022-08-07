@@ -3,14 +3,26 @@ import { Button, IconButton, InputBase, Paper } from '@mui/material';
 import { useSelector } from 'react-redux';
 import Addresses from "../../../contracts/Addresses.json";
 import axios from "axios";
-import { getTokenDetails, getImageURI, getTime, _getToken } from '../../../api/getter';
-import { _getTokenMetadata } from "../../../api/getterTezos";
-
+import { getTokenDetails, _getToken } from '../../../api/getter';
+import { _getTokenMetadata, getImageURI, getTimeStamp } from "../../../api/getterTezos";
+import { getTezLogo } from '../../../utils';
 const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem, claimRejected }) => {
     const [metadata, setMetadata] = useState({
         name: "",
         thumbnailUri: "",
     });
+
+    const getTime = (timeStamp) => {
+        const time = getTimeStamp(timeStamp);
+        var diff = time - Date.now() / 1000;
+        const day = Math.floor(diff / 86400);
+        diff = diff % 86400;
+        const hour = Math.floor(diff / 3600);
+        diff = diff % 3600;
+        const mins = Math.floor(diff / 60);
+        var ret = (day > 0 ? `${day} days ` : '') + (hour > 0 ? `${hour} hours ` : '') + (mins > 0 ? `${mins} mins` : '');
+        return ret;
+    }
 
     const getAddress = (account) => {
         var acc = account.substring(0, 11);
@@ -64,7 +76,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
                                 {
                                     offer.assets.amounts.get('0') != undefined && offer.assets.amounts.get('0').toNumber() != 0
                                         ? <div className="display-flex align-center">
-                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
+                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={getTezLogo()} className="eth-img" />
                                             <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts.get('0').toNumber())}`}</span>
                                         </div>
                                         : null
@@ -87,7 +99,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
                                 {
                                     offer.assets.amounts[0] != undefined && offer.assets.amounts[0] != 0
                                         ? <div className="display-flex align-center">
-                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
+                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={getTezLogo()} className="eth-img" />
                                             <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts[0])}`}</span>
                                         </div>
                                         : null
@@ -103,7 +115,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
             <label className='flex-item-expires'>
                 <span className='offer-title'>Offered By</span>
                 <span className='t2-text'>{
-                    claimRejected == undefined ? offer.timePeriod : "Expired"
+                    claimRejected == undefined ? getTime(offer.timePeriod) : "Expired"
                 }</span>
             </label>
             <div className='flex-item-action'>
