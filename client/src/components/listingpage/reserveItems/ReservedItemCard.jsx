@@ -71,7 +71,7 @@ const useStyles = makeStyles({
 //  1. recieve_pending - when someone needs to pay
 //  2. received - when someone paid you
 //  3. to_pay - when current user need to pay
-function ReservedItemCard({ cardType = 'to_pay', item }) {
+function ReservedItemCard({ cardType = 'to_pay', item, setSwapNowOffer, setSwapOfferModal }) {
     const classes = useStyles();
     const { tezos, market, account } = useSelector((state) => state.tezosConfig);
     const dispatch = useDispatch();
@@ -129,6 +129,11 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
             window.alert(error.message);
             console.error(error);
         }
+    }
+
+    const listPosition = () => {
+        setSwapNowOffer({ tokenId: item.listing.reserveListing.positionToken.toNumber(), amount: '', time_period: 1 });
+        setSwapOfferModal(true);
     }
 
     const getToken = async () => {
@@ -190,7 +195,7 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                         <div className="btn-ctn">
                             {cardType === 'to_pay' ? hasExpired(reservation.time) ? <span className="danger medium-weight fix-bottom">Payment has been defaulted !</span> : <>
                                 <Button disableRipple className="btn-pay fix-bottom1" onClick={payRemainingAmount}>Pay</Button>
-                                <Button disableRipple className="btn-pay fix-bottom">List Position</Button>
+                                <Button disableRipple className="btn-pay fix-bottom" onClick={listPosition}>List Position</Button>
                             </> : null}
                             {cardType === 'recieve_pending' ? !hasExpired(reservation.time) ? <span className="danger medium-weight fix-bottom">Payment Pending</span>
                                 : <Button disableRipple className="btn-pay fix-bottom" onClick={claimDefaulted}>Claim Defaulted Payment</Button>
@@ -198,33 +203,6 @@ function ReservedItemCard({ cardType = 'to_pay', item }) {
                         </div>
                     </div>
                 </React.Fragment>}
-                {/* {cardType === 'received' && <React.Fragment>
-                <div>
-                    <div className="b-grey-text medium-title">
-                        Total Amount
-                    </div>
-                    <div className="section-title font-16">
-                        14E
-                    </div>
-                    <div className="b-grey-text medium-title mt-30">
-                        Payment Received
-                    </div>
-                    <div className="section-title font-16">
-                        14E
-                    </div>
-                    <div className="btn-ctn">
-                        <div className="success medium-weight fix-bottom">Payment Recieved
-                            <div className="link-icon">
-                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M9.03986 10.9602C10.4067 12.327 12.6228 12.327 13.9896 10.9602L17.5251 7.42462C18.892 6.05779 18.892 3.84171 17.5251 2.47487C16.1583 1.10804 13.9422 1.10804 12.5754 2.47487L10.8076 4.24264" stroke="#45B26B" stroke-width="1.5" stroke-linecap="round" />
-                                    <path d="M11.8683 8.13164C10.5015 6.76481 8.28538 6.76481 6.91854 8.13164L3.38301 11.6672C2.01617 13.034 2.01617 15.2501 3.38301 16.6169C4.74984 17.9838 6.96592 17.9838 8.33275 16.6169L10.1005 14.8492" stroke="#45B26B" stroke-width="1.5" stroke-linecap="round" />
-                                </svg>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </React.Fragment>} */}
             </div>
         </div>)
 }

@@ -4,7 +4,7 @@ import { makeStyles } from '@mui/styles';
 import ComponentHeader from '../components/ComponentHeader';
 import { useSelector, useDispatch } from 'react-redux';
 import ListingCard from '../components/ListingCard';
-import Addresses from "../contracts/Addresses.json";
+import Addresses from "../contracts/Contracts.json";
 import { ReactComponent as FilterFill } from "../SVG/filter-fill.svg";
 import { ReactComponent as FilterStroke } from "../SVG/filter-stroke.svg";
 // import { fetchAccount, fetchGetter, fetchWeb3, setNetwork } from '../api/web3';
@@ -12,6 +12,7 @@ import { ReactComponent as FilterStroke } from "../SVG/filter-stroke.svg";
 import { init, getAccount, getGetters } from "../api/tezos";
 import { getListedItems } from '../api/getterTezos';
 import { useNavigate } from 'react-router-dom';
+import PositionListingCard from '../components/PositionListingCard';
 
 const useStyles = makeStyles({
   root: {
@@ -158,6 +159,12 @@ function ListingPage() {
     return false;
   }
 
+  const notExpired = (timePeriod) => {
+    const expires = (new Date(timePeriod)).getTime();
+    const curr = Math.floor(Date.now());
+    return expires > curr
+  }
+
   const validOfferedFilter = (item) => {
     if (offeredFilter.length == 0)
       return true;
@@ -283,11 +290,12 @@ function ListingPage() {
 
           <div className={`list-main-cards`}>
             {listedItems.map((item, index) => {
-
-              // if (validateCardData(item) && validOfferedFilter(item) && validWantedCollection(item)) {
-              //   if (isSearchValid(item))
-              return <ListingCard key={index} item={item} />
-              // }
+              if (notExpired(item.listing.timePeriod)) {
+                if (item.token != Addresses.PositionToken)
+                  return <ListingCard key={index} item={item} />
+                else
+                  return <PositionListingCard key={index} item={item} />
+              }
             })}
           </div>
         </div>

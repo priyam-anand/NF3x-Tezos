@@ -7,7 +7,7 @@ import Button from '@mui/material/Button';
 import { getTokenDetails } from '../api/getter';
 import { _getTokenMetadata } from '../api/getterTezos';
 import Contracts from "../contracts/Contracts.json";
-
+import { getTezLogo } from "../utils"
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 
@@ -98,7 +98,7 @@ function InterestedSwap({ listings, setOfferNftModal, setNftSwapModal, nftSwap, 
                             {
                                 listings.listing.swapListing.amounts.get(index + "") > 0 ? <><span className="interes-plus"> + </span>
                                     <span className='flex-justify align-center swap-input margin-right-10'>
-                                        <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src='../img/ethereum.png' className="eth-img" />
+                                        <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={getTezLogo()} className="eth-img" />
                                         <span style={{ marginRight: "5px" }} className='font-26 t2-text'>{toTez(listings.listing.swapListing.amounts.get(index + ""))}</span>
                                     </span></> : null
                             }

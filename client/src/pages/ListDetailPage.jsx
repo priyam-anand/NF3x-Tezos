@@ -17,7 +17,7 @@ import { useParams } from "react-router-dom";
 import { useSelector, useDispatch } from 'react-redux';
 import SwapOffer from "../components/SwapOffer";
 import { OpenInNew } from '@mui/icons-material';
-import Addresses from "../contracts/Addresses.json";
+import Addresses from "../contracts/Contracts.json";
 import PopupContainer from "../components/PopupContainer";
 import PopupConfirmSwapNow from "../components/PopupConfirmSwapNow";
 import PopupReserveSwapLater from "../components/PopupReserveSwapLater";
@@ -32,14 +32,14 @@ import CloseIcon from '@mui/icons-material/Close';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as Search } from '../SVG/Search.svg';
 import Util from '../common/Util';
-import { fetchAccount, fetchGetter, fetchWeb3, fetchMarket, setNetwork, fetchNFTs } from '../api/web3';
-import { getItemWIthId, getUnavailableItems, getTime } from '../api/getter';
 import { _confirmSwapNow, _handleCancelListing, _confirmPayLater, _directNftSwap, _confirmSwapNowOffer, _confirmReserveOffer, _confirmSwapOffer, _confirmAcceptOffer, _confirmAcceptReserveOffer } from '../api/marketTezos';
 import { useNavigate } from 'react-router-dom';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos"
-import { _getItem, _getTokenMetadata, getImageURI, _getTokens, _getOffers } from '../api/getterTezos';
+import { _getItem, _getTokenMetadata, getImageURI, _getTokens, _getOffers, getReservationData, getTimeStamp } from '../api/getterTezos';
 import { MichelsonMap } from "@taquito/taquito";
 import DirectNFTSwapModal from '../components/DirectNFTSwapModal';
+import { getPositionImage, getTezLogo } from '../utils';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles({
   root: {
@@ -426,7 +426,7 @@ const useStyles = makeStyles({
 
 function ListDetailPage() {
   const { collection, tokenId } = useParams();
-  // const { account, web3, getter, market, nfts } = useSelector((state) => state.web3Config);
+  const isPosToken = collection == Addresses.PositionToken;
   const { tezos, wallet, account, market, getters } = useSelector((state) => state.tezosConfig);
   const dispatch = useDispatch();
   const [swapOfferModal, setSwapOfferModal] = useState(false);
@@ -439,7 +439,9 @@ function ListDetailPage() {
     name: '',
     displayUri: '',
     thumbnailUri: '',
-    attributes: []
+    attributes: [],
+    reservedToken: '',
+    reservedTokenId: ''
   });
   const [item, setItem] = useState({
     owner: '',
@@ -516,6 +518,8 @@ function ListDetailPage() {
   });
   const [filtered, setFiltered] = useState("");
   const navigate = useNavigate();
+  const [reservationDetails, setReservationDetails] = useState({});
+
 
   const handleClose = () => {
     setNftSwapModal(false);
@@ -546,15 +550,19 @@ function ListDetailPage() {
     try {
 
       const item = await _getItem(collection, tokenId, getters);
-      const metadata = await _getTokenMetadata(collection, tokenId);
-
       console.log(item);
-      console.log(metadata);
-
+      if (isPosToken) {
+        const reservationData = await getReservationData(tokenId);
+        const metadata = await _getTokenMetadata(reservationData.token, reservationData.tokenId);
+        setToken({ name: "Reservation for " + metadata.name, reservedToken: reservationData.token, reservedTokenId: reservationData.tokenId });
+        console.log("reservation data", reservationData);
+        setReservationDetails(reservationData);
+      } else {
+        const metadata = await _getTokenMetadata(collection, tokenId);
+        setToken(metadata);
+        setReserved(item.listing.reserveListing.accepted);
+      }
       setItem(item);
-      setToken(metadata);
-
-      setReserved(item.listing.reserveListing.accepted);
 
       var listings = [];
       for (var i = 0; i < item.listing.reserveListing.deposit.size; i++) {
@@ -918,6 +926,18 @@ function ListDetailPage() {
     }
   }
 
+  const getTime = (timeStamp) => {
+    const time = getTimeStamp(timeStamp);
+    var diff = time - Date.now() / 1000;
+    const day = Math.floor(diff / 86400);
+    diff = diff % 86400;
+    const hour = Math.floor(diff / 3600);
+    diff = diff % 3600;
+    const mins = Math.floor(diff / 60);
+    var ret = (day > 0 ? `${day} days ` : '') + (hour > 0 ? `${hour} hours ` : '') + (mins > 0 ? `${mins} mins` : '');
+    return ret;
+  }
+
   useEffect(() => {
     _init();
   }, [])
@@ -957,7 +977,7 @@ function ListDetailPage() {
   return (
     <div className={classes.root}>
       <PopupContainer isOpen={popupState.swapNow.open} popupTitle={"Confirm Swap Now"} setState={e => setPopupState({ ...popupState, swapNow: { ...popupState.swapNow, open: false } })}>
-        <PopupConfirmSwapNow value={popupState.swapNow.value} token={token} confirmSwapNow={confirmSwapNow} />
+        <PopupConfirmSwapNow value={popupState.swapNow.value} token={token} confirmSwapNow={confirmSwapNow} isPos={isPosToken} />
       </PopupContainer>
 
       <PopupContainer isOpen={popupState.reserverNow.open} popupTitle={"Reserve Now & Swap Later"} setState={e => setPopupState({ ...popupState, reserverNow: { ...popupState.reserverNow, open: false } })}>
@@ -966,7 +986,7 @@ function ListDetailPage() {
 
       {/* here needs to be a modal to make direct swap.... */}
       <PopupContainer isOpen={popupState.offer.open == 1} popupTitle={"Confirm Swap Offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
-        <PopupConfirmSwapOffer swapOffer={swapOffer} reserveOffer={reserveOffer} swapNowOffer={swapNowOffer} confirmSwapNowOffer={confirmSwapNowOffer} confirmReserveOffer={confirmReserveOffer} confirmSwapOffer={confirmSwapOffer} token={token} />
+        <PopupConfirmSwapOffer swapOffer={swapOffer} reserveOffer={reserveOffer} swapNowOffer={swapNowOffer} confirmSwapNowOffer={confirmSwapNowOffer} confirmReserveOffer={confirmReserveOffer} confirmSwapOffer={confirmSwapOffer} token={token} isPosToken={isPosToken} />
       </PopupContainer>
       {/*
       <PopupContainer isOpen={popupState.offer.open >= 2 && popupState.offer.open <= 3} popupTitle={"Complete your offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
@@ -985,96 +1005,156 @@ function ListDetailPage() {
 
       <ComponentHeader />
       <div className={classes.detailContainer}>
-        <div className={classes.leftPanel}>
-          <div>
-            <span className='font-26 bold swap-title'>
-              {
-                token.name
-              }
-            </span>
-            <div className='img-block-round overflow-hidden'>
-              <img className='radius-13' src={getImageURI(token.displayUri)} />
-            </div>
-            <div className='margin-top-20'>
-              <Accordion className={classes.accordion}>
-                <AccordionSummary
-                  className='padding-zero'
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel4bh-content"
-                  id="panel4bh-header"
-                >
-                  <span className='accordion-title'>Properties</span>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <div className={classes.accordionContentContainer}>
-                    {token.attributes.map((attribute, index) => {
-                      if (attribute.value != 0)
-                        return <div className={classes.accordionContentBlock} key={index}>
-                          <span className='primary-text'>{attribute.name}</span>
-                          <span>{attribute.value}</span>
+        {
+          isPosToken
+            ? <div className={classes.leftPanel}>
+              <div>
+                <Link className='font-26 bold swap-title' target={"_blank"} to={`/listdetail/${token.reservedToken}/${token.reservedTokenId}`}>{
+                  token.name
+                }</Link>
+                <div className='img-block-round overflow-hidden'>
+                  <img className='radius-13' src={getPositionImage()} />
+                </div>
+                <div>
+                  <Accordion className={classes.accordion}>
+                    <AccordionSummary
+                      className='padding-zero'
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel4bh-content"
+                      id="panel4bh-header"
+                    >
+                      <span className='accordion-title'>Details</span>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <div className={classes.accordionContentContainer}>
+                        <div className={`${classes.accordionContentBlock} ${classes.accodionContentBlockDetail}`}>
+                          <div>
+                            <label>Contact Address</label>
+                            <label><span className="primary-text">{collection}</span></label>
+                          </div>
+                          <div>
+                            <label>Token ID</label>
+                            <label>{tokenId}</label>
+                          </div>
+                          <div>
+                            <label>Token Standard</label>
+                            <label>FA2</label>
+                          </div>
+                          <div>
+                            <label>Blockchain</label>
+                            <label>Tezos</label>
+                          </div>
+                          <div>
+                            <label>Metadata</label>
+                            <label>Editable</label>
+                          </div>
+                          <OpenInNew sx={{ position: "absolute", top: "10px", right: "10px", color: "#B0B7C3", fontSize: "13px" }} />
                         </div>
-                    })}
+                      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              </div>
+              <div className='margin-top-30 owner'>
+                <div className="bold font-18 ">Owner</div>
+                <div className='flex-justify-start align-center margin-top-20'>
+                  <div className='flex-justify-start column-direction'>
+                    <span className='old2-text font-16 relative word-break'>{item.owner}<OpenInNew sx={{ color: "#B0B7C3", fontSize: "13px" }} /></span>
                   </div>
-                </AccordionDetails>
-              </Accordion>
-            </div>
-
-            <div>
-              <Accordion className={classes.accordion}>
-                <AccordionSummary
-                  className='padding-zero'
-                  expandIcon={<ExpandMoreIcon />}
-                  aria-controls="panel4bh-content"
-                  id="panel4bh-header"
-                >
-                  <span className='accordion-title'>Details</span>
-                </AccordionSummary>
-                <AccordionDetails>
-                  <div className={classes.accordionContentContainer}>
-                    <div className={`${classes.accordionContentBlock} ${classes.accodionContentBlockDetail}`}>
-                      <div>
-                        <label>Contact Address</label>
-                        <label><span className="primary-text">{collection}</span></label>
-                      </div>
-                      <div>
-                        <label>Token ID</label>
-                        <label>{tokenId}</label>
-                      </div>
-                      <div>
-                        <label>Token Standard</label>
-                        <label>FA2</label>
-                      </div>
-                      <div>
-                        <label>Blockchain</label>
-                        <label>Tezos</label>
-                      </div>
-                      <div>
-                        <label>Metadata</label>
-                        <label>Editable</label>
-                      </div>
-                      <OpenInNew sx={{ position: "absolute", top: "10px", right: "10px", color: "#B0B7C3", fontSize: "13px" }} />
-                    </div>
-                  </div>
-                </AccordionDetails>
-              </Accordion>
-            </div>
-          </div>
-          <div className='margin-top-30 owner'>
-            <div className="bold font-18 ">Owner</div>
-            <div className='flex-justify-start align-center margin-top-20'>
-              <div className='flex-justify-start column-direction'>
-                <span className='old2-text font-16 relative word-break'>{item.owner}<OpenInNew sx={{ color: "#B0B7C3", fontSize: "13px" }} /></span>
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+            : <div className={classes.leftPanel}>
+              <div>
+                <span className='font-26 bold swap-title'>
+                  {
+                    token.name
+                  }
+                </span>
+                <div className='img-block-round overflow-hidden'>
+                  <img className='radius-13' src={getImageURI(token.displayUri)} />
+                </div>
+                <div className='margin-top-20'>
+                  <Accordion className={classes.accordion}>
+                    <AccordionSummary
+                      className='padding-zero'
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel4bh-content"
+                      id="panel4bh-header"
+                    >
+                      <span className='accordion-title'>Properties</span>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <div className={classes.accordionContentContainer}>
+                        {token.attributes.map((attribute, index) => {
+                          if (attribute.value != 0)
+                            return <div className={classes.accordionContentBlock} key={index}>
+                              <span className='primary-text'>{attribute.name}</span>
+                              <span>{attribute.value}</span>
+                            </div>
+                        })}
+                      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+
+                <div>
+                  <Accordion className={classes.accordion}>
+                    <AccordionSummary
+                      className='padding-zero'
+                      expandIcon={<ExpandMoreIcon />}
+                      aria-controls="panel4bh-content"
+                      id="panel4bh-header"
+                    >
+                      <span className='accordion-title'>Details</span>
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      <div className={classes.accordionContentContainer}>
+                        <div className={`${classes.accordionContentBlock} ${classes.accodionContentBlockDetail}`}>
+                          <div>
+                            <label>Contact Address</label>
+                            <label><span className="primary-text">{collection}</span></label>
+                          </div>
+                          <div>
+                            <label>Token ID</label>
+                            <label>{tokenId}</label>
+                          </div>
+                          <div>
+                            <label>Token Standard</label>
+                            <label>FA2</label>
+                          </div>
+                          <div>
+                            <label>Blockchain</label>
+                            <label>Tezos</label>
+                          </div>
+                          <div>
+                            <label>Metadata</label>
+                            <label>Editable</label>
+                          </div>
+                          <OpenInNew sx={{ position: "absolute", top: "10px", right: "10px", color: "#B0B7C3", fontSize: "13px" }} />
+                        </div>
+                      </div>
+                    </AccordionDetails>
+                  </Accordion>
+                </div>
+              </div>
+              <div className='margin-top-30 owner'>
+                <div className="bold font-18 ">Owner</div>
+                <div className='flex-justify-start align-center margin-top-20'>
+                  <div className='flex-justify-start column-direction'>
+                    <span className='old2-text font-16 relative word-break'>{item.owner}<OpenInNew sx={{ color: "#B0B7C3", fontSize: "13px" }} /></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+        }
         <div className={classes.rightPanel}>
           <div>
             <div className={`flex-justify align-center`}>
               <span className={`flex-justify align-center`}><span className='old1-text font-26 bold swap-options'>Swap Options</span>
                 {item.owner == account ? <Button disableRipple variant='outlined' size="small" className={"btn bg-white primary-text primary-border margin-left-10"} onClick={handleCancelListing}>Cancel Listing</Button> : null}
               </span>
-              <span className='font-16 old2-text font-16'>Expires in {item.listing.timePeriod}</span>
+              <span className='font-16 old2-text font-16'>Expires in {getTime(item.listing.timePeriod)}</span>
             </div>
 
             {
@@ -1082,11 +1162,37 @@ function ListDetailPage() {
             }
 
             {
+              isPosToken && item.listing.listingType.get('0')
+                ? <>
+                  <div className={`section-block swap-now`}>
+                    <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Deposit Paid</div>
+                    <div className='section-btn-block p24'>
+                      <span className="display-flex align-center"><img src={getTezLogo()} className="eth-img" />{toTez(reservationDetails.deposit.amounts[0])} </span>
+                    </div>
+
+                  </div>
+                  <div className={`section-block swap-now`}>
+                    <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Remaining Amount</div>
+                    <div className='section-btn-block p24'>
+                      <span className="display-flex align-center"><img src={getTezLogo()} className="eth-img" />{toTez(reservationDetails.remaining.amounts[0])} </span>
+                    </div>
+                  </div>
+                  <div className={`section-block swap-now`}>
+                    <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Time Left</div>
+                    <div className='section-btn-block p24'>
+                      <span className="display-flex align-center">{getTime(reservationDetails.dueDate)} </span>
+                    </div>
+                  </div>
+                </>
+                : null
+            }
+
+            {
               !item.listing.listingType.get('0') ? <></>
                 : <div className={`section-block swap-now`}>
                   <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Swap Now</div>
                   <div className='section-btn-block p24'>
-                    <span className="display-flex align-center"><img src='../img/ethereum.png' className="eth-img" />{toTez(item.listing.directListing.amount.toNumber())} </span>
+                    <span className="display-flex align-center"><img src={getTezLogo()} className="eth-img" />{toTez(item.listing.directListing.amount.toNumber())} </span>
                     {
                       item.owner == account ? <></> : <div>
                         <Button disableRipple variant='outlined' className={"btn bg-white primary-text primary-border swap-button"} onClick={handleBuyNow}>Swap now</Button>
@@ -1105,9 +1211,9 @@ function ListDetailPage() {
                     reserveListing.map((listing, index) => {
                       return <div className='section-btn-block reserve-now-block p24' key={index}>
                         <div className='flex-justify align-center'>
-                          <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toTez(listing.deposit)}  </div>
+                          <div className='crypto-value'><img src={getTezLogo()} className="eth-img" />{toTez(listing.deposit)}  </div>
                           <div className="font-16 plus">+</div>
-                          <div className='crypto-value'><img src='../img/ethereum.png' className="eth-img" />{toTez(listing.remaining)} </div>
+                          <div className='crypto-value'><img src={getTezLogo()} className="eth-img" />{toTez(listing.remaining)} </div>
                           <div className='expire-text'>{`within ${listing.duration / 86400} days`}</div>
                         </div>
                         <div>
@@ -1166,7 +1272,7 @@ function ListDetailPage() {
                               value={swapNowOffer.amount}
                               onChange={(e) => { setSwapNowOffer({ ...swapNowOffer, amount: e.target.value }) }}
                               sx={{ width: "250px", height: "57px", margin: "8px", background: "#ffffff", marginTop: 0 }}
-                              startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png' /></InputAdornment>}
+                              startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                               aria-describedby="outlined-weight-helper-text"
                               inputProps={{
                                 'aria-label': 'weight',
@@ -1246,7 +1352,7 @@ function ListDetailPage() {
                             value={reserveOffer.deposit}
                             onChange={(e) => { setReserveOffer({ ...reserveOffer, deposit: e.target.value }) }}
                             sx={{ width: "191px", height: "57px", margin: "8px", background: "#ffffff" }}
-                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png' /></InputAdornment>}
+                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
                               'aria-label': 'weight',
@@ -1268,7 +1374,7 @@ function ListDetailPage() {
                             value={reserveOffer.remainingAmount}
                             onChange={(e) => { setReserveOffer({ ...reserveOffer, remainingAmount: e.target.value }) }}
                             sx={{ width: "200px", height: "57px", margin: "8px", background: "#ffffff" }}
-                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png' /></InputAdornment>}
+                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
                               'aria-label': 'weight',
@@ -1415,7 +1521,7 @@ function ListDetailPage() {
                             value={swapOffer.amount}
                             onChange={(e) => { setSwapOffer({ ...swapOffer, amount: e.target.value }) }}
                             sx={{ width: "200px", height: "57px", margin: "8px", background: "#ffffff", marginTop: 0 }}
-                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png' /></InputAdornment>}
+                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
                               'aria-label': 'weight',
@@ -1474,11 +1580,6 @@ function ListDetailPage() {
                     return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} />
                   })
                 }
-                {/* {
-                  directSaleOffers.map((offer, idx) => {
-                    return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} />
-                  })
-                } */}
                 {
                   reserveOffers.map((offer, idx) => {
                     return <SwapOffer offer={offer} item={item} acceptOffer={acceptOffer} index={idx} acceptReserveOffer={acceptReserveOffer} />

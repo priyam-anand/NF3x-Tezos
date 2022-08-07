@@ -9,6 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
 import { DoubleArrowIcon } from './DoubleArrowIcon';
 import { getImageURI } from "../api/getterTezos"
+import { getPositionImage } from '../utils';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -39,7 +40,7 @@ const useStyles = makeStyles({
     }
 });
 
-const PopupConfirmSwapNow = ({ value, token, confirmSwapNow }) => {
+const PopupConfirmSwapNow = ({ value, token, confirmSwapNow, isPos }) => {
     const classes = useStyles();
 
     return (
@@ -47,7 +48,7 @@ const PopupConfirmSwapNow = ({ value, token, confirmSwapNow }) => {
             <div className='margin-tb-10'>
                 <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border popup-flex'>
                     <div className='relative section-image-block width-auto inline-block radius-10 padding-10'>
-                        <img className="radius-10" src={getImageURI(token.thumbnailUri)} />
+                        <img className="radius-10" src={isPos ? getPositionImage() : getImageURI(token.thumbnailUri)} />
                         <div className='section-image-desc width-auto'>
                             <span className='t2-text font-16 medium-weight margin-tb-10'>{token.name}</span>
                         </div>

@@ -3,13 +3,14 @@ import { makeStyles } from '@mui/styles';
 import { Autocomplete, IconButton, InputBase, Paper, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ListingCard from '../ListingCard';
+import PositionListingCard from '../PositionListingCard';
 import EditSwapOption from './EditSwapOption';
 import { useSelector, useDispatch } from "react-redux";
 import CardView from '../CardView';
-import Addresses from "../../contracts/Addresses.json";
 import ListingCardRefactor from '../ListingCardRefactor';
 import CreateListingPreview from '../CreateListingPreview';
 import { _completeEditListing } from '../../api/market';
+import Addresses from "../../contracts/Contracts.json";
 
 const useStyles = makeStyles({
   root: {
@@ -245,7 +246,11 @@ function MyListingView({
 
             <div className={`list-main-cards width-100`}>
               {activeListing.map((item, index) => {
-                return <ListingCard isEditable={false} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
+                if (item.token != Addresses.PositionToken)
+                  return <ListingCard isEditable={false} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
+                else {
+                  return <PositionListingCard isEditable={false} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />
+                }
               })}
             </div>
           </div>}

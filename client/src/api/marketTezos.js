@@ -155,6 +155,48 @@ export const _completeListing = (tezos, selected, market, account, bnplListings,
     })
 }
 
+export const _listPositionToken = async (tezos, market, account, tokenId, amount, timePeriod, dispatch) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            if (amount == 0 || timePeriod == 0) {
+                reject({ message: "Invalid arguments" });
+                return;
+            }
+
+            await _approveNFT(tezos, account, Addresses.PositionToken, tokenId, dispatch);
+
+            const saleTokenMap = {};
+            const salePrice = {};
+            const _deposit = {};
+            const _remainingAmt = {};
+            const _duration = {};
+            const bnplPaymentTokens = {};
+            const _offerAmt = {};
+            const _offerToken = {};
+            const swapOfferPaymentToken = {};
+
+            saleTokenMap[0] = Addresses.XTZ;
+            salePrice[0] = amount;
+
+            const op = await market.methods.createListing(
+                _deposit, salePrice, saleTokenMap, _duration, _remainingAmt, bnplPaymentTokens, false, _offerAmt, swapOfferPaymentToken, _offerToken, timePeriod * 86400, Addresses.PositionToken, tokenId
+            ).send({ amount: '0.5' });
+
+            dispatch(setLoading({ loading: true }));
+            await op.confirmation();
+            dispatch(setLoading({ loading: false }));
+            resolve();
+
+
+        } catch (error) {
+            console.log(error);
+            dispatch(setLoading({ loading: false }));
+            reject(error);
+            return;
+        }
+    })
+}
+
 export const _handleCancelListing = (market, item, dispatch) => {
     return new Promise(async (resolve, reject) => {
         try {
