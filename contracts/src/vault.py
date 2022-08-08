@@ -3,45 +3,56 @@ import smartpy as sp
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class Vault(sp.Contract):
-    def __init__(self):
+    def __init__(self, _admin):
         self.init(
             market = NULL_ADDRESS,
             reserve = NULL_ADDRESS,
             listing = NULL_ADDRESS,
             swap = NULL_ADDRESS,
             collectionOffer = NULL_ADDRESS,
-            reserveUtils = NULL_ADDRESS
+            reserveUtils = NULL_ADDRESS,
+            admin = _admin
         )
 
     # Access setter
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"Vault : Only Admin")
+
     @sp.entry_point
     def setListing(self, _listing):
+        self._onlyAdmin()
         sp.set_type(_listing, sp.TAddress)
-        # verify that the function caller is the admin
         self.data.listing = _listing
     
     @sp.entry_point
     def setMarket(self, _market):
         sp.set_type(_market, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.market = _market
 
     @sp.entry_point
     def setSwap(self, _swap):
         sp.set_type(_swap, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.swap = _swap
 
     @sp.entry_point
     def setReserve(self, _reserve):
         sp.set_type(_reserve, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.reserve = _reserve
 
     @sp.entry_point
     def setReserveUtils(self, _reserveUtils):
+        self._onlyAdmin()
         sp.set_type(_reserveUtils, sp.TAddress)
         self.data.reserveUtils = _reserveUtils
+
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
 
     # Utility Functions
     def _onlyApproved(self):

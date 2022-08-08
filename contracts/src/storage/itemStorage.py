@@ -4,7 +4,7 @@ structures = sp.io.import_stored_contract("structures").structures
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class ItemStorage(sp.Contract):
-    def __init__(self):
+    def __init__(self, _admin):
         self.structures = structures()
         self.init(
             detailStorage = NULL_ADDRESS,
@@ -16,34 +16,49 @@ class ItemStorage(sp.Contract):
                 tvalue = sp.TMap(
                     sp.TNat,self.structures.getItemType()
                 )
-            )            
+            ),
+            admin = _admin         
         )
     
     # Access setter
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"ItemStorage : Only Admin")
+
     @sp.entry_point
     def setSwap(self, _swap):
         sp.set_type(_swap, sp.TAddress)
+        self._onlyAdmin()
         self.data.swap = _swap
 
     @sp.entry_point
     def setListing(self, _listing):
         sp.set_type(_listing, sp.TAddress)
+        self._onlyAdmin()
         self.data.listing = _listing
 
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
         sp.set_type(_detailStorage, sp.TAddress)
+        self._onlyAdmin()
         self.data.detailStorage = _detailStorage
 
     @sp.entry_point
     def setReserve(self, _reserve):
         sp.set_type(_reserve, sp.TAddress)
+        self._onlyAdmin()
         self.data.reserve = _reserve
 
     @sp.entry_point
     def setReserveUtils(self, _reserveUtils):
         sp.set_type(_reserveUtils, sp.TAddress)
+        self._onlyAdmin()
         self.data.reserveUtils = _reserveUtils
+
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
 
     # INTERNAL FUNCTIONS
     def _onlyApproved(self):

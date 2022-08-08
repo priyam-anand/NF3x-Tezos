@@ -4,36 +4,49 @@ structures = sp.io.import_stored_contract("structures").structures
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class Listing(sp.Contract):
-    def __init__(self):
+    def __init__(self, _admin):
         self.structures = structures()
         self.init(
             itemStorage = NULL_ADDRESS,
             detailStorage = NULL_ADDRESS,
             market = NULL_ADDRESS,
-            vault = NULL_ADDRESS
+            vault = NULL_ADDRESS,
+            admin = _admin
         )
+
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"Listing : Only Admin")
 
     # Access setter functions
     @sp.entry_point
     def setItemStorage(self, _itemStorage):
+        self._onlyAdmin()
         sp.set_type(_itemStorage, sp.TAddress)
         self.data.itemStorage = _itemStorage
     
     @sp.entry_point
     def setMarket(self, _market):
+        self._onlyAdmin()
         sp.set_type(_market, sp.TAddress)
         self.data.market = _market
     
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
+        self._onlyAdmin()
         sp.set_type(_detailStorage, sp.TAddress)
         self.data.detailStorage = _detailStorage
     
     @sp.entry_point
     def setVault(self, _vault):
+        self._onlyAdmin()
         sp.set_type(_vault, sp.TAddress)
         self.data.vault = _vault
     
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
 
     # Utility functions
     def _onlyMarket(self):

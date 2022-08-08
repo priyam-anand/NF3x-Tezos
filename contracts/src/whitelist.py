@@ -3,25 +3,35 @@ import smartpy as sp
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class Whitelist(sp.Contract) :
-    def __init__(self):
+    def __init__(self, _admin):
         self.init(
             detailStorage = NULL_ADDRESS,
-            market = NULL_ADDRESS
+            market = NULL_ADDRESS,
+            admin = _admin
         )
 
     # Access setter functions 
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"Whitelist : Only Admin")
+
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
         sp.set_type(_detailStorage, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.detailStorage = _detailStorage
     
 
     @sp.entry_point
     def setMarket(self, _market):
         sp.set_type(_market, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.market = _market
+
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
 
     # Utility functions
     def _onlyApprovedContracts(self):

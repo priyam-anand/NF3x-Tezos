@@ -4,46 +4,56 @@ structures = sp.io.import_stored_contract("structures").structures
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class Market(sp.Contract):
-    def __init__(self):
+    def __init__(self, _admin):
         self.structures = structures()
         self.init(
             whitelist = NULL_ADDRESS,
             listing = NULL_ADDRESS,
             vault = NULL_ADDRESS,
             swap = NULL_ADDRESS,
-            reserve = NULL_ADDRESS
+            reserve = NULL_ADDRESS,
+            admin = _admin
         )
+
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"Market : Only Admin")
 
     # Access setters
     @sp.entry_point
     def setSwap(self, _swap):
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         sp.set_type(_swap, sp.TAddress)
         self.data.swap = _swap
 
     @sp.entry_point
     def setWhitelist(self, _whitelist):
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         sp.set_type(_whitelist, sp.TAddress)
         self.data.whitelist = _whitelist
 
     @sp.entry_point
     def setListing(self, _listing):
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         sp.set_type(_listing, sp.TAddress)
         self.data.listing = _listing
 
     @sp.entry_point
     def setVault(self, _vault):
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         sp.set_type(_vault, sp.TAddress)
         self.data.vault = _vault
 
     @sp.entry_point
     def setReserve(self, _reserve):
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         sp.set_type(_reserve, sp.TAddress)
         self.data.reserve = _reserve
+
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
 
     # Utility Functions
     def _recieveTez(self):

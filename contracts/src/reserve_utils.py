@@ -4,36 +4,50 @@ structures = sp.io.import_stored_contract("structures").structures
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class ReserveUtils(sp.Contract):
-    def __init__(self):
+    def __init__(self, _admin):
         self.structures = structures()
         self.init(
             itemStorage = NULL_ADDRESS,
             vault = NULL_ADDRESS,
             detailStorage = NULL_ADDRESS,
-            reserve = NULL_ADDRESS
+            reserve = NULL_ADDRESS, 
+            admin = _admin
         )
 
     # Access Setter Functions
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"Reserve Utils : Only Admin")
+
     @sp.entry_point
     def setReserve(self, _reserve):
+        self._onlyAdmin()
         sp.set_type(_reserve, sp.TAddress)
         self.data.reserve = _reserve
 
     @sp.entry_point
     def setItemStorage(self, _itemStorage):
+        self._onlyAdmin()
         sp.set_type(_itemStorage, sp.TAddress)
         self.data.itemStorage = _itemStorage
 
     @sp.entry_point
     def setVault(self, _vault):
+        self._onlyAdmin()
         sp.set_type(_vault, sp.TAddress)
         self.data.vault = _vault
         
     @sp.entry_point
     def setDetailStorage(self, _detailStorage):
+        self._onlyAdmin()
         sp.set_type(_detailStorage, sp.TAddress)
         self.data.detailStorage = _detailStorage
     
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
+
     # Utility functions
     def _onlyReserve(self):
         sp.verify(self.data.reserve == sp.sender, "Reserve : Reserve only")

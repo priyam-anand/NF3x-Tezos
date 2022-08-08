@@ -4,7 +4,7 @@ structures = sp.io.import_stored_contract("structures").structures
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 
 class DetailStorage(sp.Contract):
-    def __init__(self, _platformFee):
+    def __init__(self, _platformFee, _admin):
         self.structures = structures()
         self.init(
             whitelist = NULL_ADDRESS,
@@ -24,47 +24,61 @@ class DetailStorage(sp.Contract):
                 tkey = sp.TAddress, 
                 tvalue = sp.TMap(sp.TNat,self.structures.getReserveOfferType())
             ),
-            platformFees = _platformFee
+            platformFees = _platformFee,
+            admin = _admin
         )
 
      # Access setter functions
+    def _onlyAdmin(self):
+        sp.verify(self.data.admin == sp.sender,"DetailStorage : Only Admin")
+
     @sp.entry_point
     def setSwap(self, _swap):
         sp.set_type(_swap, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.swap = _swap
 
     @sp.entry_point
     def setOfferStorage(self, _offerStorage):
         sp.set_type(_offerStorage, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.offerStorage = _offerStorage
 
     @sp.entry_point
     def setWhitelist(self, _whitelist):
         sp.set_type(_whitelist, sp.TAddress)
-        # verify that the function caller is the admin
+        self._onlyAdmin()
         self.data.whitelist = _whitelist
 
     @sp.entry_point
     def setListing(self, _listing):
         sp.set_type(_listing, sp.TAddress)
+        self._onlyAdmin()
         self.data.listing = _listing
 
     @sp.entry_point
     def setItemStorage(self, _itemStorage):
         sp.set_type(_itemStorage, sp.TAddress)
+        self._onlyAdmin()
         self.data.itemStorage = _itemStorage
 
     @sp.entry_point
     def setReserve(self, _reserve):
         sp.set_type(_reserve, sp.TAddress)
+        self._onlyAdmin()
         self.data.reserve = _reserve
 
     @sp.entry_point
     def setReserveUtils(self, _reserveUtils):
         sp.set_type(_reserveUtils, sp.TAddress)
+        self._onlyAdmin()
         self.data.reserveUtils = _reserveUtils
+
+    @sp.entry_point
+    def setAdmin(self, _admin):
+        sp.set_type(_admin, sp.TAddress)
+        self._onlyAdmin()
+        self.data.admin = _admin
 
     # Utility functions/ internal functions
     def _onlyApprovedContracts(self):
