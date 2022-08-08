@@ -13,6 +13,7 @@ import { Button, IconButton, InputBase, Paper, TextField } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import { _listPositionToken } from '../../../api/marketTezos';
 import { useSelector, useDispatch } from 'react-redux';
+import { getTezLogo } from '../../../utils';
 
 const useStyles = makeStyles({
     root: {
@@ -169,7 +170,7 @@ function PendingPayments({ itemsBuyer }) {
                                         sx={{ height: "57px", width: "250px", background: "#ffffff", marginLeft: 0 }}
                                         inputProps={{ 'aria-label': 'Without label' }}
                                     >
-                                        <MenuItem value="">ETH</MenuItem>
+                                        <MenuItem value="">XTZ</MenuItem>
                                     </Select>
                                 </FormControl>
                                 <OutlinedInput
@@ -182,7 +183,7 @@ function PendingPayments({ itemsBuyer }) {
                                     value={swapNowOffer.amount}
                                     onChange={(e) => { setSwapNowOffer({ ...swapNowOffer, amount: e.target.value }) }}
                                     sx={{ width: "250px", height: "57px", margin: "8px", background: "#ffffff", marginTop: 0 }}
-                                    startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png' /></InputAdornment>}
+                                    startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                                     aria-describedby="outlined-weight-helper-text"
                                     inputProps={{
                                         'aria-label': 'weight',

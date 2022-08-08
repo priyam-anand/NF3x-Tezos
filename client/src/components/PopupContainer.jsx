@@ -90,7 +90,6 @@ const PopupContainer = ({
         aria-labelledby="customized-dialog-title"
         open={open}
         className={`${classes.root} popup-nft`}
-      // sx={{width: `${(width && width+" !important")?? "auto"}`}}
       >
         <BootstrapDialogTitle id="customized-dialog-title font-24 semibold-weight" onClose={handleClose}>
           {popupTitle}
@@ -98,11 +97,6 @@ const PopupContainer = ({
         <DialogContent dividers className={classes.content}>
           {children}
         </DialogContent>
-        {/* <DialogActions>
-          <Button disableRipple autoFocus onClick={handleClose}>
-            Save changes
-          </Button>
-        </DialogActions> */}
       </BootstrapDialog>
     </div>
   );

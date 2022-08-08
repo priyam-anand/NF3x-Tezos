@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useSelector, useDispatch } from "react-redux"
-import { getItemWIthId, getTime } from "../../../api/getter";
 import OfferItem from './OfferItem';
 import SwapOfferRow from './SwapOfferRow';
 import BuyNowPayLaterRow from './BuyNowPayLaterRow';
-import DirectSaleRow from './DirectSaleRow';
 import { _getTokenMetadata, _getToken } from '../../../api/getterTezos';
 import { _claimRejectedReserveOffer, _claimRejectedSwapOffer } from '../../../api/marketTezos';
 const RejectedOfferCard = ({ item, index, swap, reserve }) => {

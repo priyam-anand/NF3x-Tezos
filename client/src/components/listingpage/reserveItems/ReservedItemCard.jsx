@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import ListingCardRefactor from '../../ListingCardRefactor';
 import { makeStyles } from '@mui/styles';
 import { Button } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
@@ -67,13 +66,9 @@ const useStyles = makeStyles({
     }
 });
 
-// cardType is of 3 types 
-//  1. recieve_pending - when someone needs to pay
-//  2. received - when someone paid you
-//  3. to_pay - when current user need to pay
 function ReservedItemCard({ cardType = 'to_pay', item, setSwapNowOffer, setSwapOfferModal }) {
     const classes = useStyles();
-    const { tezos, market, account } = useSelector((state) => state.tezosConfig);
+    const { market } = useSelector((state) => state.tezosConfig);
     const dispatch = useDispatch();
     const [token, setToken] = useState({
         metadata: {
@@ -162,7 +157,6 @@ function ReservedItemCard({ cardType = 'to_pay', item, setSwapNowOffer, setSwapO
             <div className="outline-border reserve-item display-flex radius-15">
                 <div className='inline-block'>
                     <WalletViewCard token={token} />
-                    {/* <ListingCardRefactor size={"small"} dummyData={true} /> */}
                 </div>
                 {cardType !== 'received' && <React.Fragment>
                     <div>

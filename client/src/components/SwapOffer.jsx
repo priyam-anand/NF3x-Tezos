@@ -80,9 +80,6 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
         return acc;
     }
 
-    // if (offer.timePeriod < Math.floor(Date.now() / 1000))
-    //     return <></>
-
     return (
         <div className={`flex-justify align-center padding-15 ${classes.swapOfferCtn}`} key={index}>
             <div style={{ flex: "1 1 30%" }}>

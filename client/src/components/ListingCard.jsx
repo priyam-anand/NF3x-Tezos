@@ -1,22 +1,10 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
-import { ArrowForwardIos } from '@mui/icons-material';
 import { Button, Card, Chip } from '@mui/material';
-import axios from "axios";
 import { makeStyles } from '@mui/styles';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { setAccount } from '../redux/web3ConfigSlice';
-import { DoubleArrowIcon } from './DoubleArrowIcon';
-import Addresses from "../contracts/Addresses.json";
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { ReactComponent as EthGreen } from '../SVG/green-eth.svg';
-import { ReactComponent as EthBlue } from '../SVG/blue-eth.svg';
-import { ReactComponent as Slash } from '../SVG/slash.svg';
 import { useNavigate } from 'react-router-dom';
-import { getImageURI, getTokenDetails, _getToken } from "../api/getter"
-import { _claimBackNFT } from '../api/market';
 import Contracts from "../contracts/Contracts.json";
-import { _getTokenMetadata } from '../api/getterTezos';
+import { _getTokenMetadata, getImageURI } from '../api/getterTezos';
 import { _handleCancelListing } from '../api/marketTezos';
 import { getTezLogo } from '../utils';
 
@@ -24,9 +12,8 @@ const useStyles = makeStyles({
 
 });
 
-const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActive, isCustomLabel }) => {
+const ListingCard = ({ item, isActive, isCustomLabel }) => {
     const navigate = useNavigate();
-    const classes = useStyles();
     const cardImg = useRef({});
     const { market } = useSelector((state) => state.tezosConfig);
     const [data, setData] = useState({
@@ -35,19 +22,8 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
     });
     const dispatch = useDispatch();
 
-    useEffect(() => {
-        // window?.ethereum?.on("accountsChanged", accounts => {
-        //     dispatch(setAccount({ account: accounts[0] }));
-        // });
-        cardImg.current.onerror = (e) => {
-            // console.log(e.target.src);
-        }
-
-    }, [])
-
     const getData = async () => {
         try {
-            // get data from tzkt
             const token = item.token;
             const tokenId = item.tokenId.toNumber();
 
@@ -90,7 +66,6 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
         }
         return listings.map((listing, index) => {
             return <>
-                {/* <span className='no-hover'>{index > 0 && <Slash style={{ margin: "0 3px" }} />}</span> */}
                 <Chip className='chip-block chip' key={index}
                     label={listing.amount > 0 ?
                         `${Contracts.addressToName[listing.token]} + ${toTez(listing.amount)}`
@@ -112,13 +87,10 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
         }
         return listings.map((listing, index) => {
             return <>
-                {/* <span className='no-hover'>{index > 0 && <Slash style={{ margin: "0 3px" }} />}</span> */}
                 <Chip className='chip-block chip' label={<Fragment>
-                    {/* <EthBlue style={{ marginRight: "2px" }} /> */}
                     <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                     <span style={{ marginRight: "3px" }}>{toTez(listing.deposit.toNumber())}</span>
                     <span style={{ marginRight: "3px" }}>+</span>
-                    {/* <EthBlue style={{ marginRight: "2px" }} /> */}
                     <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                     <span style={{ marginRight: "3px" }} >{toTez(listing.remaining.toNumber())}</span>
                     <span style={{ marginRight: "3px" }}>in</span>
@@ -131,9 +103,7 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
         <div>
             <Card className={`no-shadow padding-10 width-100`}>
                 <div style={{ display: "flex", flexDirection: "column" }} className={`generic-card medium-card radius-20 pointer relative overflow-hidden ${(isActive && "active-box") ?? ""}`} onClick={() => navigate(`/listdetail/${item.token}/${item.tokenId.toNumber()}`)}>
-                    {/* <div style={{height: "100%"}}> */}
                     <img ref={cardImg} className='radius-20' src={getImageURI(data.displayUri)} alt='img' onLoadedDataCapture={(e) => console.log(e)} />
-                    {/* </div> */}
                     <div className='card-footer'>
                         <div className='flex-justify'>
                             <span className='font-14 medium-weight t2-text ellipsis'>{
@@ -160,8 +130,6 @@ const ListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex, isActi
                             }
                         </div>
                     </div>
-                    {/* {isEditable && <Button disableRipple onClick={(e) => onHandleSelectedItem(e, item, itemIndex)} startIcon={<EditOutlinedIcon className='font-14' />}
-                        className={"btn btn-edit font-14 absolute"} variant="contained">edit</Button>} */}
                     {isCustomLabel && <Button disableRipple onClick={(e) => claimBackNFT(e)} className={"btn btn-edit font-14 absolute padding-zero"} variant="contained">claim back</Button>}
                 </div>
             </Card>

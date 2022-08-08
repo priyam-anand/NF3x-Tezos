@@ -1,15 +1,8 @@
 import { makeStyles } from '@mui/styles';
 import { Button } from '@mui/material';
-import Accordion from '@mui/material/Accordion';
-import AccordionDetails from '@mui/material/AccordionDetails';
-import AccordionSummary from '@mui/material/AccordionSummary';
-import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
-import Typography from '@mui/material/Typography';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
-import { DoubleArrowIcon } from './DoubleArrowIcon';
 import { getImageURI } from "../api/getterTezos"
-import { getPositionImage } from '../utils';
+import { getPositionImage, getTezLogo } from '../utils';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -63,7 +56,7 @@ const PopupConfirmSwapNow = ({ value, token, confirmSwapNow, isPos }) => {
                     </span>
 
                     <div>
-                        <span className='align-center flex-justify font-bold-24 t2-text'><img src='../img/ethereum.png' className="eth-img" />{value}</span>
+                        <span className='align-center flex-justify font-bold-24 t2-text'><img src={getTezLogo()} className="eth-img" />{value}</span>
                     </div>
                 </div>
             </div>

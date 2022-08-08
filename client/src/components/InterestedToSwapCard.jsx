@@ -1,10 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@mui/styles';
 import CloseIcon from '@mui/icons-material/Close';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
 import { Chip, InputAdornment, OutlinedInput } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';
 import Util from '../common/Util';
@@ -120,49 +117,6 @@ const InterestedToSwapCard = ({ index, setSwapAmount, setSwapToken, removeIntere
         options: collections.map((option) => option.title),
     };
     return <div className={classes.interestedToSwapCard}>
-        {/* <div className="flex-justify display-flex">
-            <h2 className="semibold-weight heading">Search and Select collections to swap for</h2>
-            {index > 0 && <CloseIcon className="pointer" onClick={() => removeInterestedSwap(index)} />}
-        </div>
-        <Paper
-            component="form"
-            className={"inline-flex input-text no-shadow select-token"}
-            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
-        >
-            <IconButton disableRipple sx={{ p: '10px', color: "#B0B7C3" }} aria-label="search">
-                <SearchIcon />
-            </IconButton>
-            <InputBase
-                onInput={(e)=> e.target.value = Math.abs(e.target.value)}
-                sx={{ ml: 1, flex: 1 }}
-                placeholder="Search"
-                inputProps={{ 'aria-label': 'search google maps' }}
-            />
-        </Paper>
-        <h3 className="semibold-weight heading mt-27">Selected Bundles</h3>
-        <div className="bundleCardCtn">
-            <div className="bundleCard">
-                <img src="../img/azuki.png" alt="icon" />
-                <div>
-                    <div className="display-flex">
-                        <p>Mutant Ape Yacht some text</p>
-                        <CloseIcon className="icon" />
-                    </div>
-                    <span className="sub-text">Any</span>
-                </div>
-            </div>
-            <div className="bundleCard">
-                <img src="../img/azuki.png" alt="icon" />
-                <div>
-                    <div className="display-flex">
-                        <p>Mutant Ape Yacht some text</p>
-                        <CloseIcon className="icon" />
-                    </div>
-                    <span className="sub-text">Any</span>
-                </div>
-            </div>
-        </div> */}
-        {/* <h3 className="semibold-weight heading mt-27">Swap Amount</h3> */}
         <div className='flex-justify align-center'>
             <Autocomplete
                 sx={{ ml: 1, flex: 1, color: "#B0B7C3" }}

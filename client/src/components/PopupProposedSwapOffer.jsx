@@ -8,7 +8,7 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
 import { getImageURI } from '../api/getterTezos';
-import { getPositionImage } from '../utils';
+import { getPositionImage, getTezLogo } from '../utils';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -61,24 +61,6 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
     return (
         <div className={classes.root}>
             <div className='margin-tb-10'>
-                {/* <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border'>
-                    <div className='inline-flex-row'>
-                        <span className='b-grey-text font-12'>Original offer</span>
-                        <img className={`radius-10 ${classes.size}`} src={token.image_url} />
-                        <span className='b-grey-text font-10'>{token.name != null
-                            ? token.name
-                            : token.asset_contract.name + " #" + token.token_id}</span>
-                    </div>
-                    <CompareArrowsIcon className='t2-text font-bold-22' />
-                    <div className='inline-flex-row'>
-                        <span className='b-grey-text font-12'>&nbsp;</span>
-                        <img className={`radius-10 ${classes.size}`} src="../img/complete-listing.png" />
-                        <span className='b-grey-text font-10'>Azuki</span>
-                    </div>
-                    <span className='t2-text font-bold-20'>+</span>
-                    <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img"/>} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">4 Eth</Button>
-                </div> */}
-
                 <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border'>
                     <div className='inline-flex-row'>
                         <span className='b-grey-text font-12'>Proposed offer</span>
@@ -96,9 +78,9 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                             </div>
                             {
                                 swapOffer.amount > 0 ? <div className='relative section-image-block width-auto inline-block radius-10'>
-                                    <img className="radius-10" src={"../img/eth.png"} />
+                                    <img className="radius-10" src={getTezLogo()} />
                                     <div className='section-image-desc width-auto'>
-                                        <span className='t2-text font-16 medium-weight margin-tb-10'>Ethereum</span>
+                                        <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                         <span className='b-grey-text font-14'>{swapOffer.amount}</span>
                                     </div>
                                 </div> : null
@@ -108,16 +90,16 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                     {
                         reserveOffer.deposit > 0 ? <>
                             <div className='relative section-image-block width-auto inline-block radius-10'>
-                                <img className="radius-10" src={"../img/eth.png"} />
+                                <img className="radius-10" src={getTezLogo()} />
                                 <div className='section-image-desc width-auto'>
-                                    <span className='t2-text font-16 medium-weight margin-tb-10'>Ethereum</span>
+                                    <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                     <span className='b-grey-text font-14'>{reserveOffer.deposit}</span>
                                 </div>
                             </div>
                             <div className='relative section-image-block width-auto inline-block radius-10'>
-                                <img className="radius-10" src={"../img/eth.png"} />
+                                <img className="radius-10" src={getTezLogo()} />
                                 <div className='section-image-desc width-auto'>
-                                    <span className='t2-text font-16 medium-weight margin-tb-10'>Ethereum</span>
+                                    <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                     <span className='b-grey-text font-14'>{reserveOffer.remainingAmount}</span>
                                 </div>
                             </div>
@@ -128,9 +110,9 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                     }
                     {
                         swapNowOffer.amount > 0 ? <div className='relative section-image-block width-auto inline-block radius-10'>
-                            <img className="radius-10" src={"../img/eth.png"} />
+                            <img className="radius-10" src={getTezLogo()} />
                             <div className='section-image-desc width-auto'>
-                                <span className='t2-text font-16 medium-weight margin-tb-10'>Ethereum</span>
+                                <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                 <span className='b-grey-text font-14'>{swapNowOffer.amount}</span>
                             </div>
                         </div> : null
@@ -152,7 +134,7 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
-                                Select the NFT you want to SWAP or Sell for eth select NFT you want to SWAP or Sell for eth
+                                Select the NFT you want to SWAP or Sell for XTZ select NFT you want to SWAP or Sell for XTZ
                                 <a className='primary-text block-elem'>Manage account setting</a>
                             </div>
                         </AccordionDetails>

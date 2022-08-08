@@ -2,15 +2,7 @@ import React from 'react'
 import Modal from '@mui/material/Modal';
 import Box from '@mui/material/Box';
 import CloseIcon from '@mui/icons-material/Close';
-import Autocomplete from '@mui/material/Autocomplete';
-import { Button, IconButton, InputBase, Paper, TextField } from '@mui/material';
-import OutlinedInput from '@mui/material/OutlinedInput';
-import InputAdornment from '@mui/material/InputAdornment';
-import Util from '../common/Util';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import FormControl from '@mui/material/FormControl';
-import { ReactComponent as Search } from '../SVG/Search.svg';
+import { Button } from '@mui/material';
 import MiniCardView from '../components/MiniCardView';
 
 const DirectNFTSwapModal = ({ offerNftModal, handleClose, classes, directNftSwap, available, swapOffer, setSwapOffer, nftSwap }) => {

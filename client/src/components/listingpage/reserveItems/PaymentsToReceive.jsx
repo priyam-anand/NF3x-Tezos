@@ -26,13 +26,6 @@ function PaymentsToReceive({ itemsSeller }) {
                 })
             }
         </div>
-        {/* <div>
-            <h3 className="title medium-weight">Received Payments (2)</h3>
-            <div className="flex-cards">
-                <ReservedItemCard cardType="received" />
-                <ReservedItemCard cardType="received" />
-            </div>
-        </div> */}
     </div>
 }
 

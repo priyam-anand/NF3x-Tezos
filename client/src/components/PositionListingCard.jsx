@@ -1,21 +1,9 @@
 import React, { Fragment, useEffect, useState, useRef } from 'react'
-import { ArrowForwardIos } from '@mui/icons-material';
 import { Button, Card, Chip } from '@mui/material';
-import axios from "axios";
 import { makeStyles } from '@mui/styles';
 import { useSelector, useDispatch } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { setAccount } from '../redux/web3ConfigSlice';
-import { DoubleArrowIcon } from './DoubleArrowIcon';
-import Addresses from "../contracts/Addresses.json";
-import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
-import { ReactComponent as EthGreen } from '../SVG/green-eth.svg';
-import { ReactComponent as EthBlue } from '../SVG/blue-eth.svg';
-import { ReactComponent as Slash } from '../SVG/slash.svg';
 import { useNavigate } from 'react-router-dom';
-import { getImageURI, getTokenDetails, _getToken } from "../api/getter"
 import { _claimBackNFT } from '../api/market';
-import Contracts from "../contracts/Contracts.json";
 import { _getTokenMetadata, getReservationData } from '../api/getterTezos';
 import { _handleCancelListing } from '../api/marketTezos';
 import { getPositionImage, getTezLogo } from "../utils"
@@ -35,11 +23,7 @@ const PositionListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex
     const dispatch = useDispatch();
 
     useEffect(() => {
-        // window?.ethereum?.on("accountsChanged", accounts => {
-        //     dispatch(setAccount({ account: accounts[0] }));
-        // });
         cardImg.current.onerror = (e) => {
-            // console.log(e.target.src);
         }
 
     }, [])
@@ -99,8 +83,6 @@ const PositionListingCard = ({ item, isEditable, onHandleSelectedItem, itemIndex
                             }
                         </div>
                     </div>
-                    {/* {isEditable && <Button disableRipple onClick={(e) => onHandleSelectedItem(e, item, itemIndex)} startIcon={<EditOutlinedIcon className='font-14' />}
-                        className={"btn btn-edit font-14 absolute"} variant="contained">edit</Button>} */}
                     {isCustomLabel && <Button disableRipple onClick={(e) => claimBackNFT(e)} className={"btn btn-edit font-14 absolute padding-zero"} variant="contained">claim back</Button>}
                 </div>
             </Card>

@@ -1,11 +1,8 @@
 import { makeStyles } from '@mui/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import { useEffect, useState } from 'react';
-import axios from 'axios';
-import { setAccount } from '../redux/web3ConfigSlice';
 import Button from '@mui/material/Button';
-import { getTokenDetails } from '../api/getter';
-import { _getTokenMetadata } from '../api/getterTezos';
+import { _getTokenMetadata, getImageURI } from '../api/getterTezos';
 import Contracts from "../contracts/Contracts.json";
 import { getTezLogo } from "../utils"
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
@@ -38,8 +35,6 @@ const useStyles = makeStyles({
     }
 });
 
-// get token uri, contract name and image.
-
 function InterestedSwap({ listings, setOfferNftModal, setNftSwapModal, nftSwap, setNftSwap }) {
     const classes = useStyles();
     const { account } = useSelector((state) => state.tezosConfig);
@@ -51,17 +46,6 @@ function InterestedSwap({ listings, setOfferNftModal, setNftSwapModal, nftSwap, 
     const toTez = (amount) => {
         return amount / 1000000;
     }
-    const getImageURI = (uri) => {
-        uri = uri.replace("ipfs://", "https://ipfs.io/ipfs/");
-        return uri;
-    }
-    const dispatch = useDispatch();
-
-    // useEffect(() => {
-    //     window?.ethereum?.on("accountsChanged", accounts => {
-    //         dispatch(setAccount({ account: accounts[0] }));
-    //     });
-    // }, [])
 
     const swapClick = (index) => {
         setNftSwap({ ...nftSwap, paymentToken: Contracts.XTZ, amount: toTez(listings.listing.swapListing.amounts.get(index + "")), index: index });

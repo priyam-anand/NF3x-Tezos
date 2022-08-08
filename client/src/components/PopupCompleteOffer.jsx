@@ -8,7 +8,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { getImageURI } from "../api/getterTezos"
-import { getPositionImage } from '../utils';
+import { getPositionImage, getTezLogo } from '../utils';
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const useStyles = makeStyles({
@@ -141,20 +141,20 @@ const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserv
                                 {
                                     swapOffer.amount > 0 ? <>
                                         <span className='t2-text font-bold-20'>+</span>
-                                        <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapOffer.amount} Eth`}</Button></> : null
+                                        <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapOffer.amount} XTZ`}</Button></> : null
                                 }
                             </> : null
                         }
                         {
                             reserveOffer.deposit > 0 ? <>
-                                <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.deposit} Eth`}</Button>
+                                <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.deposit} XTZ`}</Button>
                                 <span className='t2-text font-bold-20'>+</span>
-                                <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.remainingAmount} Eth`}</Button>
+                                <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.remainingAmount} XTZ`}</Button>
                                 <span className='t2-text font-bold-20'>{`${reserveOffer.duration} Days`}</span>
                             </> : null
                         }
                         {
-                            swapNowOffer.amount > 0 ? <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapNowOffer.amount} Eth`}</Button> : null
+                            swapNowOffer.amount > 0 ? <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapNowOffer.amount} XTZ`}</Button> : null
                         }
                     </div>
                 </div>
@@ -177,8 +177,8 @@ const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserv
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
-                                Select the NFT you want to SWAP or Sell for eth select NFT you want to SWAP or Sell for eth
-                                <a className='primary-text block-elem'>View on etherscan</a>
+                                Select the NFT you want to SWAP or Sell for XTZ select NFT you want to SWAP or Sell for XTZ
+                                <a className='primary-text block-elem'>View on tzkt</a>
                             </div>
                         </AccordionDetails>
                     </Accordion>
@@ -199,8 +199,8 @@ const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserv
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
-                                Select the NFT you want to SWAP or Sell for eth select NFT you want to SWAP or Sell for eth
-                                <a className='primary-text block-elem'>View on etherscan</a>
+                                Select the NFT you want to SWAP or Sell for XTZ select NFT you want to SWAP or Sell for XTZ
+                                <a className='primary-text block-elem'>View on tzkt</a>
                             </div>
                         </AccordionDetails>
                     </Accordion>
@@ -221,8 +221,8 @@ const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserv
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
-                                Select the NFT you want to SWAP or Sell for eth select NFT you want to SWAP or Sell for eth
-                                <a className='primary-text block-elem'>View on etherscan</a>
+                                Select the NFT you want to SWAP or Sell for XTZ select NFT you want to SWAP or Sell for XTZ
+                                <a className='primary-text block-elem'>View on tzkt</a>
                             </div>
                         </AccordionDetails>
                     </Accordion>

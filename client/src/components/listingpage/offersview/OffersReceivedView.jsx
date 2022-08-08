@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React from 'react';
 import { makeStyles } from '@mui/styles';
 import OfferCard from './OfferCard';
 import { useSelector } from 'react-redux';

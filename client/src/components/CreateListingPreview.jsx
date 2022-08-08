@@ -1,11 +1,8 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import { useSelector } from 'react-redux';
 import { Card, Chip } from '@mui/material';
-import { ReactComponent as EthGreen } from '../SVG/green-eth.svg';
-import { ReactComponent as EthBlue } from '../SVG/blue-eth.svg';
 import { _getToken } from '../api/getter';
 import { getImageURI } from '../api/getterTezos';
-
+import { getTezLogo } from '../utils';
 const CreateListingPreview = ({ selected, bnplListings, interestedToSwap }) => {
 
     const [token, setToken] = useState({
@@ -26,10 +23,10 @@ const CreateListingPreview = ({ selected, bnplListings, interestedToSwap }) => {
     const getBnplListings = () => {
         return bnplListings.map((listing) => {
             return <Chip sx={{ maxWidth: "230px" }} className='chip-block chip' label={<Fragment>
-                <EthBlue style={{ marginRight: "2px" }} />
+                <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                 <span className='ellipsis' style={{ marginRight: "3px" }}>{listing.deposit}</span>
                 <span style={{ marginRight: "3px" }}>+</span>
-                <EthBlue style={{ marginRight: "2px" }} />
+                <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                 <span className='ellipsis' style={{ marginRight: "3px" }}>{listing.remainingAmt}</span>
                 {`${listing.duration} Days`}</Fragment>}
                 variant="outlined" />
@@ -61,7 +58,8 @@ const CreateListingPreview = ({ selected, bnplListings, interestedToSwap }) => {
                     <div className='flex-justify-start column-direction card-chip-block'>
                         {
                             selected.sale ? <div className='green-block flex-justify-start'>
-                                <span className='font-11 light-grey-text chip-title'>Swap Now: </span> <Chip sx={{ maxWidth: "230px" }} className='chip-block chip' label={<span><EthGreen /> {selected.directSalePrice} </span>} variant="outlined" />
+                                <span className='font-11 light-grey-text chip-title'>Swap Now: </span> <Chip sx={{ maxWidth: "230px" }} className='chip-block chip' label={<span>                    <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
+                                    {selected.directSalePrice} </span>} variant="outlined" />
                             </div> : null
                         }
                         {

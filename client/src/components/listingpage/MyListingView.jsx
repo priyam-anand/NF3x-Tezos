@@ -1,15 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import { Autocomplete, IconButton, InputBase, Paper, TextField } from '@mui/material';
+import { Autocomplete, IconButton, Paper, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ListingCard from '../ListingCard';
 import PositionListingCard from '../PositionListingCard';
-import EditSwapOption from './EditSwapOption';
-import { useSelector, useDispatch } from "react-redux";
-import CardView from '../CardView';
-import ListingCardRefactor from '../ListingCardRefactor';
-import CreateListingPreview from '../CreateListingPreview';
-import { _completeEditListing } from '../../api/market';
+import { useSelector } from "react-redux";
 import Addresses from "../../contracts/Contracts.json";
 
 const useStyles = makeStyles({
@@ -51,92 +46,14 @@ function MyListingView({
 }) {
   const classes = useStyles();
 
-  const { tezos, market, account } = useSelector((state) => state.tezosConfig);
-  const dispatch = useDispatch();
-  // const [acitveListingCount, setActiveListingCount] = useState(0);
-  // const [inacitveListingCount, setInactiveListingCount] = useState(0);
+  const { account } = useSelector((state) => state.tezosConfig);
   const [activeListing, setActiveListing] = useState([]);
   const [inactiveListing, setInactiveListing] = useState([]);
   const [selectedItem, setSelectedItem] = useState({});
-  const [selected, setSelected] = useState({
-    token: '',
-    tokenId: '',
-    sale: false,
-    bnpl: false,
-    swap: false,
-    directSalePrice: [''],
-    timePeriod: '1'
-  });
-  const [bnplListings, setBnplListings] = useState([
-    {
-      deposit: '',
-      remainingAmt: '',
-      duration: ''
-    }
-  ])
-  const [interestedToSwap, setInterestedToSwap] = useState([{
-    swapAmount: '',
-    swapToken: ''
-  }]);
   const [filter, setFilter] = useState('');
 
-  // const toETH = (amount) => {
-  //   return web3.utils.fromWei(amount, 'ether');
-  // }
-
-  // const toWei = (amount) => {
-  //   return web3.utils.toWei(amount, 'ether');
-  // }
-
   const onHandleSelectedItem = (e, data) => {
-    // e.stopPropagation();
-    // let currentSelectedItem = { ...selectedItem, data };
-    // var _bnplListings = [];
-    // var _interestedToSwap = [];
-    // for (let i = 0; i < data.bnplListings.length; i++) {
-    //   const _listing = data.bnplListings[i];
-    //   const _currListing = {
-    //     deposit: toETH(_listing.deposit),
-    //     remainingAmt: toETH(_listing.remaining_amount),
-    //     duration: _listing.duration / 86400
-    //   };
-    //   _bnplListings.push(_currListing);
-    // }
 
-    // for (let i = 0; i < data.swapListing.amounts.length; i++) {
-    //   const _currListing = {
-    //     swapAmount: toETH(data.swapListing.amounts[i]),
-    //     swapToken: Addresses.addressToName[data.swapListing.token_addresses[i].toLowerCase()]
-    //   };
-    //   _interestedToSwap.push(_currListing);
-    // }
-
-    // setSelected({
-    //   token: data.token,
-    //   tokenId: data.tokenId,
-    //   sale: data.listingType[0],
-    //   bnpl: data.listingType[1],
-    //   swap: data.listingType[2],
-    //   directSalePrice: data.listingType[0] ? toETH(data.directListing.amounts[0]) : '',
-    //   offerToken: data.listingType[2] ? Addresses.addressToName[data.swapListing.token_addresses[0].toLowerCase()] : Addresses.addressToName['0x91d0c5784804bd8d27a30be96b3da4037f095251'],
-    //   offerAmt: data.listingType[2] ? toETH(data.swapListing.amounts[0]) : '',
-    //   timePeriod: 3
-    // });
-    // setInterestedToSwap(_interestedToSwap);
-    // setBnplListings(_bnplListings);
-    // setSelectedItem(currentSelectedItem);
-  }
-
-  const completeEditListing = async (e) => {
-    // e.preventDefault();
-
-    // try {
-    //   await _completeEditListing(market, account, selected, toWei, bnplListings, interestedToSwap, dispatch);
-    //   window.location.reload();
-    // } catch (error) {
-    //   window.alert(error.message);
-    //   console.log(error);
-    // }
   }
 
   const filtered = (token) => {
@@ -298,22 +215,13 @@ function MyListingView({
 
             <div className={`list-main-cards width-100`}>
               {inactiveListing.map((item, index) => {
-                // if (filtered(item)) {
                 return <ListingCard isEditable={false} isCustomLabel={true} isActive={selectedItem.index === index} key={index} itemIndex={index} onHandleSelectedItem={onHandleSelectedItem} item={item} />;
-                // }
               })}
             </div>
           </div>}
         </div>
         }
       </div>
-      {selectedItem.data && <div className={`width-100 ${classes.editswap}`}>
-        <div className='width-50'><div className={`${classes.livepreview} t2-text font-14 semibold-weight`}>Live Preview</div>
-          <CreateListingPreview selected={selected} bnplListings={bnplListings} interestedToSwap={interestedToSwap} />
-        </div>
-        <div className='width-50 bg-light' style={{ height: "calc(100vh - 161px)", overflow: "auto" }}><EditSwapOption selected={selected} setSelected={setSelected} onClose={() => setSelectedItem({})} completeEditListing={completeEditListing} bnplListings={bnplListings} setBnplListings={setBnplListings} interestedToSwap={interestedToSwap} setInterestedToSwap={setInterestedToSwap} /></div>
-      </div>
-      }
     </>
   );
 }

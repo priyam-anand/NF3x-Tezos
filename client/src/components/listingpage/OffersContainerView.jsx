@@ -1,6 +1,6 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { makeStyles } from '@mui/styles';
-import { Autocomplete, Button, IconButton, InputBase, Paper, TextField } from '@mui/material';
+import { Autocomplete, Button, IconButton, Paper, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import OffersReceivedView from '../listingpage/offersview/OffersReceivedView';
 import OffersMadeView from '../listingpage/offersview/OffersMadeView';

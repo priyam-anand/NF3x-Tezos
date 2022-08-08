@@ -1,24 +1,12 @@
-import React, { Fragment, useState } from 'react';
+import React, { useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import ComponentHeader from './ComponentHeader';
-import Paper from '@mui/material/Paper';
-import InputBase from '@mui/material/InputBase';
-import IconButton from '@mui/material/IconButton';
-import SearchIcon from '@mui/icons-material/Search';
 import Select from '@mui/material/Select';
 import MenuItem from '@mui/material/MenuItem';
 import CreateListingCard from "./CreateListingCard.jsx";
-import ListingCard from './ListingCard';
-import { Button, Card, Chip, FormControl } from '@mui/material';
-import { useSelector, useDispatch } from 'react-redux';
-import { ReactComponent as EthGreen } from '../SVG/green-eth.svg';
-import { ReactComponent as EthBlue } from '../SVG/blue-eth.svg';
+import { FormControl } from '@mui/material';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import ListingCardRefactor from './ListingCardRefactor';
-import CardView from './CardView';
 import CreateListingPreview from './CreateListingPreview';
-import Addresses from "../contracts/Addresses.json";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -155,7 +143,6 @@ const useStyles = makeStyles({
 
 function CreateSwap({ available, selected, setSelected, unAvailable, content, bnplListings, interestedToSwap }) {
   const classes = useStyles();
-  const { web3 } = useSelector((state) => state.web3Config);
   const [showPreview, setShowPreview] = React.useState(false);
   const [filter, setFilter] = useState('');
 
@@ -176,7 +163,6 @@ function CreateSwap({ available, selected, setSelected, unAvailable, content, bn
           <VisibilityOffIcon />
         </div>
         <div className="create-swap">
-          {/* During integration change this to ListCard and integrate */}
           <CreateListingPreview selected={selected} bnplListings={bnplListings} interestedToSwap={interestedToSwap} />
           <p className="medium-weight center">Live Preview</p>
         </div>
@@ -211,33 +197,6 @@ function CreateSwap({ available, selected, setSelected, unAvailable, content, bn
               <MenuItem value={'World of Women'}>World of Women</MenuItem>
             </Select>
           </FormControl>
-          {/* <Paper
-            component="form"
-            className={"inline-flex input-text no-shadow search-swap"}
-            sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
-          >
-            <InputBase
-              onInput={(e)=> e.target.value = Math.abs(e.target.value)}
-              sx={{ ml: 1, flex: 1 }}
-              placeholder="Search"
-              inputProps={{ 'aria-label': 'search google maps' }}
-            />
-            <IconButton disableRipple sx={{ p: '10px', color: "#B0B7C3" }} aria-label="search">
-              <SearchIcon />
-            </IconButton>
-          </Paper> */}
-          {/* <div className={"inline-block input-text no-shadow create-swap-sort"}>
-            <span>Sort by:</span>
-            <Select
-              className={`${classes.dropdown} dropdown-home`}
-              value={""}
-              onChange={() => { }}
-              displayEmpty
-              inputProps={{ 'aria-label': 'Without label' }}
-            >
-              <MenuItem value="">All Collection </MenuItem>
-            </Select>
-          </div> */}
         </div>
         <div className="section-block swap-list">
           {

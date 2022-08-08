@@ -1,5 +1,5 @@
 import { makeStyles } from '@mui/styles';
-import { Button, MenuItem, Select } from '@mui/material';
+import { Button } from '@mui/material';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import TwitterIcon from '@mui/icons-material/Twitter';
 import RedditIcon from '@mui/icons-material/Reddit';
@@ -174,38 +174,6 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
           }
         </div>
       </div>
-      {/* <div>
-        <div className='section-image-block'>
-          <img src={token.image_url} />
-          <div className='section-image-desc'>
-            <span>{token.name != null
-              ? token.name
-              : token.asset_contract.name + " #" + token.token_id
-            }</span>
-            <span>Quantity - 01</span>
-          </div>
-        </div>
-        <div className='section-image-block block-elem float-right'>
-          <div className={"block-elem input-text no-shadow custom-dropdown"}>
-            <img src='./img/ethereum.png' className="eth-img"/>
-            <Select
-              className={`${classes.dropdown} dropdown-home`}
-              value={""}
-              onChange={() => { }}
-              displayEmpty
-              inputProps={{ 'aria-label': 'Without label' }}
-            >
-              <MenuItem value="">{selected.directSalePrice}</MenuItem>
-              <MenuItem value="1">{`${selected.offerToken} - Any ${selected.offerAmt == '' || selected.offerAmt == 0 ? "" : ` + ${selected.offerAmt}`}`}</MenuItem>
-              {bnplListings.map((listing) => {
-                return <MenuItem value='2'>
-                  {`${listing.deposit} + ${listing.remainingAmt} ${listing.duration} Days`}
-                </MenuItem>
-              })}
-            </Select>
-          </div>
-        </div>
-      </div> */}
 
       <div className='margin-top-30'>
         <div className='section-btn-block icon-block'>

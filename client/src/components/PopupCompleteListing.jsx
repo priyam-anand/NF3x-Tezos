@@ -214,8 +214,8 @@ const PopupCompleteListing = ({ popupState, selected, bnplListings, interestedTo
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
-                                Select the NFT you want to SWAP or Sell for eth select NFT you want to SWAP or Sell for eth
-                                <a className='primary-text block-elem'>View on etherscan</a>
+                                Select the NFT you want to SWAP or Sell for XTZ select NFT you want to SWAP or Sell for XTZ
+                                <a className='primary-text block-elem'>View on tzkt</a>
                             </div>
                         </AccordionDetails>
                     </Accordion>
@@ -255,7 +255,7 @@ const PopupCompleteListing = ({ popupState, selected, bnplListings, interestedTo
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
                                 To get set up for listings, you must approve this item for sale, which requires a one-time gas fee.
-                                <a className='primary-text block-elem'>View on etherscan</a>
+                                <a className='primary-text block-elem'>View on tzkt</a>
                             </div>
                         </AccordionDetails>
                     </Accordion>
@@ -288,14 +288,14 @@ const PopupCompleteListing = ({ popupState, selected, bnplListings, interestedTo
                                             </Box>
                                         </Box> : <Checkbox {...label} defaultChecked icon={<Chip className='chip-block' sx={{ fontSize: "14px", color: "#23262F", background: "#E6E8EC", border: "none" }} label="3" variant="outlined" />} checkedIcon={<CheckCircleIcon sx={{ fontSize: "31px" }} className='primary-text' />} />
                                     }
-                                    <span>{`Confirm ${selected.directSalePrice}ETh listing`}</span>
+                                    <span>{`Confirm ${selected.directSalePrice}XTZ listing`}</span>
                                 </h3>
                             </Typography>
                         </AccordionSummary>
                         <AccordionDetails className={classes.accordionDetails}>
                             <div>
                                 Accept the signature request in your wallet and wait for your listing to process.
-                                <a className='primary-text block-elem'>View on etherscan</a>
+                                <a className='primary-text block-elem'>View on tzkt</a>
                             </div>
                         </AccordionDetails>
                     </Accordion>

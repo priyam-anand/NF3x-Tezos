@@ -85,9 +85,9 @@ const PopupAcceptOffer = ({ token, confirmAcceptOffer, offerPopup, resetOfferPop
                     }
                     {
                         offerPopup.reserve ? <>
-                            <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.deposit} ETH`}</Button>
+                            <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.deposit} XTZ`}</Button>
                             <span className='t2-text font-bold-20'>+</span>
-                            <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.remainingAmount} ETH`}</Button>
+                            <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.remainingAmount} XTZ`}</Button>
                             <span className='t2-text font-bold-20'>{`${offerPopup.duration} Days`}</span>
                         </> : null
                     }

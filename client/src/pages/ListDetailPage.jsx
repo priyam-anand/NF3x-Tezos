@@ -22,7 +22,6 @@ import PopupContainer from "../components/PopupContainer";
 import PopupConfirmSwapNow from "../components/PopupConfirmSwapNow";
 import PopupReserveSwapLater from "../components/PopupReserveSwapLater";
 import PopupConfirmSwapOffer from "../components/PopupConfirmSwapOffer";
-import PopupTransactionInProgress from "../components/PopupTransactionInProgress";
 import PopupProposedSwapOffer from "../components/PopupProposedSwapOffer"
 import PopupCompleteOffer from "../components/PopupCompleteOffer";
 import PopupAcceptOffer from '../components/PopupAcceptOffer';
@@ -989,7 +988,7 @@ function ListDetailPage() {
       <PopupContainer isOpen={popupState.offer.open >= 2 && popupState.offer.open <= 3} popupTitle={"Complete your offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
         <PopupCompleteOffer popupState={popupState} token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} isPosToken={isPosToken} />
       </PopupContainer>
-      <PopupContainer isOpen={popupState.offer.open == 4} popupTitle={"Your NFTs/Eth are proposed against following swap offer"} reload={true}>
+      <PopupContainer isOpen={popupState.offer.open == 4} popupTitle={"Your NFTs/Tez are proposed against following swap offer"} reload={true}>
         <PopupProposedSwapOffer token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} isPosToken={isPosToken} />
       </PopupContainer>
       <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"} setState={e => setOfferPopup({ ...offerPopup, open: false })}>
@@ -1252,7 +1251,7 @@ function ListDetailPage() {
                                 sx={{ height: "57px", width: "250px", background: "#ffffff", marginLeft: 0 }}
                                 inputProps={{ 'aria-label': 'Without label' }}
                               >
-                                <MenuItem value="">ETH</MenuItem>
+                                <MenuItem value="">XTZ</MenuItem>
                               </Select>
                             </FormControl>
                             <OutlinedInput
@@ -1328,7 +1327,7 @@ function ListDetailPage() {
                             sx={{ height: "57px", width: "191px", background: "#ffffff" }}
                             inputProps={{ 'aria-label': 'Without label' }}
                           >
-                            <MenuItem value="">ETH</MenuItem>
+                            <MenuItem value="">XTZ</MenuItem>
                           </Select>
                         </FormControl>
                       </div>
@@ -1501,7 +1500,7 @@ function ListDetailPage() {
                               sx={{ height: "57px", width: "200px", background: "#ffffff", marginLeft: 0 }}
                               inputProps={{ 'aria-label': 'Without label' }}
                             >
-                              <MenuItem value="">ETH</MenuItem>
+                              <MenuItem value="">XTZ</MenuItem>
                             </Select>
                           </FormControl>
                           <OutlinedInput

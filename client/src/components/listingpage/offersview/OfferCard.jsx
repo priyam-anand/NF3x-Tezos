@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import SwapOfferRow from './SwapOfferRow';
 import PopupContainer from '../../PopupContainer';
 import PopupAcceptOffer from '../../PopupAcceptOffer';
-import { _getToken, getTime } from "../../../api/getter";
+import { getTime } from "../../../api/getter";
 import OfferItem from './OfferItem';
 import BuyNowPayLaterRow from './BuyNowPayLaterRow';
 import Addresses from "../../../contracts/Contracts.json"
@@ -11,10 +11,6 @@ import { getImageURI, _getTokenMetadata, getReservationData } from '../../../api
 import { _confirmAcceptOffer, _confirmAcceptReserveOffer, _cancelSwapOffer, _cancelBnplOffer } from '../../../api/marketTezos';
 
 const OfferCard = ({ item, index, made }) => {
-
-    // if item.token == positiontoken
-    // set data of other kind
-
     const [token, setToken] = useState({
         name: '',
         thumbnailUri: '',

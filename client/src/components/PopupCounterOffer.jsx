@@ -74,7 +74,7 @@ const PopupCounterOffer = () => {
                 </AccordionSummary>
                 <AccordionDetails className={classes.accordionDetails}>
                     <div>
-                        Select the NFT you want to SWAP or Sell for eth select NFT you want to SWAP or Sell for eth
+                        Select the NFT you want to SWAP or Sell for XTZ select NFT you want to SWAP or Sell for XTZ
                         <a className='primary-text block-elem'>Manage account setting</a>
                     </div>
                 </AccordionDetails>

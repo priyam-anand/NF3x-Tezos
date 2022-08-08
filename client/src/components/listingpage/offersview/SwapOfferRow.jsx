@@ -1,9 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Button, IconButton, InputBase, Paper } from '@mui/material';
-import { useSelector } from 'react-redux';
-import Addresses from "../../../contracts/Addresses.json";
-import axios from "axios";
-import { getTokenDetails, _getToken } from '../../../api/getter';
+import { Button } from '@mui/material';
 import { _getTokenMetadata, getImageURI, getTimeStamp } from "../../../api/getterTezos";
 import { getTezLogo } from '../../../utils';
 const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem, claimRejected }) => {
