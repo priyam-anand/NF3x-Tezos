@@ -4,7 +4,6 @@ import { Autocomplete, IconButton, InputBase, Paper, TextField } from '@mui/mate
 import SearchIcon from '@mui/icons-material/Search';
 import WalletViewCard from './WalletViewCard';
 import PopupCardDetail from '../PopupCardDetail';
-import PopupPrompt from '../PopupPrompt';
 import Addresses from "../../contracts/Addresses.json";
 
 const useStyles = makeStyles({
@@ -44,18 +43,10 @@ function WalletView({
     return false
   }
 
-  const calcLen = () => {
-    var count = 0;
-    for (let i = 0; i < available.length; i++)
-      if (filtered(available[i]))
-        count++;
-    return count;
-  }
-
   return (
     <div className={classes.root}>
       <div className={`action-block flex-wrap`}>
-        <label className='black-text font-16 medium-weight desktop-sm-block margin-bottom-10'>{`Total Items (${calcLen()})`}</label>
+        <label className='black-text font-16 medium-weight desktop-sm-block margin-bottom-10'>{`Total Items`}</label>
         <Paper
           component="form"
           className={"search-input input-text no-shadow"}
@@ -74,7 +65,6 @@ function WalletView({
             freeSolo
             value={filter}
             onChange={(event, value) => {
-              // setSearchResult(value);
               setFilter(value);
             }}
             options={collections.map((option) => option.title)}
@@ -105,7 +95,6 @@ function WalletView({
         }
       </div>
       <PopupCardDetail isOpen={open} onClickView={setOpen} popupToken={popupToken} />
-      {/* <PopupPrompt isOpen={open} onClickNo={setOpen} onClickYes={setOpen} titleContent={"Are you sure you  want to log out?"}/> */}
     </div>
   );
 }

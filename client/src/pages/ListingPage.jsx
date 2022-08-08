@@ -100,7 +100,6 @@ function ListingPage() {
   const [toggleFilter, setToggleFilter] = useState(false);
   const [offeredFilter, setOfferedFilter] = useState([]);
   const [wantedOfferFilter, setWantedOfferFilter] = useState([]);
-  const [count, setCount] = useState(0);
   const [searchResult, setSearchResult] = useState(null);
   const navigate = useNavigate();
 
@@ -170,9 +169,7 @@ function ListingPage() {
           <div className={`filter-title flex-justify align-center padding-10 outline-bottom-border padding-bottom-20`}>
             <span className='primary-text font-bold-16'>
               {
-                searchResult == null
-                  ? `All Collections (${count})`
-                  : `${searchResult} (${count})`
+                `All Collections`
               }
             </span>
             <span>
@@ -186,27 +183,7 @@ function ListingPage() {
 
           <div className={`${classes.listingMainhead}  desktop-listing-title`}>
             <span className='primary-text font-16 width-100'>
-              {
-                searchResult == null
-                  ? <span className='bold'>{`All Collections (${count})`}</span>
-                  : <span className='flex-justify width-100'>
-                    <span className="display-flex column-direction" style={{ flex: "80%" }}>
-                      <span className='font-20 bold'>{`${searchResult} (${count})`}</span>
-                      <span className='flex-justify-start medium-weight'>
-                        <span className='b-grey-text margin-right-5'>By</span>
-                        <span className='black-text'>kingofthegoblin</span>
-                      </span>
-                    </span>
-                    <span className='display-flex column-direction margin-right-40 center'>
-                      <span className='black-text'>2351</span>
-                      <span className='b-grey-text font-normal'>Items</span>
-                    </span>
-                    <span className='display-flex column-direction margin-right-40 center'>
-                      <span className='black-text'>4.6K</span>
-                      <span className='b-grey-text font-normal'>Owners</span>
-                    </span>
-                  </span>
-              }
+              <span className='bold'>{`All Collections`}</span>
             </span>
           </div>
 

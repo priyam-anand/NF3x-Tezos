@@ -24,10 +24,6 @@ const RejectedOfferCard = ({ item, index, swap, reserve }) => {
         }
     }
 
-    const toTez = (amount) => {
-        return amount / 1000000;
-    }
-
     const getAddress = (account) => {
         var acc = account.substring(0, 11);
         acc = acc + '...';

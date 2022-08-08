@@ -20,9 +20,7 @@ function OffersContainerView({
 }) {
   const classes = useStyles();
   const [offerViewToggle, setOfferViewToggle] = useState(true);
-  const [received, setReceived] = useState(0);
   const [allOffers, setAllOffers] = useState([]);
-  const [made, setMade] = useState(0);
 
   const [rejectedOffers, setRejectedOffers] = useState({ swap: [], reserve: [] });
 
@@ -68,36 +66,10 @@ function OffersContainerView({
       _allOffers.push({ token: listedItems[i].token, tokenId: listedItems[i].tokenId.toNumber(), owner: listedItems[i].owner, reserveOffers: Object.values(offers.reserveOffers), swapOffers: Object.values(offers.swapOffers) });
     }
     setAllOffers(_allOffers)
-    console.log("allOffers", _allOffers);
   }
 
   useEffect(() => {
-    // var count = 0;
-    // for (let i = 0; i < listedItems.length; i++) {
-    //   const item = listedItems[i];
-    //   if (item.owner.toLowerCase() == account) {
-    //     count += item.swapOffers.length + item.directSaleOffers.length + item.bnplOffers.length;
-    //   }
-    // }
-    // setReceived(count);
-
     fetchOffers();
-
-    // const timeNow = Math.floor(Date.now() / 1000);
-    // count = 0;
-    // for (let i = 0; i < listedItems.length; i++) {
-    //   const item = listedItems[i];
-    //   for (let i = 0; i < item.swapOffers.length; i++)
-    //     if (item.swapOffers[i].owner.toLowerCase() == account && item.swapOffers[i].time_period > timeNow) {
-    //       count++;
-    //     }
-    //   for (let i = 0; i < item.bnplOffers.length; i++)
-    //     if (item.bnplOffers[i].owner.toLowerCase() == account && item.bnplOffers[i].time_period > timeNow) {
-    //       count++;
-    //     }
-    // }
-    // setMade(count);
-
   }, [listedItems])
 
   const collections = [
@@ -110,8 +82,8 @@ function OffersContainerView({
       <div className={`width-100 inline-block`}>
         <div className={`action-block flex-wrap`}>
           <div className='margin-bottom-10'>
-            <Button disableRipple className={`btn ${!modules[0].isSelected ? "bg-white b-grey-text bg-b-grey-border opacity-5" : "bg-primary"} margin-bottom-5 radius-10 margin-right-20`} onClick={() => updateOfferCategory(true)} variant="contained">{`Offers Received (${received})`}</Button>
-            <Button disableRipple className={`btn ${!modules[1].isSelected ? "bg-white b-grey-text bg-b-grey-border opacity-5" : "bg-primary"} radius-10`} onClick={() => updateOfferCategory(false)} variant="contained">{`Offers Made (${made})`}</Button>
+            <Button disableRipple className={`btn ${!modules[0].isSelected ? "bg-white b-grey-text bg-b-grey-border opacity-5" : "bg-primary"} margin-bottom-5 radius-10 margin-right-20`} onClick={() => updateOfferCategory(true)} variant="contained">{`Offers Received`}</Button>
+            <Button disableRipple className={`btn ${!modules[1].isSelected ? "bg-white b-grey-text bg-b-grey-border opacity-5" : "bg-primary"} radius-10`} onClick={() => updateOfferCategory(false)} variant="contained">{`Offers Made`}</Button>
           </div>
           <Paper
             component="form"

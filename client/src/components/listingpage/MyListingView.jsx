@@ -64,22 +64,6 @@ function MyListingView({
     return false;
   }
 
-  const activeCount = () => {
-    var count = 0;
-    for (var i = 0; i < activeListing.length; i++)
-      if (filtered(activeListing[i]))
-        count++;
-    return count;
-  }
-
-  const inactiveCount = () => {
-    var count = 0;
-    for (var i = 0; i < inactiveListing.length; i++)
-      if (filtered(inactiveListing[i]))
-        count++;
-    return count;
-  }
-
   useEffect(() => {
     if (account == undefined)
       return;
@@ -151,7 +135,7 @@ function MyListingView({
                   <SearchIcon />
                 </IconButton>
               </Paper>
-              <label className='black-text font-16 medium-weight margin-top-10'>{`Active Listing (${activeCount()})`}</label>
+              <label className='black-text font-16 medium-weight margin-top-10'>{`Active Listing`}</label>
             </div>
 
             <div className={`list-main-cards width-100`}>
@@ -166,7 +150,7 @@ function MyListingView({
           </div>}
           {filters[1].isSelected && <div>
             <div className={`action-block flex-wrap`}>
-              <label className='black-text font-16 medium-weight margin-bottom-10'>{`Inactive Listing (${inactiveCount()})`}</label>
+              <label className='black-text font-16 medium-weight margin-bottom-10'>{`Inactive Listing`}</label>
               {!filters[0].isSelected && <Paper
                 component="form"
                 className={"search-input input-text no-shadow"}
