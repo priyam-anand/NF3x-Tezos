@@ -7,6 +7,8 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
+import { getImageURI } from '../api/getterTezos';
+import { getPositionImage } from '../utils';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -53,7 +55,7 @@ const useStyles = makeStyles({
     }
 });
 
-const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer }) => {
+const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, isPosToken }) => {
     const classes = useStyles();
 
     return (
@@ -80,10 +82,8 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer }
                 <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border'>
                     <div className='inline-flex-row'>
                         <span className='b-grey-text font-12'>Proposed offer</span>
-                        <img className={`radius-10 ${classes.size}`} src={token.image_url} />
-                        <span className='b-grey-text font-10'>{token.name != null
-                            ? token.name
-                            : token.asset_contract.name + " #" + token.token_id}</span>
+                        <img className={`radius-10 ${classes.size}`} src={isPosToken ? getPositionImage() : getImageURI(token.thumbnailUri)} />
+                        <span className='b-grey-text font-10'>{token.name}</span>
                     </div>
                     <CompareArrowsIcon className='t2-text font-bold-22' />
                     {

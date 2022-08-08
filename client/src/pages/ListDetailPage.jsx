@@ -601,12 +601,6 @@ function ListDetailPage() {
 
       await getGetters(_tezos, getters, dispatch);
       await getMarket(_tezos, market, dispatch);
-
-      // var _web3 = await fetchWeb3(web3, dispatch);
-      // await fetchAccount(_web3, account, dispatch);
-      // await setNetwork(_web3);
-      // await fetchGetter(_web3, getter, dispatch);
-      // await fetchMarket(_web3, market, dispatch);
     } catch (error) {
       console.error(error);
       window.alert("An error ocurred");
@@ -712,6 +706,7 @@ function ListDetailPage() {
     try {
       await _confirmSwapNow(item, market, popupState, setPopupState, dispatch);
       resetPopupState();
+      navigate('/dashboard');
     } catch (error) {
       resetPopupState();
       window.alert(error.message);
@@ -735,6 +730,7 @@ function ListDetailPage() {
   const confirmPayLater = async (index) => {
     try {
       await _confirmPayLater(item, reserveListing[index], market, popupState, setPopupState, index, dispatch);
+      navigate('/dashboard');
       resetPopupState();
     } catch (error) {
       resetPopupState();
@@ -748,7 +744,7 @@ function ListDetailPage() {
 
       await _directNftSwap(tezos, account, item, nftSwap, swapOffer, market, dispatch);
       resetPopupState();
-
+      navigate('/dashboard');
     } catch (error) {
       window.alert(error.message);
       console.error(error);
@@ -984,21 +980,16 @@ function ListDetailPage() {
         <PopupReserveSwapLater deposit={popupState.reserverNow.deposit} remainingAmount={popupState.reserverNow.remainingAmount} duration={popupState.reserverNow.duration} token={token} index={popupState.reserverNow.index} confirmPayLater={confirmPayLater} />
       </PopupContainer>
 
-      {/* here needs to be a modal to make direct swap.... */}
       <PopupContainer isOpen={popupState.offer.open == 1} popupTitle={"Confirm Swap Offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
         <PopupConfirmSwapOffer swapOffer={swapOffer} reserveOffer={reserveOffer} swapNowOffer={swapNowOffer} confirmSwapNowOffer={confirmSwapNowOffer} confirmReserveOffer={confirmReserveOffer} confirmSwapOffer={confirmSwapOffer} token={token} isPosToken={isPosToken} />
       </PopupContainer>
-      {/*
+
       <PopupContainer isOpen={popupState.offer.open >= 2 && popupState.offer.open <= 3} popupTitle={"Complete your offer"} setState={e => setPopupState({ ...popupState, offer: { ...popupState.offer, open: false } })}>
-        <PopupCompleteOffer popupState={popupState} token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} />
+        <PopupCompleteOffer popupState={popupState} token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} isPosToken={isPosToken} />
       </PopupContainer>
       <PopupContainer isOpen={popupState.offer.open == 4} popupTitle={"Your NFTs/Eth are proposed against following swap offer"} reload={true}>
-        <PopupProposedSwapOffer token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} />
+        <PopupProposedSwapOffer token={token} swapOffer={swapOffer} swapNowOffer={swapNowOffer} reserveOffer={reserveOffer} isPosToken={isPosToken} />
       </PopupContainer>
-      <PopupContainer isOpen={popupState.processing.open} popupTitle={"Transaction in progress"} setState={e => setPopupState({ ...popupState, processing: { ...popupState.processing, open: false } })}>
-        <PopupTransactionInProgress token={token} deposit={popupState.reserverNow.deposit} value={popupState.processing.value} />
-      </PopupContainer>
-      */}
       <PopupContainer isOpen={offerPopup.open} popupTitle={"Accept Swap Offer"} setState={e => setOfferPopup({ ...offerPopup, open: false })}>
         <PopupAcceptOffer token={token} confirmAcceptOffer={confirmAcceptOffer} offerPopup={offerPopup} resetOfferPopup={resetOfferPopup} confirmAcceptReserveOffer={confirmAcceptReserveOffer} isPosToken={isPosToken} />
       </PopupContainer>

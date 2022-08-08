@@ -217,11 +217,11 @@ export const _confirmSwapNow = async (item, market, popupState, setPopupState, d
         try {
             const op = await market.methods.directSwap(item.token, item.tokenId.toNumber()).send({ amount: toTez(item.listing.directListing.amount) });
             dispatch(setLoading({ loading: true }));
-            // setPopupState({
-            //     ...popupState,
-            //     swapNow: { open: false, value: '' },
-            //     processing: { open: true, value: toETH(item.listing.directListing.amount) }
-            // })
+            setPopupState({
+                ...popupState,
+                swapNow: { open: false, value: '' },
+                processing: { open: true, value: toTez(item.listing.directListing.amount) }
+            })
             await op.confirmation();
 
             dispatch(setLoading({ loading: false }));
@@ -241,17 +241,17 @@ export const _confirmPayLater = async (item, listing, market, popupState, setPop
             var amount = toTez(listing.deposit);
             const op = await market.methods.reserve(index, item.token, item.tokenId.toNumber()).send({ amount: amount });
             dispatch(setLoading({ loading: true }));
-            // setPopupState({
-            //     ...popupState,
-            //     reserverNow: {
-            //         ...popupState.reserverNow,
-            //         open: false
-            //     },
-            //     processing: {
-            //         open: true,
-            //         value: toETH(item.bnplListings[index].deposit)
-            //     }
-            // });
+            setPopupState({
+                ...popupState,
+                reserverNow: {
+                    ...popupState.reserverNow,
+                    open: false
+                },
+                processing: {
+                    open: true,
+                    value: amount
+                }
+            });
             await op.confirmation();
             dispatch(setLoading({ loading: false }));
         } catch (e) {
@@ -283,7 +283,13 @@ export const _directNftSwap = async (tezos, account, item, nftSwap, swapOffer, m
 export const _confirmSwapNowOffer = async (item, market, swapNowOffer, popupState, setPopupState, dispatch) => {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log("swapNowOffer", swapNowOffer)
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 3
+                }
+            });
             const op = await market.methods.newSwapOffer(
                 { 0: toMutez(swapNowOffer.amount) },
                 { 0: Addresses.XTZ },
@@ -296,6 +302,13 @@ export const _confirmSwapNowOffer = async (item, market, swapNowOffer, popupStat
             dispatch(setLoading({ loading: true }));
             await op.confirmation();
             dispatch(setLoading({ loading: false }));
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 4
+                }
+            });
             resolve();
         } catch (error) {
             dispatch(setLoading({ loading: false }));
@@ -308,6 +321,13 @@ export const _confirmSwapNowOffer = async (item, market, swapNowOffer, popupStat
 export const _confirmReserveOffer = async (item, market, reserveOffer, popupState, setPopupState, dispatch) => {
     return new Promise(async (resolve, reject) => {
         try {
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 3
+                }
+            });
             console.log("reserveOffer ", reserveOffer);
             const op = await market.methods.newReserveOffer(
 
@@ -327,6 +347,13 @@ export const _confirmReserveOffer = async (item, market, reserveOffer, popupStat
             dispatch(setLoading({ loading: true }));
             await op.confirmation();
             dispatch(setLoading({ loading: false }));
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 4
+                }
+            });
             resolve();
         } catch (error) {
             dispatch(setLoading({ loading: false }));
@@ -339,7 +366,22 @@ export const _confirmReserveOffer = async (item, market, reserveOffer, popupStat
 export const _confirmSwapOffer = async (tezos, account, item, market, swapOffer, popupState, setPopupState, dispatch) => {
     return new Promise(async (resolve, reject) => {
         try {
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 2
+                }
+            });
             await _approveNFT(tezos, account, swapOffer.tokenAddress, swapOffer.tokenId, dispatch);
+
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 3
+                }
+            })
 
             const op = await market.methods.newSwapOffer(
                 { 0: toMutez(swapOffer.amount) },
@@ -353,6 +395,13 @@ export const _confirmSwapOffer = async (tezos, account, item, market, swapOffer,
             dispatch(setLoading({ loading: true }));
             await op.confirmation();
             dispatch(setLoading({ loading: false }));
+            setPopupState({
+                ...popupState,
+                offer: {
+                    ...popupState.offer,
+                    open: 4
+                }
+            })
             resolve();
         } catch (error) {
             dispatch(setLoading({ loading: false }));

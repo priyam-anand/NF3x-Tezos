@@ -7,7 +7,8 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-
+import { getImageURI } from "../api/getterTezos"
+import { getPositionImage } from '../utils';
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const useStyles = makeStyles({
@@ -116,7 +117,7 @@ const useStyles = makeStyles({
     }
 });
 
-const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserveOffer }) => {
+const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserveOffer, isPosToken }) => {
     const classes = useStyles();
 
     return (
@@ -126,10 +127,8 @@ const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserv
                     <div className='width-100 flex-justify img-calc-block align-center outline-bottom-border'>
                         <div className='inline-flex-row'>
                             <span className='b-grey-text font-12'>Proposed offer</span>
-                            <img className={`radius-10 ${classes.size}`} src={token.image_url} />
-                            <span className='b-grey-text font-10'>{token.name != null
-                                ? token.name
-                                : token.asset_contract.name + " #" + token.token_id}</span>
+                            <img className={`radius-10 ${classes.size}`} src={isPosToken ? getPositionImage() : getImageURI(token.thumbnailUri)} />
+                            <span className='b-grey-text font-10'>{token.name}</span>
                         </div>
                         <CompareArrowsIcon className='t2-text font-bold-22' />
                         {
@@ -142,20 +141,20 @@ const PopupCompleteOffer = ({ popupState, token, swapOffer, swapNowOffer, reserv
                                 {
                                     swapOffer.amount > 0 ? <>
                                         <span className='t2-text font-bold-20'>+</span>
-                                        <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img"/>} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapOffer.amount} Eth`}</Button></> : null
+                                        <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapOffer.amount} Eth`}</Button></> : null
                                 }
                             </> : null
                         }
                         {
                             reserveOffer.deposit > 0 ? <>
-                                <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img"/>} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.deposit} Eth`}</Button>
+                                <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.deposit} Eth`}</Button>
                                 <span className='t2-text font-bold-20'>+</span>
-                                <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img"/>} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.remainingAmount} Eth`}</Button>
+                                <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${reserveOffer.remainingAmount} Eth`}</Button>
                                 <span className='t2-text font-bold-20'>{`${reserveOffer.duration} Days`}</span>
                             </> : null
                         }
                         {
-                            swapNowOffer.amount > 0 ? <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img"/>} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapNowOffer.amount} Eth`}</Button> : null
+                            swapNowOffer.amount > 0 ? <Button disableRipple startIcon={<img src='../img/ethereum.png' className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${swapNowOffer.amount} Eth`}</Button> : null
                         }
                     </div>
                 </div>
