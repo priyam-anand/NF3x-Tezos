@@ -7,12 +7,11 @@ import ListingCard from '../components/ListingCard';
 import Addresses from "../contracts/Contracts.json";
 import { ReactComponent as FilterFill } from "../SVG/filter-fill.svg";
 import { ReactComponent as FilterStroke } from "../SVG/filter-stroke.svg";
-// import { fetchAccount, fetchGetter, fetchWeb3, setNetwork } from '../api/web3';
-// import { getListedItems } from '../api/getter';
 import { init, getAccount, getGetters } from "../api/tezos";
 import { getListedItems } from '../api/getterTezos';
 import { useNavigate } from 'react-router-dom';
 import PositionListingCard from '../components/PositionListingCard';
+import LoadingPage from './LoadingPage';
 
 const useStyles = makeStyles({
   root: {
@@ -91,7 +90,7 @@ const useStyles = makeStyles({
 
 function ListingPage() {
   const classes = useStyles();
-  // const { account, web3, getter } = useSelector((state) => state.web3Config);
+  const [loading, setLoading] = useState(true);
   const { tezos, wallet, account, getters } = useSelector((state) => state.tezosConfig);
   const dispatch = useDispatch();
   const [filterCategories, setFilterCategories] = useState([
@@ -137,74 +136,16 @@ function ListingPage() {
     }
   }
 
-  const validateCardData = (item) => {
-    const payInFull = filterCategories[0].filters[0].isSelected;
-    const payPartial = filterCategories[0].filters[1].isSelected;
-    const swap = filterCategories[0].filters[2].isSelected;
-    const listingType = item.listingType;
-    if (payInFull && payPartial && swap)
-      return listingType[0] || listingType[1] || listingType[2];
-    if (payInFull && payPartial)
-      return listingType[0] || listingType[1];
-    if (payPartial && swap)
-      return listingType[2] || listingType[1];
-    if (payInFull && swap)
-      return listingType[0] || listingType[2];
-    if (payInFull)
-      return listingType[0];
-    if (payPartial)
-      return listingType[1];
-    if (swap)
-      return listingType[2];
-    return false;
-  }
-
   const notExpired = (timePeriod) => {
     const expires = (new Date(timePeriod)).getTime();
     const curr = Math.floor(Date.now());
     return expires > curr
   }
 
-  const validOfferedFilter = (item) => {
-    if (offeredFilter.length == 0)
-      return true;
-    for (let i = 0; i < offeredFilter.length; i++) {
-      if (Addresses.nameToAddress[offeredFilter[i].title] == item.token.toLowerCase())
-        return true;
-    }
-    return false;
-  }
-
-  const validWantedCollection = (item) => {
-    if (wantedOfferFilter.length == 0)
-      return true;
-    for (let i = 0; i < item.swapListing.token_addresses.length; i++) {
-      for (let j = 0; j < wantedOfferFilter.length; j++) {
-        if (Addresses.nameToAddress[wantedOfferFilter[j].title] == item.swapListing.token_addresses[i].toLowerCase())
-          return true;
-      }
-    }
-    return false;
-  }
-
   const _getListedItems = async () => {
     const items = await getListedItems(getters);
     setListedItems(items);
-  }
-
-  const getCount = () => {
-    var _count = 0;
-    for (let i = 0; i < listedItems.length; i++) {
-      if (validateCardData(listedItems[i]) && validOfferedFilter(listedItems[i]) && validWantedCollection(listedItems[i]) && isSearchValid(listedItems[i]))
-        _count++;
-    }
-    setCount(_count);
-  }
-
-  const isSearchValid = (item) => {
-    if (searchResult == null || Addresses.nameToAddress[searchResult] == item.token.toLowerCase())
-      return true;
-    return false;
+    setLoading(false);
   }
 
   useEffect(() => {
@@ -217,8 +158,8 @@ function ListingPage() {
       _getListedItems();
   }, [getters]);
 
-  if (tezos == undefined)
-    return <>{"not ready"}</>
+  if (loading)
+    return <LoadingPage />
 
   return (
     <Fragment>

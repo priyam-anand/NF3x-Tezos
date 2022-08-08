@@ -188,7 +188,7 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
         </div>
         <div className='margin-tb-10 btn-block'>
           <div className="center margin-tb-10">
-            <Button disableRipple className={"btn font-bold-16"} variant="contained" onClick={e => navigate('/dashboard')}>View item</Button>
+            <Button disableRipple className={"btn font-bold-16"} variant="contained" onClick={e => navigate(`/listdetail/${selected.token}/${selected.tokenId}`)}>View item</Button>
             <Button disableRipple className={"btn font-bold-16 bg-white primary-text primary-border"} variant="outlined" onClick={e => navigate('/listing')}>All Listing</Button>
           </div>
         </div>

@@ -6,16 +6,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ReactComponent as FilterFill } from "../SVG/filter-fill.svg";
 import { ReactComponent as FilterStroke } from "../SVG/filter-stroke.svg";
 import Dashboardsidebar from '../components/DashboardSidebar';
-import Addresses from "../contracts/Addresses.json";
 import MyListingView from '../components/listingpage/MyListingView';
 import WalletView from '../components/listingpage/WalletView';
 import OffersContainerView from '../components/listingpage/OffersContainerView';
 import ReservedItemsContainerView from '../components/listingpage/reserveItems/ReservedItemsContainerView';
-// import { fetchAccount, fetchGetter, fetchMarket, fetchNFTs, fetchWeb3, setNetwork } from '../api/web3';
-// import { getItemWithOwer, getListedItems, getMyListedItems, _getTokens } from "../api/getter";
 import { useNavigate } from 'react-router-dom';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos"
 import { getListedItems, _getTokens } from '../api/getterTezos';
+import LoadingPage from './LoadingPage';
 
 const useStyles = makeStyles({
   root: {
@@ -208,10 +206,9 @@ function DashboardPage() {
     categories[3].showFilters = val;
   }
 
-  if (tezos == undefined || account == undefined || getters == undefined)
-    return <></>
+  if (loading)
+    return <LoadingPage />
 
-  // console.log(available)
 
   return (
     <Fragment>

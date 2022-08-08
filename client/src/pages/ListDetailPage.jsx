@@ -40,6 +40,7 @@ import DirectNFTSwapModal from '../components/DirectNFTSwapModal';
 import { getPositionImage } from '../utils';
 import { Link } from 'react-router-dom';
 import TezLogo from "../SVG/TezosLogo_Icon_Blue.png"
+import LoadingPage from './LoadingPage';
 
 const useStyles = makeStyles({
   root: {
@@ -434,7 +435,7 @@ function ListDetailPage() {
   const [offerNftModal, setOfferNftModal] = useState(false);
   const [nftSwapModal, setNftSwapModal] = useState(false);
   const [offerNftSearch, setOfferNftSearch] = useState('');
-
+  const [loading, setLoading] = useState(true);
   const [token, setToken] = useState({
     name: '',
     displayUri: '',
@@ -586,7 +587,7 @@ function ListDetailPage() {
         listings: listings,
         directAllowed: item.listing.swapListing.swapAllowed
       });
-
+      setLoading(false)
     } catch (err) {
       window.alert(err.message);
       console.error(err);
@@ -954,8 +955,8 @@ function ListDetailPage() {
 
   const classes = useStyles();
 
-  if (!isReady()) {
-    return <></>
+  if (loading) {
+    return <LoadingPage />
   }
 
   const collections = [

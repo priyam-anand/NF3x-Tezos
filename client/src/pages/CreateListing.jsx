@@ -11,6 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import { _completeListing } from '../api/marketTezos';
 import { init, getAccount, getGetters, getMarket } from "../api/tezos";
 import { _getTokens } from '../api/getterTezos';
+import LoadingPage from './LoadingPage';
 
 const useStyles = makeStyles({
   root: {
@@ -203,7 +204,7 @@ function CreateListing() {
 
   const classes = useStyles();
   if (!isReady()) {
-    return <>{"not ready"}</>
+    return <LoadingPage />
   }
 
   return (
