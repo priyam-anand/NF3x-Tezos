@@ -31,27 +31,29 @@ export const getAccount = async (Tezos, wallet, _account, dispatch) => {
         return _account;
     }
     return new Promise(async (resolve, reject) => {
-        // var account = await wallet.client.getActiveAccount();
-        // console.log("account", account)
-        // if (account) {
-        //     dispatch(setAccount({ account: account.address }))
-        //     resolve(account.address);
-        //     return;
-        // }
-        try {
-            await wallet.client.requestPermissions({
-                network: { type: 'jakartanet' }
-            });
-            // console.log("got till here");
+        const activeAccount = await wallet.client.getActiveAccount();
+        console.log(activeAccount);
+        if (activeAccount) {
             Tezos.setWalletProvider(wallet);
-            var account = await wallet.client.getActiveAccount();
             dispatch(setTezos({ tezos: Tezos }));
             dispatch(setWallet({ wallet: wallet }));
-            dispatch(setAccount({ account: account.address }))
+            dispatch(setAccount({ account: activeAccount.address }))
+            resolve(activeAccount.address)
+        } else {
+            try {
+                await wallet.client.requestPermissions({
+                    network: { type: 'jakartanet' }
+                });
+                Tezos.setWalletProvider(wallet);
+                var account = await wallet.client.getActiveAccount();
+                dispatch(setTezos({ tezos: Tezos }));
+                dispatch(setWallet({ wallet: wallet }));
+                dispatch(setAccount({ account: account.address }))
 
-            resolve(account.address)
-        } catch (err) {
-            reject(err);
+                resolve(account.address)
+            } catch (err) {
+                reject(err);
+            }
         }
     })
 }

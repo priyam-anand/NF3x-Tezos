@@ -880,6 +880,7 @@ function ListDetailPage() {
     try {
       await _confirmAcceptOffer(item, market, offerPopup.index, dispatch);
       resetOfferPopup();
+      navigate('/dashboard');
     } catch (err) {
       window.alert(err.message);
       resetOfferPopup();
@@ -903,6 +904,7 @@ function ListDetailPage() {
   const confirmAcceptReserveOffer = async () => {
     try {
       await _confirmAcceptReserveOffer(item, market, offerPopup.index, dispatch);
+      navigate('/dashboard');
       resetOfferPopup();
     } catch (err) {
       window.alert(err.message);

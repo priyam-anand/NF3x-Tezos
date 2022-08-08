@@ -12,7 +12,6 @@ import { ReactComponent as SearchBlack } from '../SVG/Search-black.svg';
 import { ReactComponent as AddSVG } from '../SVG/Add.svg';
 import { useNavigate } from 'react-router-dom';
 import RightMenu from './RightMenu';
-import { setWeb3, setAccount } from '../redux/web3ConfigSlice';
 import Tooltip from '@mui/material/Tooltip';
 import Menu from '@mui/material/Menu';
 import MenuItem from '@mui/material/MenuItem';
@@ -26,7 +25,9 @@ import { ReactComponent as Notification } from "../SVG/Notification.svg";
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
-import { logout } from '../utils';
+import { setWallet, setTezos, setAccount } from '../redux/tezosConfigSlick';
+
+
 
 const useStyles = makeStyles({
   root: {
@@ -117,7 +118,7 @@ const useStyles = makeStyles({
 function ComponentHeader({ searchResult, setSearchResult }) {
   const classes = useStyles();
   const navigate = useNavigate();
-  const { account } = useSelector((state) => state.web3Config);
+  const { account, wallet } = useSelector((state) => state.tezosConfig);
   const [mobileSizing, setMobileSizing] = useState("");
   const [leftMenu, setLeftMenu] = useState(false);
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -140,10 +141,11 @@ function ComponentHeader({ searchResult, setSearchResult }) {
     setLeftMenu(open);
   };
 
-  const disconnectWallet = () => {
-    dispatch(setWeb3({ web3: undefined }));
+  const disconnectWallet = async () => {
+    await wallet.clearActiveAccount();
+    dispatch(setWallet({ wallet: undefined }));
+    dispatch(setTezos({ tezos: undefined }))
     dispatch(setAccount({ account: undefined }));
-    logout();
     navigate('/')
   }
 
@@ -222,7 +224,7 @@ function ComponentHeader({ searchResult, setSearchResult }) {
           <li className='mobile-inline'>
             <SearchBlack />
           </li>
-          <li className="menu-padding desktop-sm-inline">
+          {/* <li className="menu-padding desktop-sm-inline">
             <Link className="display-flex align-center" to={"/listing"}>
               <Category className={classes.icon} />
               <span className="text">Explore</span>
@@ -236,7 +238,7 @@ function ComponentHeader({ searchResult, setSearchResult }) {
           </li>
           <li className="menu-padding">
             <Notification />
-          </li>
+          </li> */}
           <li className='desktop-create-listing font-bold-14 desc-text padding-10'>
             <Button disableRipple startIcon={<Add />} className={"btn bg-primary white-text primary-border"} variant="outlined"> <Link to={"/createlist"}>Create listing</Link></Button>
 
