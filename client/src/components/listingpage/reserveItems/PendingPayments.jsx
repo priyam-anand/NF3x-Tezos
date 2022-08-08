@@ -14,6 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { _listPositionToken } from '../../../api/marketTezos';
 import { useSelector, useDispatch } from 'react-redux';
 import { getTezLogo } from '../../../utils';
+import TezLogo from "../../../SVG/TezosLogo_Icon_Blue.png";
 
 const useStyles = makeStyles({
     root: {
@@ -183,7 +184,7 @@ function PendingPayments({ itemsBuyer }) {
                                     value={swapNowOffer.amount}
                                     onChange={(e) => { setSwapNowOffer({ ...swapNowOffer, amount: e.target.value }) }}
                                     sx={{ width: "250px", height: "57px", margin: "8px", background: "#ffffff", marginTop: 0 }}
-                                    startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
+                                    startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={TezLogo} /></InputAdornment>}
                                     aria-describedby="outlined-weight-helper-text"
                                     inputProps={{
                                         'aria-label': 'weight',

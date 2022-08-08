@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Button } from '@mui/material';
 import { _getTokenMetadata, getImageURI, getTimeStamp } from "../../../api/getterTezos";
 import { getTezLogo } from '../../../utils';
+import TezLogo from "../../../SVG/TezosLogo_Icon_Blue.png";
+
 const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem, claimRejected }) => {
     const [metadata, setMetadata] = useState({
         name: "",
@@ -72,7 +74,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
                                 {
                                     offer.assets.amounts.get('0') != undefined && offer.assets.amounts.get('0').toNumber() != 0
                                         ? <div className="display-flex align-center">
-                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={getTezLogo()} className="eth-img" />
+                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={TezLogo} className="eth-img" />
                                             <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts.get('0').toNumber())}`}</span>
                                         </div>
                                         : null
@@ -95,7 +97,7 @@ const SwapOfferRow = ({ acceptSwapOffer, offer, made, cancelSwapOffer, offerItem
                                 {
                                     offer.assets.amounts[0] != undefined && offer.assets.amounts[0] != 0
                                         ? <div className="display-flex align-center">
-                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={getTezLogo()} className="eth-img" />
+                                            <img style={{ width: "15px", height: "25px", padding: "12px 0" }} src={TezLogo} className="eth-img" />
                                             <span className='font-14 t2-text'>{`${toTez(offer.assets.amounts[0])}`}</span>
                                         </div>
                                         : null

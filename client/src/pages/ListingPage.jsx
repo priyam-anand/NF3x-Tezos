@@ -212,33 +212,14 @@ function ListingPage() {
     updateSize();
   }, []);
 
-  // useEffect(() => {
-  //   if (web3 != undefined) {
-  //     web3._provider.on('chainChanged', () => {
-  //       window.location.reload();
-  //     })
-  //     web3._provider.on('accountsChanged', () => {
-  //       window.location.reload();
-  //     })
-  //   }
-  // }, [web3]);
-
   useEffect(() => {
     if (getters != undefined)
       _getListedItems();
   }, [getters]);
 
-  // useEffect(() => {
-  //   getCount();
-  // }, [listedItems]);
-
-  // useEffect(() => {
-  //   getCount();
-  // }, [offeredFilter.length, filterCategories[0].filters[0].isSelected, filterCategories[0].filters[1].isSelected, filterCategories[0].filters[2].isSelected, wantedOfferFilter.length, searchResult])
-
   if (tezos == undefined)
     return <>{"not ready"}</>
-  // console.log(searchResult);
+
   return (
     <Fragment>
       <ComponentHeader searchResult={searchResult} setSearchResult={setSearchResult} />

@@ -8,6 +8,8 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getImageURI } from '../api/getterTezos';
 import { getPositionImage, getTezLogo } from "../utils"
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
+
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const useStyles = makeStyles({

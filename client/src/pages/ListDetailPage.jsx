@@ -37,8 +37,9 @@ import { init, getAccount, getGetters, getMarket } from "../api/tezos"
 import { _getItem, _getTokenMetadata, getImageURI, _getTokens, _getOffers, getReservationData, getTimeStamp } from '../api/getterTezos';
 import { MichelsonMap } from "@taquito/taquito";
 import DirectNFTSwapModal from '../components/DirectNFTSwapModal';
-import { getPositionImage, getTezLogo } from '../utils';
+import { getPositionImage } from '../utils';
 import { Link } from 'react-router-dom';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png"
 
 const useStyles = makeStyles({
   root: {
@@ -1152,14 +1153,14 @@ function ListDetailPage() {
                   <div className={`section-block swap-now`}>
                     <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Deposit Paid</div>
                     <div className='section-btn-block p24'>
-                      <span className="display-flex align-center"><img src={getTezLogo()} className="eth-img" />{toTez(reservationDetails.deposit.amounts[0])} </span>
+                      <span className="display-flex align-center"><img src={TezLogo} className="eth-img" />{toTez(reservationDetails.deposit.amounts[0])} </span>
                     </div>
 
                   </div>
                   <div className={`section-block swap-now`}>
                     <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Remaining Amount</div>
                     <div className='section-btn-block p24'>
-                      <span className="display-flex align-center"><img src={getTezLogo()} className="eth-img" />{toTez(reservationDetails.remaining.amounts[0])} </span>
+                      <span className="display-flex align-center"><img src={TezLogo} className="eth-img" />{toTez(reservationDetails.remaining.amounts[0])} </span>
                     </div>
                   </div>
                   <div className={`section-block swap-now`}>
@@ -1177,7 +1178,7 @@ function ListDetailPage() {
                 : <div className={`section-block swap-now`}>
                   <div className={"neutral2-text font-16 margin-top-30 margin-bottom-10 options-block"}>Swap Now</div>
                   <div className='section-btn-block p24'>
-                    <span className="display-flex align-center"><img src={getTezLogo()} className="eth-img" />{toTez(item.listing.directListing.amount.toNumber())} </span>
+                    <span className="display-flex align-center"><img src={TezLogo} className="eth-img" />{toTez(item.listing.directListing.amount.toNumber())} </span>
                     {
                       item.owner == account ? <></> : <div>
                         <Button disableRipple variant='outlined' className={"btn bg-white primary-text primary-border swap-button"} onClick={handleBuyNow}>Swap now</Button>
@@ -1196,9 +1197,9 @@ function ListDetailPage() {
                     reserveListing.map((listing, index) => {
                       return <div className='section-btn-block reserve-now-block p24' key={index}>
                         <div className='flex-justify align-center'>
-                          <div className='crypto-value'><img src={getTezLogo()} className="eth-img" />{toTez(listing.deposit)}  </div>
+                          <div className='crypto-value'><img src={TezLogo} className="eth-img" />{toTez(listing.deposit)}  </div>
                           <div className="font-16 plus">+</div>
-                          <div className='crypto-value'><img src={getTezLogo()} className="eth-img" />{toTez(listing.remaining)} </div>
+                          <div className='crypto-value'><img src={TezLogo} className="eth-img" />{toTez(listing.remaining)} </div>
                           <div className='expire-text'>{`within ${listing.duration / 86400} days`}</div>
                         </div>
                         <div>
@@ -1257,7 +1258,7 @@ function ListDetailPage() {
                               value={swapNowOffer.amount}
                               onChange={(e) => { setSwapNowOffer({ ...swapNowOffer, amount: e.target.value }) }}
                               sx={{ width: "250px", height: "57px", margin: "8px", background: "#ffffff", marginTop: 0 }}
-                              startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
+                              startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={TezLogo} /></InputAdornment>}
                               aria-describedby="outlined-weight-helper-text"
                               inputProps={{
                                 'aria-label': 'weight',
@@ -1337,7 +1338,7 @@ function ListDetailPage() {
                             value={reserveOffer.deposit}
                             onChange={(e) => { setReserveOffer({ ...reserveOffer, deposit: e.target.value }) }}
                             sx={{ width: "191px", height: "57px", margin: "8px", background: "#ffffff" }}
-                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
+                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={TezLogo} /></InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
                               'aria-label': 'weight',
@@ -1359,7 +1360,7 @@ function ListDetailPage() {
                             value={reserveOffer.remainingAmount}
                             onChange={(e) => { setReserveOffer({ ...reserveOffer, remainingAmount: e.target.value }) }}
                             sx={{ width: "200px", height: "57px", margin: "8px", background: "#ffffff" }}
-                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
+                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={TezLogo} /></InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
                               'aria-label': 'weight',
@@ -1506,7 +1507,7 @@ function ListDetailPage() {
                             value={swapOffer.amount}
                             onChange={(e) => { setSwapOffer({ ...swapOffer, amount: e.target.value }) }}
                             sx={{ width: "200px", height: "57px", margin: "8px", background: "#ffffff", marginTop: 0 }}
-                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
+                            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={TezLogo} /></InputAdornment>}
                             aria-describedby="outlined-weight-helper-text"
                             inputProps={{
                               'aria-label': 'weight',

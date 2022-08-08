@@ -10,6 +10,7 @@ import { ReactComponent as DoubleHeaderArrow } from '../SVG/double-headed.svg';
 import Addresses from "../contracts/Contracts.json"
 import { _getTokenMetadata, getImageURI } from "../api/getterTezos";
 import { getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png"
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -139,7 +140,7 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
         <DoubleHeaderArrow />
         <div style={{ minWidth: "300px" }}>
           {!selected.sale ? null : <div className='radius-tlr-14 outline-border padding-tb-20 padding-lr-10'>
-            <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{selected.directSalePrice}</span></span>
+            <span className='flex-justify-start align-center'><img src={TezLogo} className="eth-img" /> <span className='t2-text font-12'>{selected.directSalePrice}</span></span>
           </div>}
           {
             selected.swap && interestedToSwap.map((listing, index) => {
@@ -154,7 +155,7 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
                 </div>
                 {
                   listing.swapAmount == 0 || listing.swapAmount == '' || listing.swapAmount == undefined ? null : <><span className='old1-text'>+</span>
-                    <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{listing.swapAmount}</span></span>
+                    <span className='flex-justify-start align-center'><img src={TezLogo} className="eth-img" /> <span className='t2-text font-12'>{listing.swapAmount}</span></span>
                   </>
                 }
 
@@ -165,9 +166,9 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
             selected.bnpl && bnplListings.map((listing, index) => {
               return <div className='radius-blr-14 outline-border padding-tb-20 padding-lr-10 flex-justify align-center relative' index={index}>
                 <span className='absolute popup-or outline-text font-12'>or</span>
-                <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{listing.deposit}</span></span>
+                <span className='flex-justify-start align-center'><img src={TezLogo} className="eth-img" /> <span className='t2-text font-12'>{listing.deposit}</span></span>
                 <span className='old1-text'>+</span>
-                <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{listing.remainingAmt}</span></span>
+                <span className='flex-justify-start align-center'><img src={TezLogo} className="eth-img" /> <span className='t2-text font-12'>{listing.remainingAmt}</span></span>
                 <span className='t2-text font-12'>{`within ${listing.duration} days`}</span>
               </div>
             })

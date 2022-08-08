@@ -5,6 +5,7 @@ import { Button } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { _getTokenMetadata, getImageURI, getTimeStamp } from '../api/getterTezos';
 import { getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
 
 const useStyles = makeStyles({
     swapOfferCtn: {
@@ -85,9 +86,9 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
             <div style={{ flex: "1 1 30%" }}>
                 {
                     offer.deposit != undefined ? <div className='display-flex align-center border'>
-                        <div className='crypto-value'> <img src={getTezLogo()} className="eth-img" />{toTez(offer.deposit)} </div>
+                        <div className='crypto-value'> <img src={TezLogo} className="eth-img" />{toTez(offer.deposit)} </div>
                         <div className="font-16 plus" style={{ margin: '0 15px' }}>+</div>
-                        <div className='crypto-value'><img src={getTezLogo()} className="eth-img" />{toTez(offer.remainingAmount)} </div>
+                        <div className='crypto-value'><img src={TezLogo} className="eth-img" />{toTez(offer.remainingAmount)} </div>
                         <div className='expire-text' style={{ marginLeft: '10px' }}>{`within ${offer.duration / 86400} days`}</div>
                     </div>
                         : null
@@ -95,7 +96,7 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
                 {
                     swap == true ? <div className='display-flex align-center border'>
                         <div className='section-image-block margin-zero'>
-                            <img src={swap ? getImageURI(metadata.thumbnailUri) : getTezLogo()} className="eth-img" alt="ethLogo" />
+                            <img src={swap ? getImageURI(metadata.thumbnailUri) : TezLogo} className="eth-img" alt="ethLogo" />
                             <div className='section-image-desc'>
                                 <span>{
                                     metadata.name
@@ -104,7 +105,7 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
                         </div>
                         {
                             swap && offer.amount > 0 ? <><div className="font-16 plus" style={{ margin: '0 15px' }}>+</div>
-                                <div className='crypto-value display-flex align-center'><img src={getTezLogo()} className="eth-img" />{toTez(offer.amount)} </div>
+                                <div className='crypto-value display-flex align-center'><img src={TezLogo} className="eth-img" />{toTez(offer.amount)} </div>
                             </> : null
                         }
                     </div>
@@ -112,7 +113,7 @@ const SwapOffer = ({ offer, item, acceptOffer, index, acceptReserveOffer }) => {
                 }
                 {
                     !swap && offer.amount > 0 ? <>
-                        <div className='crypto-value display-flex align-center'><img src={getTezLogo()} className="eth-img" />{toTez(offer.amount)} </div>
+                        <div className='crypto-value display-flex align-center'><img src={TezLogo} className="eth-img" />{toTez(offer.amount)} </div>
                     </> : null
                 }
 

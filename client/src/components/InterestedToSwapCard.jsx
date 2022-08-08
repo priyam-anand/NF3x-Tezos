@@ -6,6 +6,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';
 import Util from '../common/Util';
 import { getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
 
 const useStyles = makeStyles({
     interestedToSwapCard: {

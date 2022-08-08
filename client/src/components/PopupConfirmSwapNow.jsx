@@ -3,6 +3,7 @@ import { Button } from '@mui/material';
 import { ArrowRightAlt } from '@mui/icons-material';
 import { getImageURI } from "../api/getterTezos"
 import { getPositionImage, getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -56,7 +57,7 @@ const PopupConfirmSwapNow = ({ value, token, confirmSwapNow, isPos }) => {
                     </span>
 
                     <div>
-                        <span className='align-center flex-justify font-bold-24 t2-text'><img src={getTezLogo()} className="eth-img" />{value}</span>
+                        <span className='align-center flex-justify font-bold-24 t2-text'><img src={TezLogo} className="eth-img" />{value}</span>
                     </div>
                 </div>
             </div>

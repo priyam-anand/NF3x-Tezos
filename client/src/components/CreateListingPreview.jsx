@@ -3,6 +3,8 @@ import { Card, Chip } from '@mui/material';
 import { _getToken } from '../api/getter';
 import { getImageURI } from '../api/getterTezos';
 import { getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
+
 const CreateListingPreview = ({ selected, bnplListings, interestedToSwap }) => {
 
     const [token, setToken] = useState({
@@ -23,10 +25,10 @@ const CreateListingPreview = ({ selected, bnplListings, interestedToSwap }) => {
     const getBnplListings = () => {
         return bnplListings.map((listing) => {
             return <Chip sx={{ maxWidth: "230px" }} className='chip-block chip' label={<Fragment>
-                <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
+                <img src={TezLogo} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                 <span className='ellipsis' style={{ marginRight: "3px" }}>{listing.deposit}</span>
                 <span style={{ marginRight: "3px" }}>+</span>
-                <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
+                <img src={TezLogo} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                 <span className='ellipsis' style={{ marginRight: "3px" }}>{listing.remainingAmt}</span>
                 {`${listing.duration} Days`}</Fragment>}
                 variant="outlined" />
@@ -58,7 +60,7 @@ const CreateListingPreview = ({ selected, bnplListings, interestedToSwap }) => {
                     <div className='flex-justify-start column-direction card-chip-block'>
                         {
                             selected.sale ? <div className='green-block flex-justify-start'>
-                                <span className='font-11 light-grey-text chip-title'>Swap Now: </span> <Chip sx={{ maxWidth: "230px" }} className='chip-block chip' label={<span>                    <img src={getTezLogo()} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
+                                <span className='font-11 light-grey-text chip-title'>Swap Now: </span> <Chip sx={{ maxWidth: "230px" }} className='chip-block chip' label={<span>                    <img src={TezLogo} style={{ marginRight: "2px", marginTop: "2px", height: "12px", width: '10px' }} />
                                     {selected.directSalePrice} </span>} variant="outlined" />
                             </div> : null
                         }

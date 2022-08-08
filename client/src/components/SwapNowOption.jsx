@@ -5,6 +5,7 @@ import FormControl from '@mui/material/FormControl';
 import { InputAdornment, OutlinedInput } from '@mui/material';
 import Util from '../common/Util';
 import { getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png"
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -53,7 +54,7 @@ function SwapNowOption({ selected, setSelected }) {
             onChange={(e) => { setSelected({ ...selected, directSalePrice: [e.target.value] }) }}
             placeholder="Enter Amount"
             sx={{ width: "200px", height: "57px", margin: "8px", color: "#23262F", background: "#ffffff" }}
-            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
+            startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={TezLogo} /></InputAdornment>}
             aria-describedby="outlined-weight-helper-text"
             inputProps={{
               'aria-label': 'weight',

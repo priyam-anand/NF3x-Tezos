@@ -26,7 +26,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Modal from '@mui/material/Modal';
 import { setWallet, setTezos, setAccount } from '../redux/tezosConfigSlick';
-
+import logo from "../SVG/logo.svg"
 
 
 const useStyles = makeStyles({
@@ -174,7 +174,7 @@ function ComponentHeader({ searchResult, setSearchResult }) {
   return (
     <div className={`${classes.root} ${mobileSizing} flex-justify align-center`}>
       <div className={classes.logo}>
-        <Link to="/listing"><img src="../img/logo.svg" /></Link>
+        <Link to="/listing"><img src={logo} /></Link>
       </div>
       <div className={classes.menus}>
         <ul>
@@ -217,13 +217,13 @@ function ComponentHeader({ searchResult, setSearchResult }) {
           <li className='mobile-inline'>
             <SearchBlack />
           </li>
-          {/* <li className="menu-padding desktop-sm-inline">
+           <li className="menu-padding desktop-sm-inline">
             <Link className="display-flex align-center" to={"/listing"}>
               <Category className={classes.icon} />
               <span className="text">Explore</span>
             </Link>
           </li>
-          <li className="menu-padding desktop-sm-inline">
+          {/*<li className="menu-padding desktop-sm-inline">
             <Link className="display-flex align-center" to={"/collections"}>
               <Collection className={classes.icon} />
               <span className="text">Collections</span>

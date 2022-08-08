@@ -9,6 +9,7 @@ import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { ArrowRightAlt } from '@mui/icons-material';
 import { getImageURI } from '../api/getterTezos';
 import { getPositionImage, getTezLogo } from '../utils';
+import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -78,7 +79,7 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                             </div>
                             {
                                 swapOffer.amount > 0 ? <div className='relative section-image-block width-auto inline-block radius-10'>
-                                    <img className="radius-10" src={getTezLogo()} />
+                                    <img className="radius-10" src={TezLogo} />
                                     <div className='section-image-desc width-auto'>
                                         <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                         <span className='b-grey-text font-14'>{swapOffer.amount}</span>
@@ -90,14 +91,14 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                     {
                         reserveOffer.deposit > 0 ? <>
                             <div className='relative section-image-block width-auto inline-block radius-10'>
-                                <img className="radius-10" src={getTezLogo()} />
+                                <img className="radius-10" src={TezLogo} />
                                 <div className='section-image-desc width-auto'>
                                     <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                     <span className='b-grey-text font-14'>{reserveOffer.deposit}</span>
                                 </div>
                             </div>
                             <div className='relative section-image-block width-auto inline-block radius-10'>
-                                <img className="radius-10" src={getTezLogo()} />
+                                <img className="radius-10" src={TezLogo} />
                                 <div className='section-image-desc width-auto'>
                                     <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                     <span className='b-grey-text font-14'>{reserveOffer.remainingAmount}</span>
@@ -110,7 +111,7 @@ const PopupProposedSwapOffer = ({ token, swapOffer, swapNowOffer, reserveOffer, 
                     }
                     {
                         swapNowOffer.amount > 0 ? <div className='relative section-image-block width-auto inline-block radius-10'>
-                            <img className="radius-10" src={getTezLogo()} />
+                            <img className="radius-10" src={TezLogo} />
                             <div className='section-image-desc width-auto'>
                                 <span className='t2-text font-16 medium-weight margin-tb-10'>Tez</span>
                                 <span className='b-grey-text font-14'>{swapNowOffer.amount}</span>
