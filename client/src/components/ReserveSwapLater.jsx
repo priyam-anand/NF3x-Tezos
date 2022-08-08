@@ -6,6 +6,7 @@ import { IconButton, InputAdornment, InputBase, OutlinedInput, Paper } from '@mu
 import CloseIcon from '@mui/icons-material/Close';
 import { useEffect } from 'react';
 import Util from '../common/Util';
+import { getTezLogo } from "../utils"
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
@@ -97,7 +98,7 @@ function SwapNowOption({ listing, index, removeOption, setDeposit, setRemainigAm
                         inputProps={{ 'aria-label': 'Without label' }}
                     >
                         <MenuItem value="">
-                            ETH
+                            XTZ
                         </MenuItem>
                     </Select>
                 </FormControl>
@@ -107,16 +108,16 @@ function SwapNowOption({ listing, index, removeOption, setDeposit, setRemainigAm
                 <div className='inline-block'>
                     <label>Deposit</label>
                     <OutlinedInput
-                        onInput={(e)=> e.target.value = Util.allowNumeric(e.target.value)}
+                        onInput={(e) => e.target.value = Util.allowNumeric(e.target.value)}
                         id="outlined-adornment-weight"
                         value={listing.deposit}
                         className='option-input-field'
                         type="text"
-                        InputProps={{  min: 0 } }
+                        InputProps={{ min: 0 }}
                         onChange={e => setDeposit(e.target.value, index)}
                         placeholder="Enter Amount"
                         sx={{ width: "200px", height: "57px", margin: "8px", color: "#23262F", background: "#ffffff" }}
-                        startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png'/></InputAdornment>}
+                        startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                         aria-describedby="outlined-weight-helper-text"
                         inputProps={{
                             'aria-label': 'weight',
@@ -127,16 +128,16 @@ function SwapNowOption({ listing, index, removeOption, setDeposit, setRemainigAm
                 <div className='inline-block'>
                     <label>Swap Later</label>
                     <OutlinedInput
-                        onInput={(e)=> e.target.value = Util.allowNumeric(e.target.value)}
+                        onInput={(e) => e.target.value = Util.allowNumeric(e.target.value)}
                         id="outlined-adornment-weight"
                         value={listing.remainingAmt}
                         type="text"
-                        InputProps={{  min: 0 } }
+                        InputProps={{ min: 0 }}
                         className='option-input-field'
                         onChange={e => setRemainigAmt(e.target.value, index)}
                         placeholder="Enter Amount"
                         sx={{ width: "200px", height: "57px", margin: "8px", color: "#23262F", background: "#ffffff" }}
-                        startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png'/></InputAdornment>}
+                        startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                         aria-describedby="outlined-weight-helper-text"
                         inputProps={{
                             'aria-label': 'weight',
@@ -158,11 +159,11 @@ function SwapNowOption({ listing, index, removeOption, setDeposit, setRemainigAm
                         sx={{ p: '2px 4px', height: "57px", display: 'flex', boxShadow: "none !important", marginTop: "10px", alignItems: 'center', width: 200 }}
                     >
                         <InputBase
-                            onInput={(e)=> e.target.value = Math.abs(e.target.value)}
+                            onInput={(e) => e.target.value = Math.abs(e.target.value)}
                             sx={{ ml: 1, flex: 1 }}
                             placeholder="0"
                             type="number"
-                            InputProps={{  min: 0 } }
+                            InputProps={{ min: 0 }}
                             value={listing.duration}
                             onChange={e => setDuration(e.target.value, index)}
                             inputProps={{ 'aria-label': 'search google maps' }}

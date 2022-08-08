@@ -105,36 +105,36 @@ export const _completeListing = (tezos, selected, market, account, bnplListings,
             return;
         }
 
-        // setPopupState({
-        //     completeListing: {
-        //         open: true,
-        //         state: 0,
-        //     },
-        //     listed: false,
-        //     isLoading: true
-        // });
+        setPopupState({
+            completeListing: {
+                open: true,
+                state: 0,
+            },
+            listed: false,
+            isLoading: true
+        });
 
-        // setPopupState({
-        //     completeListing: {
-        //         open: true,
-        //         state: 1
-        //     },
-        //     listed: false,
-        //     isLoading: true
-        // });
+        setPopupState({
+            completeListing: {
+                open: true,
+                state: 1
+            },
+            listed: false,
+            isLoading: true
+        });
 
         try {
             await _approveNFT(tezos, account, token, tokenId, dispatch);
 
             dispatch(setLoading({ loading: false }));
-            // setPopupState({
-            //     completeListing: {
-            //         open: true,
-            //         state: 2,
-            //     },
-            //     listed: false,
-            //     isLoading: true
-            // });
+            setPopupState({
+                completeListing: {
+                    open: true,
+                    state: 2,
+                },
+                listed: false,
+                isLoading: true
+            });
 
             const op = await market.methods.createListing(
                 _deposit, salePrice, saleTokenMap, _duration, _remainingAmt, bnplPaymentTokens, directSwap, _offerAmt, swapOfferPaymentToken, _offerToken, _timePeriod, token, tokenId

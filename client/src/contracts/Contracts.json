@@ -28,5 +28,13 @@
         "KT1RD5z5BgQnHirHbW2ic5FM9WwU4t4ivQC2": "Ziggurats",
         "KT1C3refgX86Xwu637VvoK9CoezPghoSdQ9s": "Prjktneon",
         "KT1JLRYdGwPmRRpKTrjThGxEcTE4DJnpyXWQ": "GOGOs"
+    },
+    "nameToImageUri": {
+        "Ottez": "ipfs://QmSNW6VnAMY4p1nWe49f5M8dkRSTguySVrY8weEy7ywnZH/2.json",
+        "Tezzardz": "ipfs://zb2rhmxh3zVHAdWRSXxjRSZoEf1j59eaEpkxyScZHkGQnw9A5",
+        "Neonz": "ipfs://zb2rhnUAwPRa2MJBy9P238WRVZZBGEfCUHgsER79nDzYiCUVh",
+        "Ziggurats": "ipfs://QmZKJB3PdNGvqDzvS1ByQjG1z9dZ49TqgypdVEx8Rsivse/1.json",
+        "Prjktneon": "ipfs://zb2rhX7ScmpAdMfiEJPYEjG2SCqhkv1Y8n2rDo58EXvJo6Fgn",
+        "GOGOs": "ipfs://Qme2oguMgueAqmm2SScJWmkrncA6z6jWkbkxeb3fbg5bHM"
     }
 }

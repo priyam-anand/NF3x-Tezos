@@ -8,7 +8,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Autocomplete from '@mui/material/Autocomplete';
 import { TextField } from '@mui/material';
 import Util from '../common/Util';
-
+import { getTezLogo } from '../utils';
 
 const useStyles = makeStyles({
     interestedToSwapCard: {
@@ -200,7 +200,7 @@ const InterestedToSwapCard = ({ index, setSwapAmount, setSwapToken, removeIntere
                 onChange={(e) => setSwapAmount(e.target.value, index)}
                 placeholder="Enter Amount"
                 sx={{ width: "200px !important", height: "57px", color: "#23262F", background: "#ffffff" }}
-                startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src='../img/ethereum.png' /></InputAdornment>}
+                startAdornment={<InputAdornment position="start"><img className='outline-right-border input-img eth-img' src={getTezLogo()} /></InputAdornment>}
                 aria-describedby="outlined-weight-helper-text"
                 inputProps={{
                     'aria-label': 'weight',

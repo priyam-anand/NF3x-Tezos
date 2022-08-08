@@ -6,9 +6,11 @@ import RedditIcon from '@mui/icons-material/Reddit';
 import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from 'react';
-import axios from "axios";
 import { ReactComponent as DoubleHeaderArrow } from '../SVG/double-headed.svg';
-import Addresses from "../contracts/Addresses.json"
+import Addresses from "../contracts/Contracts.json"
+import { _getTokenMetadata, getImageURI } from "../api/getterTezos";
+import { getTezLogo } from '../utils';
+
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
 
 const useStyles = makeStyles({
@@ -106,12 +108,18 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
 
   const [token, setToken] = useState({
     name: '',
-    image_url: ""
+    thumbnailUri: ""
   });
 
   const getItem = async () => {
-    const token = (await axios.get(`https://testnets-api.opensea.io/api/v1/asset/${selected.token}/${selected.tokenId}`)).data;
-    setToken(token);
+    try {
+      const token = await _getTokenMetadata(selected.token, selected.tokenId);
+      setToken(token);
+    } catch (err) {
+      window.alert(err.message);
+      console.error(err);
+    }
+
   }
 
   useEffect(() => {
@@ -122,26 +130,23 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
     <div className={classes.root}>
       <div className='flex-justify align-baseline margin-top-20'>
         <div className='relative flex-justify-start height-fit width-auto outline-border radius-10 padding-10'>
-          <img className="small-card-img radius-5 margin-right-10" src={token.image_url} />
+          <img className="small-card-img radius-5 margin-right-10" src={getImageURI(token.thumbnailUri)} />
           <div className='width-auto flex-justify-start column-direction'>
-            <span className='t2-text font-12 ellipsis'>{token.name != null
-              ? token.name
-              : token.asset_contract.name + " #" + token.token_id
-            }</span>
+            <span className='t2-text font-12 ellipsis'>{token.name}</span>
             <span className='b-grey-text font-12'>Quantity - 01</span>
           </div>
         </div>
         <DoubleHeaderArrow />
         <div style={{ minWidth: "300px" }}>
           {!selected.sale ? null : <div className='radius-tlr-14 outline-border padding-tb-20 padding-lr-10'>
-            <span className='flex-justify-start align-center'><img src="../img/ethereum.png" className="eth-img" /> <span className='t2-text font-12'>{selected.directSalePrice}</span></span>
+            <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{selected.directSalePrice}</span></span>
           </div>}
           {
             selected.swap && interestedToSwap.map((listing, index) => {
               return <div className='outline-border padding-tb-20 padding-lr-10 flex-justify align-center relative' index={index}>
                 <span className='absolute popup-or outline-text font-12'>or</span>
                 <div className='flex-justify-start align-center'>
-                  <img className="small-card-img radius-5 margin-right-10" src={Addresses.nameToImageUri[listing.swapToken]} />
+                  <img className="small-card-img radius-5 margin-right-10" src={getImageURI(Addresses.nameToImageUri[listing.swapToken])} />
                   <div className='width-auto flex-justify-start column-direction'>
                     <span className='t2-text font-12 ellipsis'>{listing.swapToken}</span>
                     <span className='b-grey-text font-12'>Any</span>
@@ -149,7 +154,7 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
                 </div>
                 {
                   listing.swapAmount == 0 || listing.swapAmount == '' || listing.swapAmount == undefined ? null : <><span className='old1-text'>+</span>
-                    <span className='flex-justify-start align-center'><img src="../img/ethereum.png" className="eth-img" /> <span className='t2-text font-12'>{listing.swapAmount}</span></span>
+                    <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{listing.swapAmount}</span></span>
                   </>
                 }
 
@@ -160,9 +165,9 @@ const PopupListedForSale = ({ selected, bnplListings, interestedToSwap }) => {
             selected.bnpl && bnplListings.map((listing, index) => {
               return <div className='radius-blr-14 outline-border padding-tb-20 padding-lr-10 flex-justify align-center relative' index={index}>
                 <span className='absolute popup-or outline-text font-12'>or</span>
-                <span className='flex-justify-start align-center'><img src="../img/ethereum.png" className="eth-img" /> <span className='t2-text font-12'>{listing.deposit}</span></span>
+                <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{listing.deposit}</span></span>
                 <span className='old1-text'>+</span>
-                <span className='flex-justify-start align-center'><img src="../img/ethereum.png" className="eth-img" /> <span className='t2-text font-12'>{listing.remainingAmt}</span></span>
+                <span className='flex-justify-start align-center'><img src={getTezLogo()} className="eth-img" /> <span className='t2-text font-12'>{listing.remainingAmt}</span></span>
                 <span className='t2-text font-12'>{`within ${listing.duration} days`}</span>
               </div>
             })

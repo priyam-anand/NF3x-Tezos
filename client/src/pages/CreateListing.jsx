@@ -77,7 +77,7 @@ function CreateListing() {
     sale: false,
     bnpl: false,
     swap: false,
-    directSwap : false,
+    directSwap: false,
     directSalePrice: [''],
     offerToken: '',
     offerAmt: '',
@@ -144,21 +144,21 @@ function CreateListing() {
     e.preventDefault();
     try {
       await _completeListing(tezos, selected, market, account, bnplListings, interestedToSwap, setPopupState, dispatch);
-      // setPopupState({
-      //   completeListing: {
-      //     open: false,
-      //     state: 0,
-      //   },
-      //   listed: true
-      // });
+      setPopupState({
+        completeListing: {
+          open: false,
+          state: 0,
+        },
+        listed: true
+      });
     } catch (error) {
-      // setPopupState({
-      //   completeListing: {
-      //     open: false,
-      //     state: 0,
-      //   },
-      //   listed: false
-      // });
+      setPopupState({
+        completeListing: {
+          open: false,
+          state: 0,
+        },
+        listed: false
+      });
       window.alert(error.message);
       console.error(error);
     }
@@ -197,17 +197,6 @@ function CreateListing() {
     _init();
   }, []);
 
-  // useEffect(() => {
-  //   if (web3 != undefined) {
-  //     web3._provider.on('chainChanged', () => {
-  //       window.location.reload();
-  //     })
-  //     web3._provider.on('accountsChanged', () => {
-  //       window.location.reload();
-  //     })
-  //   }
-  // }, [web3]);
-
   useEffect(() => {
     if (tezos != undefined && account != undefined)
       getTokens();
@@ -223,19 +212,18 @@ function CreateListing() {
     <Fragment>
       <ComponentHeader searchResult={searchResult} setSearchResult={setSearchResult} />
 
-      {/* <PopupContainer isOpen={popupState.completeListing.open} popupTitle={"Complete Listing"} setState={e => setPopupState({ ...popupState, completeListing: { ...popupState.completeListing, open: false } })}>
+      <PopupContainer isOpen={popupState.completeListing.open} popupTitle={"Complete Listing"} setState={e => setPopupState({ ...popupState, completeListing: { ...popupState.completeListing, open: false } })}>
         <PopupCompleteListing popupState={popupState} selected={selected} bnplListings={bnplListings} interestedToSwap={interestedToSwap} />
       </PopupContainer>
       <PopupContainer isOpen={popupState.listed} popupTitle={"Your Item is now listed for sale"} reload={true}>
         <PopupListedForSale popupState={popupState} selected={selected} bnplListings={bnplListings} interestedToSwap={interestedToSwap} />
-      </PopupContainer> */}
+      </PopupContainer>
 
       <div className={classes.root}>
         <div className={classes.createListingHeader}>
           <CreateSwap available={available} selected={selected} setSelected={setSelected} unAvailable={unAvailable} bnplListings={bnplListings} interestedToSwap={interestedToSwap}
-          content={<SwapOptions selected={selected} setSelected={setSelected} completeListing={completeListing} bnplListings={bnplListings} setBnplListings={setBnplListings} interestedToSwap={interestedToSwap} setInterestedToSwap={setInterestedToSwap} canceCreatelListing={canceCreatelListing} />} 
+            content={<SwapOptions selected={selected} setSelected={setSelected} completeListing={completeListing} bnplListings={bnplListings} setBnplListings={setBnplListings} interestedToSwap={interestedToSwap} setInterestedToSwap={setInterestedToSwap} canceCreatelListing={canceCreatelListing} />}
           />
-          {/* <HowToCreateSwap /> */}
         </div>
       </div>
     </Fragment>
