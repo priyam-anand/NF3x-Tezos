@@ -549,7 +549,6 @@ function ListDetailPage() {
 
   const getItem = async () => {
     try {
-
       const item = await _getItem(collection, tokenId, getters);
       console.log(item);
       if (isPosToken) {
@@ -591,6 +590,7 @@ function ListDetailPage() {
     } catch (err) {
       window.alert(err.message);
       console.error(err);
+      navigate('/listing')
     }
 
   }
@@ -605,6 +605,7 @@ function ListDetailPage() {
     } catch (error) {
       console.error(error);
       window.alert("An error ocurred");
+      navigate('/listing')
     }
   }
 
@@ -640,6 +641,7 @@ function ListDetailPage() {
     } catch (error) {
       console.error(error);
       window.alert("An error ocurred");
+      navigate('/listing')
     }
   }
   const resetPopupState = () => {

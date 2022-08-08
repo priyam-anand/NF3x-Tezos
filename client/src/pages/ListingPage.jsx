@@ -142,9 +142,15 @@ function ListingPage() {
   }
 
   const _getListedItems = async () => {
-    const items = await getListedItems(getters);
-    setListedItems(items);
-    setLoading(false);
+    try {
+      const items = await getListedItems(getters);
+      setListedItems(items);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+      window.alert("An error occured");
+      navigate('/');
+    }
   }
 
   useEffect(() => {
