@@ -174,7 +174,7 @@ function CreateListing() {
       bnpl: false,
       swap: false,
       directSalePrice: [''],
-      offerToken: 'Bored Apes',
+      offerToken: 'Tezzardz',
       offerAmt: '',
       timePeriod: '1'
     });
@@ -187,7 +187,7 @@ function CreateListing() {
     ]);
     setInterestedToSwap([{
       swapAmount: '',
-      swapToken: 'Bored Apes'
+      swapToken: 'Tezzardz'
     }]);
   }
 

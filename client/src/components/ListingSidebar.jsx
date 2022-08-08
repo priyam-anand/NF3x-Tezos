@@ -79,13 +79,6 @@ const useStyles = makeStyles({
 });
 
 const collections = [
-  { title: 'Bored Apes' },
-  { title: 'Azuki' },
-  { title: 'Noodles' },
-  { title: 'Mooncats' },
-  { title: 'WVRP' },
-  { title: 'World of Women' },
-  { title: "Doodles" }
 ];
 
 const blue = {

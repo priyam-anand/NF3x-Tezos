@@ -188,13 +188,6 @@ function CreateSwap({ available, selected, setSelected, unAvailable, content, bn
               sx={{ height: "57px", width: "215px !important", color: "#23262F" }}
               inputProps={{ 'aria-label': 'Without label' }}
             >
-              <MenuItem value={''}>All Collections</MenuItem>
-              <MenuItem value={'Bored Apes'}>Bored Apes</MenuItem>
-              <MenuItem value={'Noodles'}>Noodle</MenuItem>
-              <MenuItem value={'Azuki'}>Azuki</MenuItem>
-              <MenuItem value={'WVRP'}>WVRP</MenuItem>
-              <MenuItem value={'Mooncats'}>Mooncats</MenuItem>
-              <MenuItem value={'World of Women'}>World of Women</MenuItem>
             </Select>
           </FormControl>
         </div>
