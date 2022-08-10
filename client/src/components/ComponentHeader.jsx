@@ -143,8 +143,7 @@ function ComponentHeader({ searchResult, setSearchResult }) {
 
   const disconnectWallet = async () => {
     await wallet.clearActiveAccount();
-    dispatch(setWallet({ wallet: undefined }));
-    dispatch(setTezos({ tezos: undefined }))
+
     dispatch(setAccount({ account: undefined }));
     navigate('/')
   }
@@ -217,7 +216,7 @@ function ComponentHeader({ searchResult, setSearchResult }) {
           <li className='mobile-inline'>
             <SearchBlack />
           </li>
-           <li className="menu-padding desktop-sm-inline">
+          <li className="menu-padding desktop-sm-inline">
             <Link className="display-flex align-center" to={"/listing"}>
               <Category className={classes.icon} />
               <span className="text">Explore</span>

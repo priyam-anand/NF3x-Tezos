@@ -4,7 +4,6 @@ import { Autocomplete, IconButton, Paper, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import WalletViewCard from './WalletViewCard';
 import PopupCardDetail from '../PopupCardDetail';
-import Addresses from "../../contracts/Addresses.json";
 
 const useStyles = makeStyles({
   root: {
@@ -34,14 +33,6 @@ function WalletView({
   const flatProps = {
     options: collections.map((option) => option.title),
   };
-
-  const filtered = (token) => {
-    if (filter == '' || filter == null)
-      return true;
-    if (Addresses.nameToAddress[filter] == token.asset_contract.address)
-      return true;
-    return false
-  }
 
   return (
     <div className={classes.root}>

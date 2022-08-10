@@ -3,7 +3,6 @@ import { Button, Card, Chip } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { _claimBackNFT } from '../api/market';
 import { _getTokenMetadata, getReservationData } from '../api/getterTezos';
 import { _handleCancelListing } from '../api/marketTezos';
 import { getPositionImage } from "../utils"
