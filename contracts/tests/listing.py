@@ -13,6 +13,7 @@ Getters = sp.io.import_stored_contract('getters')
 OfferStorage = sp.io.import_stored_contract('offerStorage')
 PositionToken = sp.io.import_stored_contract('positionToken')
 Reserve = sp.io.import_stored_contract('reserve')
+ReserveUtils = sp.io.import_stored_contract('reserve_utils')
 
 NULL_ADDRESS = sp.address("tz1Ke2h7sDdakHJQh8WX4Z372du1KChsksyU")
 PLATFORM_FEES = 500000
@@ -53,25 +54,27 @@ def test():
 
     ''' ------------------------- DEPLOYMENT + INIT ----------------------------------- '''
 
-    detailStorage = DetailStorage.DetailStorage(_platformFee = sp.nat(PLATFORM_FEES))
+    detailStorage = DetailStorage.DetailStorage(_platformFee = sp.nat(PLATFORM_FEES), _admin = admin.address)
     scenario += detailStorage
-    itemStorage = ItemStorage.ItemStorage()
+    itemStorage = ItemStorage.ItemStorage(_admin = admin.address)
     scenario += itemStorage
-    listing = Listing.Listing()
+    listing = Listing.Listing(_admin = admin.address)
     scenario += listing
-    market = Market.Market()
+    market = Market.Market(_admin = admin.address)
     scenario += market
-    vault = Vault.Vault()
+    vault = Vault.Vault(_admin = admin.address)
     scenario += vault
-    whitelist = Whitelist.Whitelist()
+    whitelist = Whitelist.Whitelist(_admin = admin.address)
     scenario += whitelist
-    swap = Swap.Swap()
+    swap = Swap.Swap(_admin = admin.address)
     scenario += swap
     getters = Getters.Getters()
     scenario += getters
-    offerStorage = OfferStorage.OfferStorage()
+    offerStorage = OfferStorage.OfferStorage(_admin = admin.address)
     scenario += offerStorage
-    reserve = Reserve.Reserve()
+    reserve = Reserve.Reserve(_admin = admin.address)
+    reserveUtils = ReserveUtils.ReserveUtils(_admin = admin.address)
+    scenario += reserveUtils
     scenario += reserve
     positionToken = PositionToken.PositionToken(
             config = PositionToken.FA2_config(non_fungible = True),
@@ -82,57 +85,67 @@ def test():
 
 
 
-    detailStorage.setWhitelist(whitelist.address)
-    detailStorage.setListing(listing.address)
-    detailStorage.setItemStorage(itemStorage.address)
-    detailStorage.setSwap(swap.address)
-    detailStorage.setReserve(reserve.address)
-    detailStorage.setOfferStorage(offerStorage.address)
+    detailStorage.setWhitelist(whitelist.address).run(sender = admin.address)
+    detailStorage.setListing(listing.address).run(sender = admin.address)
+    detailStorage.setItemStorage(itemStorage.address).run(sender = admin.address)
+    detailStorage.setSwap(swap.address).run(sender = admin.address)
+    detailStorage.setReserve(reserve.address).run(sender = admin.address)
+    detailStorage.setOfferStorage(offerStorage.address).run(sender = admin.address)
+    detailStorage.setReserveUtils(reserveUtils.address).run(sender = admin.address)
 
-    itemStorage.setListing(listing.address)
-    itemStorage.setDetailStorage(detailStorage.address)
-    itemStorage.setSwap(swap.address)
-    itemStorage.setReserve(reserve.address)
+    itemStorage.setListing(listing.address).run(sender = admin.address)
+    itemStorage.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    itemStorage.setSwap(swap.address).run(sender = admin.address)
+    itemStorage.setReserve(reserve.address).run(sender = admin.address)
+    itemStorage.setReserveUtils(reserveUtils.address).run(sender = admin.address)
 
-    listing.setItemStorage(itemStorage.address)
-    listing.setDetailStorage(detailStorage.address)
-    listing.setMarket(market.address)
-    listing.setVault(vault.address)
+    listing.setItemStorage(itemStorage.address).run(sender = admin.address)
+    listing.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    listing.setMarket(market.address).run(sender = admin.address)
+    listing.setVault(vault.address).run(sender = admin.address)
 
-    market.setWhitelist(whitelist.address)
-    market.setListing(listing.address)
-    market.setVault(vault.address)
-    market.setSwap(swap.address)
-    market.setReserve(reserve.address)
+    market.setWhitelist(whitelist.address).run(sender = admin.address)
+    market.setListing(listing.address).run(sender = admin.address)
+    market.setVault(vault.address).run(sender = admin.address)
+    market.setSwap(swap.address).run(sender = admin.address)
+    market.setReserve(reserve.address).run(sender = admin.address)
 
-    vault.setListing(listing.address)
-    vault.setMarket(market.address)
-    vault.setSwap(swap.address)
-    vault.setReserve(reserve.address)
+    vault.setListing(listing.address).run(sender = admin.address)
+    vault.setMarket(market.address).run(sender = admin.address)
+    vault.setSwap(swap.address).run(sender = admin.address)
+    vault.setReserve(reserve.address).run(sender = admin.address)
+    vault.setReserveUtils(reserveUtils.address).run(sender = admin.address)
 
-    whitelist.setDetailStorage(detailStorage.address)
-    whitelist.setMarket(market.address)
+    whitelist.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    whitelist.setMarket(market.address).run(sender = admin.address)
     
-    swap.setMarket(market.address)
-    swap.setVault(vault.address)
-    swap.setItemStorage(itemStorage.address)
-    swap.setDetailStorage(detailStorage.address)
-    swap.setOfferStorage(offerStorage.address)
+    swap.setMarket(market.address).run(sender = admin.address)
+    swap.setVault(vault.address).run(sender = admin.address)
+    swap.setItemStorage(itemStorage.address).run(sender = admin.address)
+    swap.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    swap.setOfferStorage(offerStorage.address).run(sender = admin.address)
 
-    getters.setWhitelist(whitelist.address)
-    getters.setItemStorage(itemStorage.address)
-    getters.setDetailStorage(detailStorage.address)
+    getters.setWhitelist(whitelist.address).run(sender = admin.address)
+    getters.setItemStorage(itemStorage.address).run(sender = admin.address)
+    getters.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    getters.setOfferStorage(offerStorage.address).run(sender = admin.address)
 
-    offerStorage.setSwap(swap.address)
-    offerStorage.setDetailStorage(detailStorage.address)
-    offerStorage.setReserve(reserve.address)
+    offerStorage.setSwap(swap.address).run(sender = admin.address)
+    offerStorage.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    offerStorage.setReserve(reserve.address).run(sender = admin.address)
 
-    reserve.setMarket(market.address)
-    reserve.setItemStorage(itemStorage.address)
-    reserve.setVault(vault.address)
-    reserve.setPositionToken(positionToken.address)
-    reserve.setDetailStorage(detailStorage.address)
-    reserve.setOfferStorage(offerStorage.address)
+    reserve.setMarket(market.address).run(sender = admin.address)
+    reserve.setItemStorage(itemStorage.address).run(sender = admin.address)
+    reserve.setVault(vault.address).run(sender = admin.address)
+    reserve.setPositionToken(positionToken.address).run(sender = admin.address)
+    reserve.setDetailStorage(detailStorage.address).run(sender = admin.address)
+    reserve.setOfferStorage(offerStorage.address).run(sender = admin.address)
+    reserve.setReserveUtils(reserveUtils.address).run(sender = admin.address)
+
+    reserveUtils.setReserve(reserve.address).run(sender = admin.address)
+    reserveUtils.setItemStorage(itemStorage.address).run(sender = admin.address)
+    reserveUtils.setVault(vault.address).run(sender = admin.address)
+    reserveUtils.setDetailStorage(detailStorage.address).run(sender = admin.address)
 
     token_metadata = {
             "decimals"    : "18",               # Mandatory by the spec

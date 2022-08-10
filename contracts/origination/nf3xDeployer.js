@@ -1,5 +1,4 @@
 const { TezosToolkit, MichelsonMap } = require('@taquito/taquito');
-const { bytes2Char, char2Bytes } = require('@taquito/utils')
 const { InMemorySigner } = require('@taquito/signer');
 const fs = require('fs');
 
