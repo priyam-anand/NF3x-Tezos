@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react'
 import { Card, Chip } from '@mui/material';
-import { _getToken } from '../api/getter';
 import { getImageURI } from '../api/getterTezos';
 import { getTezLogo } from '../utils';
 import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";

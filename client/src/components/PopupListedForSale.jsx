@@ -9,7 +9,6 @@ import { useEffect, useState } from 'react';
 import { ReactComponent as DoubleHeaderArrow } from '../SVG/double-headed.svg';
 import Addresses from "../contracts/Contracts.json"
 import { _getTokenMetadata, getImageURI } from "../api/getterTezos";
-import { getTezLogo } from '../utils';
 import TezLogo from "../SVG/TezosLogo_Icon_Blue.png"
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };

@@ -4,9 +4,7 @@ import Select from '@mui/material/Select';
 import FormControl from '@mui/material/FormControl';
 import { IconButton, InputAdornment, InputBase, OutlinedInput, Paper } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { useEffect } from 'react';
 import Util from '../common/Util';
-import { getTezLogo } from "../utils"
 import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };

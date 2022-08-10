@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { makeStyles } from '@mui/styles';
-import { Autocomplete, IconButton, InputBase, Paper, TextField } from '@mui/material';
+import { Autocomplete, IconButton, Paper, TextField } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import WalletViewCard from './WalletViewCard';
 import PopupCardDetail from '../PopupCardDetail';

@@ -7,7 +7,7 @@ import CompareArrowsIcon from '@mui/icons-material/CompareArrows';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { getImageURI } from '../api/getterTezos';
-import { getPositionImage, getTezLogo } from "../utils"
+import { getPositionImage } from "../utils"
 import TezLogo from "../SVG/TezosLogo_Icon_Blue.png";
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };
@@ -83,13 +83,13 @@ const PopupAcceptOffer = ({ token, confirmAcceptOffer, offerPopup, resetOfferPop
                             : null
                     }
                     {
-                        offerPopup.value > 0 ? <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.value}`}</Button> : null
+                        offerPopup.value > 0 ? <Button disableRipple startIcon={<img src={TezLogo} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.value}`}</Button> : null
                     }
                     {
                         offerPopup.reserve ? <>
-                            <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.deposit} XTZ`}</Button>
+                            <Button disableRipple startIcon={<img src={TezLogo} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.deposit} XTZ`}</Button>
                             <span className='t2-text font-bold-20'>+</span>
-                            <Button disableRipple startIcon={<img src={getTezLogo()} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.remainingAmount} XTZ`}</Button>
+                            <Button disableRipple startIcon={<img src={TezLogo} className="eth-img" />} sx={{ height: "30px", padding: "10px 15px !important" }} className={"btn bg-white primary-border b-grey-text font-12"} variant="outlined">{`${offerPopup.remainingAmount} XTZ`}</Button>
                             <span className='t2-text font-bold-20'>{`${offerPopup.duration} Days`}</span>
                         </> : null
                     }

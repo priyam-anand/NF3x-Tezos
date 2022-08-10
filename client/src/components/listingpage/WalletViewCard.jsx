@@ -1,7 +1,5 @@
-import React, { Fragment, useEffect, useState } from 'react'
-import { ArrowForwardIos } from '@mui/icons-material';
-import { Button, Card, Chip } from '@mui/material';
-import axios from "axios";
+import React from 'react'
+import { Card } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { getImageURI } from '../../api/getterTezos';
 

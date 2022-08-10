@@ -141,6 +141,18 @@ export const getOffers = async (token, tokenId) => {
     })
 }
 
+export const getTime = (timeStamp) => {
+    const time = getTimeStamp(timeStamp);
+    var diff = time - Date.now() / 1000;
+    const day = Math.floor(diff / 86400);
+    diff = diff % 86400;
+    const hour = Math.floor(diff / 3600);
+    diff = diff % 3600;
+    const mins = Math.floor(diff / 60);
+    var ret = (day > 0 ? `${day} days ` : '') + (hour > 0 ? `${hour} hours ` : '') + (mins > 0 ? `${mins} mins` : '');
+    return ret;
+}
+
 export const getTimeStamp = (time) => {
     var timeStamp = (new Date(time)).getTime()
     timeStamp /= 1000;

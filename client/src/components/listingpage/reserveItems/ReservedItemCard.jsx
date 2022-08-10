@@ -3,9 +3,7 @@ import { makeStyles } from '@mui/styles';
 import { Button } from '@mui/material';
 import { useSelector, useDispatch } from 'react-redux';
 import WalletViewCard from '../WalletViewCard';
-import { _getToken } from '../../../api/getter';
-import { _getTokenMetadata } from '../../../api/getterTezos';
-import { getReservationData } from '../../../api/getterTezos';
+import { getReservationData, _getTokenMetadata } from '../../../api/getterTezos';
 import { _claimDefaulted, _payRemaining } from '../../../api/marketTezos';
 const useStyles = makeStyles({
     root: {

@@ -1,7 +1,6 @@
 import React from 'react'
 import { Button } from '@mui/material';
 import { getTimeStamp } from '../../../api/getterTezos';
-import { getTezLogo } from '../../../utils';
 import TezLogo from "../../../SVG/TezosLogo_Icon_Blue.png"
 
 const BuyNowPayLaterRow = ({ offerItem, offer, getAddress, cancelBnplOffer, acceptBnplOffer, index, claimRejected }) => {

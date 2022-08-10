@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { ReactComponent as Wallet } from '../../SVG/Wallet.svg';
 import { ReactComponent as BannerCard } from '../../SVG/banner-card.svg';
 import { init, getAccount } from "../../api/tezos";
+import logo from "../../SVG/logo.svg";
 
 const useStyles = makeStyles({
   root: {
@@ -128,7 +129,7 @@ function DashboardHeader() {
     <div style={{ overflow: "hidden" }}>
       <div className={`${classes.root} width-100 layout-home flex-justify align-center`}>
         <div className={classes.logo}>
-          <Link to="/listing"><img src="./img/logo.svg" /></Link>
+          <Link to="/listing"><img src={logo} /></Link>
         </div>
         <Button disableRipple className={"btn bg-primary white-text white-border"} variant="contained" startIcon={<Wallet />} onClick={connectWallet}>
           {typeof account !== 'undefined' ? getAddress(account) : `Connect`}
@@ -142,16 +143,12 @@ function DashboardHeader() {
           <span className='dashboardsubtitle text-color inline-block'>A multi asset swap market place for Fungible and Non-Fungible Tokens (NFTs).</span>
           <div>
             <Button disableRipple className={"btn bg-primary white-text white-border"} variant="contained"><Link to={"/listing"}>Launch app</Link></Button>
-            {/* <Button disableRipple className={"btn-text text-color-500 documentationtxt"} variant="text">Documentation</Button> */}
           </div>
         </div>
         <div className={`${classes.bannerPanel} banner-img`}>
           <div className='relative'>
             <div className='bg-blur'></div>
-            {/* <img className='absolute banner-svg' src='../img/banner-card.png'/> */}
             <BannerCard className='absolute banner-svg' />
-            {/* <Banner1 className='absolute banner-svg' style={{zIndex: 1, left: 0}}/>
-            <Banner2 className='absolute banner-svg' style={{zIndex: 0, left: "100px", top: "-90px"}}/> */}
           </div>
         </div>
       </div>

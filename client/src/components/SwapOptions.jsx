@@ -1,25 +1,15 @@
 import { makeStyles } from '@mui/styles';
-import AddIcon from '@mui/icons-material/Add';
-import { Checkbox, FormControl, Button, Select, MenuItem, FormControlLabel, InputAdornment, OutlinedInput, Chip, Stack, Paper, InputBase, IconButton } from '@mui/material';
+import { Checkbox, Button, Paper, InputBase, IconButton } from '@mui/material';
 import SwapNowOption from './SwapNowOption';
 import ReserveSwapLater from './ReserveSwapLater';
-import InterestedSwap from './InterestedSwap';
 import { pink } from '@mui/material/colors';
 import { alpha, styled } from '@mui/material/styles';
 import Switch from '@mui/material/Switch';
 import { Add, ArrowRightAlt } from '@mui/icons-material';
-import CircularProgress from '@mui/material/CircularProgress';
-import Box from '@mui/material/Box';
-import InputLabel from '@mui/material/InputLabel';
-import { setAccount } from '../redux/web3ConfigSlice';
-import { useSelector, useDispatch } from 'react-redux';
-import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
-import AntSwitch from '../common/AntSwitch';
 import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import InterestedToSwapCard from './InterestedToSwapCard';
-
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React from 'react';
 

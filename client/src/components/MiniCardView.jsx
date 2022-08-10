@@ -1,11 +1,4 @@
-import { Button, Chip } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { DoubleArrowIcon } from './DoubleArrowIcon';
-import { ArrowForwardIos } from '@mui/icons-material';
-import { setMarket, setAccount, setGetter, setWeb3, setNFT } from '../redux/web3ConfigSlice';
-import { useState, useEffect } from "react";
-import { useSelector, useDispatch } from 'react-redux';
-import axios from "axios";
 import { getImageURI } from '../api/getterTezos';
 
 const label = { inputProps: { 'aria-label': 'Checkbox demo' } };

@@ -1,5 +1,4 @@
 import React from 'react';
-import DashboardCommunity from './../components/landingpage/DashboardCommunity';
 import DashboardFooter from './../components/landingpage/DashboardFooter';
 import DashboardHeader from './../components/landingpage/DashboardHeader';
 import DashboardInfo from './../components/landingpage/DashboardInfo';
@@ -10,7 +9,6 @@ function HomePage() {
     <div>
       <DashboardHeader />
       <DashboardTradingOptions />
-      <DashboardCommunity />
       <DashboardInfo />
       <DashboardFooter />
     </div>);
