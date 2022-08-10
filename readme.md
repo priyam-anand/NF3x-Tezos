@@ -1,6 +1,15 @@
-NOTE FOR SHITIZ : KEEP EVERYTHING I HAVE ADDED AT THE END OF THE DOC
+<img width="2108" alt="banner" src="https://user-images.githubusercontent.com/53532851/184037551-16774829-5173-4289-9c2f-c23272c32cda.png">
+<Br>
+<Br>
 
-# 🚀 Deployment
+## NF3 : A multi asset marketplace to swap fungible & non-fungible tokens (NFTS).                                                      
+#### Facilitating peer-to-peer bartering & financing between sellers and buyers.
+
+NF3 is a trading platform dedicated to instant purchases and financing of NFTs bought over the counter various functionalities like listing their non-fungible tokens in exchange for fungible tokens, non-fungible tokens, non-fungible tokens plus fungible tokens, reserve options etc. Buyers can directly swap, create an offer or reserve an NFT and lock in payment parameters & receive an NFT reservation contract in return, settle the balance later and complete the swap. To make the platform more dynamic for buyers and sellers we also allow selling, purchasing and making offers on reserved Items. Users can swap with confidence knowing only approved NFT collections & tokens are permitted to be swapped on the exchange. Buyers can also make NFT collection swap offers with both fungible and/or non-fungible tokens. Or, offer a reserve and swap later contract to all NFTs in a collection.
+
+[![Website Link](https://img.shields.io/badge/Website-Link-FF0083?style=for-the-badge&logo=web&logoColor=white)](https://nf3x-tez.netlify.app/)
+
+## 🚀 Deployment
 
 All the smart contracts for NF3x platform are deployed on `jakartanet` testnet
 
@@ -65,7 +74,7 @@ NOTE : These NFTs are minted using the same token metadata as original NFTs on m
 
 Check in browser on http://localhost:3000/
 
-# 🥂 Team
+## 🥂 Team
 
 <table>
   <tbody><tr>
