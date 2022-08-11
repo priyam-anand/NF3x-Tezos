@@ -1,6 +1,4 @@
-<img width="2108" alt="banner" src="https://user-images.githubusercontent.com/53532851/184037551-16774829-5173-4289-9c2f-c23272c32cda.png">
-<Br>
-<Br>
+<img width="2108" alt="banner" src="https://user-images.githubusercontent.com/53532851/184135640-28539925-1b06-47e8-8aa2-b2b241098336.png">
 
 ## NF3 : A multi asset marketplace to swap fungible & non-fungible tokens (NFTS).                                                      
 #### Facilitating peer-to-peer bartering & financing between sellers and buyers.
