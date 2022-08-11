@@ -7,7 +7,18 @@
 
 NF3 is a trading platform dedicated to instant purchases and financing of NFTs bought over the counter various functionalities like listing their non-fungible tokens in exchange for fungible tokens, non-fungible tokens, non-fungible tokens plus fungible tokens, reserve options etc. Buyers can directly swap, create an offer or reserve an NFT and lock in payment parameters & receive an NFT reservation contract in return, settle the balance later and complete the swap. To make the platform more dynamic for buyers and sellers we also allow selling, purchasing and making offers on reserved Items. Users can swap with confidence knowing only approved NFT collections & tokens are permitted to be swapped on the exchange. Buyers can also make NFT collection swap offers with both fungible and/or non-fungible tokens. Or, offer a reserve and swap later contract to all NFTs in a collection.
 
+In depth technical details for the platform can be found [**here**](https://docs.google.com/document/d/1vOKMy10RoDvYj4eVWqgM9PkCYb639FFh1SiUOcswziQ/edit?usp=sharing)
+
 [![Website Link](https://img.shields.io/badge/Website-Link-FF0083?style=for-the-badge&logo=web&logoColor=white)](https://nf3x-tez.netlify.app/)
+
+## 🔧 Built With
+- Tezos
+- SmartPy
+- Taquito
+- Beacon Wallet
+- tzkt.io
+- ReactJS
+- Material-UI
 
 ## 🚀 Deployment
 
@@ -54,6 +65,7 @@ NOTE : These NFTs are minted using the same token metadata as original NFTs on m
 -   use these files as test NFT and FT contracts and create their own individual contracts following the naming convention used in test files
 -   cd ../tests
 -   every file in this folder is an extensive test file for their respective use cases, copy paste in smartpy ide as independant contract and run
+-   Details of the entire tests suit can be found [**here**](https://docs.google.com/document/d/141I0AZj9HZwbpGhcaKmDdEXhe4gPTlnE_hUvZTQqD4o/edit?usp=sharing)
 
 ##### `Deploy smart contracts`
 
@@ -73,6 +85,10 @@ NOTE : These NFTs are minted using the same token metadata as original NFTs on m
 -   npm run build
 
 Check in browser on http://localhost:3000/
+
+## 🔮 Future Scope of Improvement
+- A detailed document with suggested future improvements can be found [here](https://docs.google.com/document/d/1C07UPDcyRunFrmA5q5dTR4L4JWTXOEDIHjTPuRjzTXU/edit?usp=sharing)
+
 
 ## 🥂 Team
 
